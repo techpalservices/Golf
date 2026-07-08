@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource/playfair-display/400.css";
+@import "@fontsource/playfair-display/500.css";
+@import "@fontsource/playfair-display/600.css";
+@import "@fontsource/playfair-display/700.css";
 
 /* stylelint-disable-next-line at-rule-no-unknown */
 @custom-variant dark (&:is(.dark *));
@@ -36,6 +40,10 @@
   --color-warning: #EAB308;
   --color-error: #EF4444;
   --color-info: #3B82F6;
+
+  /* Fonts */
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
 }
 
 /* Dark Theme */
@@ -69,4 +77,8 @@
   --color-warning: #EAB308;
   --color-error: #EF4444;
   --color-info: #3B82F6;
+}
+
+body {
+    font-family: var(--font-sans);
 }

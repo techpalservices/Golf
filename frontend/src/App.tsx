@@ -11,9 +11,9 @@ function App() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background text-foreground">
       <div className="rounded-lg bg-surface p-8 shadow-lg border border-border">
-        <h1 className="text-3xl font-bold text-primary">TeeTime Executive</h1>
+        <h1 className="text-3xl font-serif text-primary font-bold">TeeTime Executive</h1>
         <p className="mt-2 text-muted-foreground">
-          Theme actuel : <span className="font-semibold">{theme}</span>
+          Theme actuel : <span className="">{theme}</span>
         </p>
       </div>
 

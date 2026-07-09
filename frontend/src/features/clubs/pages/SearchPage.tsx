@@ -76,7 +76,7 @@ export default function SearchPage() {
       <main>
         {/* Search bar section */}
         <section className="border-b border-border bg-surface mt-20">
-          <div className="mx-auto max-w-7xl px-6">
+          <div className="mx-auto max-w-7xl px-1">
             <SearchBar />
           </div>
         </section>

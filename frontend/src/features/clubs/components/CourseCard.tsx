@@ -34,8 +34,6 @@ export default function CourseCard({ course }: CourseCardProps) {
             <span>{course.location}</span>
           </div>
 
-          <p className="text-sm text-muted-foreground">{course.description}</p>
-
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <span>{t('course.courseNumber')} #{course.courseNumber}</span>
             <Separator orientation="vertical" className="h-3" />

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
   const { t } = useTranslation('landing');
-  const year = new Date().getFullYear();
 
   const links = [
     { key: 'footer.links.policy', to: '/about' },
@@ -16,7 +15,7 @@ export default function Footer() {
     <footer className="bg-secondary text-secondary-foreground p-4">
       <div className="mx-auto flex flex-col max-w-7xl gap-6 px-6 py-10">
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row">
-            <img src="/teetime-logo.png" alt="TeeTime Executive" className="h-20 w-auto brightness-0 invert rounded-md" />
+            <img src="/teetime-logo.png" alt="TeeTime Executive" className="h-12 w-auto rounded-md md:h-20" />
 
             <ul className="flex flex-wrap items-center gap-6">
             {links.map((link) => (

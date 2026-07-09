@@ -1,7 +1,7 @@
 {
   "search": {
     "city": "City",
-    "clubName": "Club Name",
+    "clubName": "Club name",
     "timeFrom": "From",
     "timeTo": "To",
     "players": "players",
@@ -14,7 +14,15 @@
     "perPlayer": "player",
     "availableTimes": "Available times",
     "seeMore": "See more",
-    "seeLess": "See less"
+    "seeLess": "See less",
+    "selectTime": "Select a time"
+  },
+  "dialog": {
+    "description": "Description",
+    "details": "Details",
+    "reserve": "Book now",
+    "selectTime": "Select a time",
+    "perPlayer": "/ player"
   },
   "page": {
     "title": "Find your course",

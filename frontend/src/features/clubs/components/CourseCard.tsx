@@ -6,13 +6,19 @@ import type { Course } from '../types';
 
 interface CourseCardProps {
   course: Course;
+  onClick?: () => void;
 }
 
-export default function CourseCard({ course }: CourseCardProps) {
+
+
+export default function CourseCard({ course, onClick }: CourseCardProps) {
   const { t } = useTranslation('clubs');
 
   return (
-    <Card className="overflow-hidden p-0 rounded-sm md:h-full">
+    <Card 
+        className="overflow-hidden p-0 rounded-sm md:h-full"
+        onClick={onClick}
+        >
       <div className="flex flex-col h-full">
         {/* Image */}
         <div className="w-full">

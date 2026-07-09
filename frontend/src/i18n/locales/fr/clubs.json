@@ -14,7 +14,15 @@
     "perPlayer": "joueur",
     "availableTimes": "Horaires disponibles",
     "seeMore": "Voir plus",
-    "seeLess": "Voir moins"
+    "seeLess": "Voir moins",
+    "selectTime": "Choisir un horaire"
+  },
+  "dialog": {
+    "description": "Description",
+    "details": "Détails",
+    "reserve": "Réserver",
+    "selectTime": "Sélectionnez un horaire",
+    "perPlayer": "/ joueur"
   },
   "page": {
     "title": "Trouvez votre parcours",

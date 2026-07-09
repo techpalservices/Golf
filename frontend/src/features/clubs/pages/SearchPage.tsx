@@ -3,6 +3,8 @@ import Footer from '@/components/layout/Footer';
 import SearchBar from '../components/SearchBar';
 import CourseCard from '../components/CourseCard';
 import type { Course } from '../types';
+import CourseDialog from '../components/CourseDialog';
+import { useState } from 'react';
 
 const mockCourses: Course[] = [
   {
@@ -69,6 +71,14 @@ const mockCourses: Course[] = [
 
 export default function SearchPage() {
 
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleCourseClick = (course: Course) => {
+    setSelectedCourse(course);
+    setDialogOpen(true);
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header transparent/>
@@ -86,7 +96,7 @@ export default function SearchPage() {
           <div className="mx-auto max-w-7xl px-6">
             <div className="flex flex-col md:grid md:grid-cols-3 gap-6">
               {mockCourses.map((course) => (
-                <CourseCard key={course.id} course={course} />
+                <CourseCard key={course.id} course={course} onClick={() => handleCourseClick(course)} />
               ))}
             </div>
           </div>
@@ -94,6 +104,14 @@ export default function SearchPage() {
       </main>
 
       <Footer />
+      <CourseDialog
+        course={selectedCourse}
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setSelectedCourse(null);
+        }}
+      />
     </div>
   );
 }

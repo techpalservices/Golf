@@ -9,13 +9,13 @@ export default function Hero() {
     <section className="relative flex min-h-screen items-end justify-start overflow-hidden">
       {/* Video background */}
       <video
-  autoPlay
-  muted
-  loop
-  playsInline
-  className="absolute inset-0 h-full w-full object-cover"
-  style={{ objectPosition: '70% 30%' }}
->
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ objectPosition: '70% 30%' }}
+      >
         <source src="/hero.mp4" type="video/mp4" />
       </video>
 

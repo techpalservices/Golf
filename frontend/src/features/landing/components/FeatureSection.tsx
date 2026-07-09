@@ -1,12 +1,5 @@
 import { Link } from 'react-router-dom';
-
-interface FeatureSectionProps {
-  title: string;
-  text: string;
-  image: string;
-  button: string;
-  reverse?: boolean;
-}
+import type { FeatureSectionProps } from '../types/featureSectionProps.types';
 
 export default function FeatureSection({ title, text, image, button, reverse }: FeatureSectionProps) {
   return (

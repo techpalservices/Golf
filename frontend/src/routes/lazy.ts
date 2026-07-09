@@ -4,6 +4,9 @@ const lazyLanding = () =>
 const lazyPlaceholder = () =>
   import('@/components/shared/PlaceHolder').then((m) => ({ Component: m.default }));
 
+const lazyCrouses = () =>
+  import('@/features/clubs/pages/SearchPage').then((m) => ({ Component: m.default }));
+
 // ─── Public ───
 export const landing = { lazy: lazyLanding };
 export const search = { lazy: lazyPlaceholder };
@@ -49,3 +52,5 @@ export const adminProfile = { lazy: lazyPlaceholder };
 // ─── Errors ───
 export const forbidden = { lazy: lazyPlaceholder };
 export const notFound = { lazy: lazyPlaceholder };
+
+export const courses = { lazy: lazyCrouses };

@@ -9,6 +9,7 @@ export const router = createBrowserRouter([
     path: '/',
     children: [
       { index: true, ...L.landing },
+      { path: 'courses', ...L.courses },
       { path: 'search', ...L.search },
       { path: 'club/:clubId', ...L.clubProfile },
       { path: 'campus', ...L.campus },

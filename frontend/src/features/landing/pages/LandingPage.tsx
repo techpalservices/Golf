@@ -10,7 +10,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header transparent />
 
       <main>
         <Hero />

@@ -1,0 +1,23 @@
+{
+  "search": {
+    "city": "Ville",
+    "clubName": "Nom du club",
+    "timeFrom": "À partir de",
+    "timeTo": "Jusqu'à",
+    "players": "joueurs",
+    "button": "Rechercher"
+  },
+  "course": {
+    "courseNumber": "Parcours",
+    "holes": "trous",
+    "currency": "MAD",
+    "perPlayer": "joueur",
+    "availableTimes": "Horaires disponibles",
+    "seeMore": "Voir plus",
+    "seeLess": "Voir moins"
+  },
+  "page": {
+    "title": "Trouvez votre parcours",
+    "results": "Parcours disponibles"
+  }
+}

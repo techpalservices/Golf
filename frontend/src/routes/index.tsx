@@ -12,6 +12,7 @@ export const router = createBrowserRouter([
       { path: 'reservations', ...L.clubs },
       { path: 'reservations/:clubId', ...L.clubProfile },
       { path: 'sessions/:courseId', ...L.reservations },
+      { path: 'memberships', ...L.memberships },
       { path: 'tournaments', ...L.tournaments },
       { path: 'search', ...L.search },
       { path: 'campus', ...L.campus },

@@ -13,18 +13,34 @@ import frReservations from './locales/fr/reservations.json';
 import enReservations from './locales/en/reservations.json';
 import frTournaments from './locales/fr/tournaments.json';
 import enTournaments from './locales/en/tournaments.json';
+import frMemberships from './locales/fr/memberships.json';
+import enMemberships from './locales/en/memberships.json';
 
 i18n
   .use(LanguageDetector)       // Detect user's language automatically
   .use(initReactI18next)       // Connect i18next to React
   .init({
     resources: {
-      fr: { common: frCommon, landing: frLanding, clubs: frClubs, reservations: frReservations, tournaments: frTournaments },  // French translations
-      en: { common: enCommon, landing: enLanding, clubs: enClubs, reservations: enReservations, tournaments: enTournaments },
+      fr: { 
+        common: frCommon, 
+        landing: frLanding, 
+        clubs: frClubs, 
+        reservations: frReservations, 
+        tournaments: frTournaments,
+        memberships: frMemberships,
+      },  // French translations
+      en: { 
+        common: enCommon, 
+        landing: enLanding, 
+        clubs: enClubs, 
+        reservations: enReservations, 
+        tournaments: enTournaments,
+        memberships: enMemberships,
+      },
     },
     fallbackLng: 'fr',         // If a key is missing, show French
     defaultNS: 'common',       // Default namespace (so we don't write t('common:hello'))
-    ns: ['common', 'landing', 'clubs', 'reservations', 'tournaments'],  // Namespaces for different parts of the app
+    ns: ['common', 'landing', 'clubs', 'reservations', 'tournaments', 'memberships'],  // Namespaces for different parts of the app
     interpolation: {
       escapeValue: false,      // React already escapes, no need for i18next to do it
     },

@@ -1,0 +1,47 @@
+{
+  "search": {
+    "offerName": "Nom de l'offre",
+    "offerNamePlaceholder": "Ex : Pass Premium",
+    "clubName": "Nom du club",
+    "clubNamePlaceholder": "Ex : Royal Golf",
+    "filter": "Filtrer",
+    "apply": "Appliquer",
+    "button": "Rechercher",
+    "location": "Ville",
+    "locationPlaceholder": "Ex : Marrakech",
+    "type": "Type",
+    "typePlaceholder": "Tous les types"
+  },
+  "page": {
+    "title": "Adhésions",
+    "results": "Offres disponibles"
+  },
+  "item": {
+    "club": "Club",
+    "location": "Lieu",
+    "type": "Type",
+    "price": "Prix",
+    "perMonth": "/ mois",
+    "perYear": "/ an"
+  },
+  "type": {
+    "MONTHLY": "Mensuel",
+    "YEARLY": "Annuel",
+    "VIP": "VIP"
+  },
+  "dialog": {
+    "description": "Description",
+    "details": "Détails",
+    "benefits": "Avantages",
+    "club": "Club",
+    "location": "Lieu",
+    "type": "Type",
+    "price": "Prix",
+    "duration": "Durée",
+    "subscribe": "S'abonner"
+  },
+  "notification": {
+    "success": "Demande d'abonnement envoyée",
+    "successDesc": "Votre demande a été envoyée. Veuillez attendre la confirmation du club."
+  }
+}

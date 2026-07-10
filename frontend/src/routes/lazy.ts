@@ -16,6 +16,9 @@ const lazyReservations = () =>
 const lazyTournaments = () =>
   import('@/features/tournaments/pages/TournamentsPage').then((m) => ({ Component: m.default }));
 
+const lazyMemberships = () =>
+  import('@/features/memberships/pages/MembershipsPage').then((m) => ({ Component: m.default }));
+
 // ─── Public ───
 export const landing = { lazy: lazyLanding };
 export const clubs = { lazy: lazyClubs };
@@ -65,3 +68,5 @@ export const forbidden = { lazy: lazyPlaceholder };
 export const notFound = { lazy: lazyPlaceholder };
 
 export const tournaments = { lazy: lazyTournaments };
+
+export const memberships = { lazy: lazyMemberships };

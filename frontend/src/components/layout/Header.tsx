@@ -9,7 +9,7 @@ export default function Header({ transparent = false }: { transparent?: boolean 
 
   const navItems = [
     { key: 'nav.Reservations', to: '/reservations' },
-    { key: 'nav.Memberships', to: '/search' },
+    { key: 'nav.Memberships', to: '/memberships' },
     { key: 'nav.Tournaments', to: '/tournaments' },
     { key: 'nav.shop', to: '/shop' },
   ];

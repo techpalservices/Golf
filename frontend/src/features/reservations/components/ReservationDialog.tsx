@@ -47,7 +47,7 @@ export default function ReservationDialog({
     onOpenChange(false);
     setStep('select');
     setSlotCount(1);
-    navigate(`/clubs`);
+    navigate(`/reservations`);
   };
 
   const handleClose = (open: boolean) => {
@@ -179,7 +179,7 @@ export default function ReservationDialog({
   return (
     <Drawer open={open} onOpenChange={handleClose}>
       <DrawerContent className="max-h-[85vh]">
-        <div className="overflow-y-auto p-5">
+        <div className="overflow-y-auto p-5 bg-white">
           {allContent}
         </div>
       </DrawerContent>

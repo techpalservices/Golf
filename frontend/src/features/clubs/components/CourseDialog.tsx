@@ -97,7 +97,7 @@ export default function CourseDialog({ course, open, onOpenChange }: CourseDialo
                 className="w-full"
                 onClick={() => {
                   onOpenChange(false);
-                  navigate(`/reservations/${course.id}`);
+                  navigate(`/sessions/${course.id}`);
                 }}
               >
                 {t('dialog.reserve')}

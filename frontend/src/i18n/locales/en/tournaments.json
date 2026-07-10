@@ -1,0 +1,43 @@
+{
+  "search": {
+    "name": "Tournament name",
+    "namePlaceholder": "Ex: Marrakech Open",
+    "filter": "Filter",
+    "apply": "Apply",
+    "button": "Search",
+    "date": "Date",
+    "datePlaceholder": "Pick a date",
+    "location": "City",
+    "locationPlaceholder": "Ex: Marrakech",
+    "status": "Status",
+    "statusPlaceholder": "All statuses"
+  },
+  "status": {
+    "upcoming": "Upcoming",
+    "ongoing": "Ongoing",
+    "completed": "Completed"
+  },
+  "card": {
+    "date": "Date",
+    "location": "Location",
+    "club": "Club",
+    "entryFee": "Entry fee",
+    "participants": "Participants",
+    "viewDetails": "View details"
+  },
+  "dialog": {
+    "description": "Description",
+    "details": "Details",
+    "date": "Date",
+    "location": "Location",
+    "club": "Club",
+    "entryFee": "Entry fee",
+    "participants": "Participants",
+    "status": "Status",
+    "register": "Register"
+  },
+  "page": {
+    "title": "Tournaments",
+    "results": "Available tournaments"
+  }
+}

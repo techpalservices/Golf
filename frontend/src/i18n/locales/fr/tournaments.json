@@ -1,0 +1,43 @@
+{
+  "search": {
+    "name": "Nom du tournoi",
+    "namePlaceholder": "Ex : Open de Marrakech",
+    "filter": "Filtrer",
+    "apply": "Appliquer",
+    "button": "Rechercher",
+    "date": "Date",
+    "datePlaceholder": "Choisir une date",
+    "location": "Ville",
+    "locationPlaceholder": "Ex : Marrakech",
+    "status": "Statut",
+    "statusPlaceholder": "Tous les statuts"
+  },
+  "status": {
+    "upcoming": "À venir",
+    "ongoing": "En cours",
+    "completed": "Terminé"
+  },
+  "card": {
+    "date": "Date",
+    "location": "Lieu",
+    "club": "Club",
+    "entryFee": "Inscription",
+    "participants": "Participants",
+    "viewDetails": "Voir détails"
+  },
+  "dialog": {
+    "description": "Description",
+    "details": "Détails",
+    "date": "Date",
+    "location": "Lieu",
+    "club": "Club",
+    "entryFee": "Frais d'inscription",
+    "participants": "Participants",
+    "status": "Statut",
+    "register": "S'inscrire"
+  },
+  "page": {
+    "title": "Tournois",
+    "results": "Tournois disponibles"
+  }
+}

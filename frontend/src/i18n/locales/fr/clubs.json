@@ -1,11 +1,22 @@
 {
   "search": {
     "city": "Ville",
+    "cityPlaceholder": "Ex : Marrakech",
     "clubName": "Nom du club",
+    "clubNamePlaceholder": "Ex : Royal Golf",
+    "date": "Date",
+    "datePlaceholder": "Choisir une date",
     "timeFrom": "À partir de",
+    "timeFromPlaceholder": "Ex : 08:00",
     "timeTo": "Jusqu'à",
-    "players": "joueurs",
-    "button": "Rechercher"
+    "timeToPlaceholder": "Ex : 12:00",
+    "players": "Joueurs",
+    "playersPlaceholder": "Ex : 2 joueurs",
+    "holes": "Trous",
+    "holesPlaceholder": "Ex : 18 trous",
+    "button": "Rechercher",
+    "filter": "Filtrer",
+    "apply": "Appliquer"
   },
   "course": {
     "courseNumber": "Parcours",
@@ -14,8 +25,7 @@
     "perPlayer": "joueur",
     "availableTimes": "Horaires disponibles",
     "seeMore": "Voir plus",
-    "seeLess": "Voir moins",
-    "selectTime": "Choisir un horaire"
+    "seeLess": "Voir moins"
   },
   "dialog": {
     "description": "Description",
@@ -24,8 +34,13 @@
     "selectTime": "Sélectionnez un horaire",
     "perPlayer": "/ joueur"
   },
+  "club": {
+    "courses": "Parcours",
+    "viewCourses": "Voir les parcours",
+    "back": "Retour"
+  },
   "page": {
-    "title": "Trouvez votre parcours",
-    "results": "Parcours disponibles"
+    "title": "Trouvez votre club",
+    "results": "Clubs disponibles"
   }
 }

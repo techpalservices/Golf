@@ -1,0 +1,36 @@
+{
+  "page": {
+    "title": "Réservation",
+    "selectDate": "Sélectionnez une date",
+    "datePlaceholder": "Choisir une date",
+    "confirm": "Confirmer",
+    "availableSlots": "Créneaux disponibles",
+    "noSlots": "Aucun créneau disponible pour cette date"
+  },
+  "slot": {
+    "available": "Disponible",
+    "full": "Complet",
+    "places": "places"
+  },
+  "dialog": {
+    "title": "Réserver un créneau",
+    "selectSlots": "Nombre de places",
+    "slots": "place(s)",
+    "reserve": "Réserver",
+    "summary": "Résumé de la réservation",
+    "course": "Parcours",
+    "date": "Date",
+    "time": "Heure",
+    "places": "Places",
+    "price": "Prix",
+    "total": "Total",
+    "confirm": "Confirmer la réservation",
+    "perPlayer": "/ joueur"
+  },
+  "notification": {
+    "success": "Demande de réservation envoyée",
+    "successDesc": "Votre demande a été envoyée. Veuillez attendre la confirmation du club.",
+    "error": "Erreur",
+    "errorDesc": "Une erreur est survenue. Veuillez réessayer."
+  }
+}

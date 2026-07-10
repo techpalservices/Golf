@@ -1,7 +1,6 @@
 export interface Course {
   id: string;
   name: string;
-  location: string;
   description: string;
   courseNumber: number;
   holesCount: number;
@@ -9,6 +8,16 @@ export interface Course {
   price: number;
   image: string;
   availableTimes: string[];
+}
+
+export interface Club {
+  id: string;
+  name: string;
+  location: string;
+  description: string;
+  logo: string;
+  coverImage: string;
+  courses: Course[];
 }
 
 export interface SearchFilters {

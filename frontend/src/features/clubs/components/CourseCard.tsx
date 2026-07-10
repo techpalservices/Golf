@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { MapPin } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import type { Course } from '../types';
@@ -34,11 +33,6 @@ export default function CourseCard({ course, onClick }: CourseCardProps) {
           <h3 className="font-serif text-xl font-bold text-secondary md:text-2xl">
             {course.name}
           </h3>
-
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <MapPin size={14} />
-            <span>{course.location}</span>
-          </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <span>{t('course.courseNumber')} #{course.courseNumber}</span>

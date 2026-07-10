@@ -1,102 +1,114 @@
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import SearchBar from '../components/SearchBar';
-import CourseCard from '../components/CourseCard';
-import type { Course } from '../types';
-import CourseDialog from '../components/CourseDialog';
-import { useState } from 'react';
+import ClubCard from '../components/ClubCard';
+import type { Club } from '../types';
 
-const mockCourses: Course[] = [
+const mockClubs: Club[] = [
   {
     id: '1',
     name: 'Royal Golf de Marrakech',
     location: 'Marrakech',
-    description: 'Un parcours légendaire au cœur de la palmeraie, conçu par Arnaud Massy en 1920.',
-    courseNumber: 3,
-    holesCount: 18,
-    date: '15/07/2026',
-    price: 500,
-    image: '/club 1.png',
-    availableTimes: ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00'],
+    description: 'Un club légendaire au cœur de la palmeraie, fondé en 1920.',
+    logo: '/teetime-logo.png',
+    coverImage: '/club 1.png',
+    courses: [
+      {
+        id: '1-1',
+        name: 'Parcours Massy',
+        description: 'Le parcours historique 18 trous conçu par Arnaud Massy.',
+        courseNumber: 1,
+        holesCount: 18,
+        date: '15/07/2026',
+        price: 500,
+        image: '/section1.png',
+        availableTimes: ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00'],
+      },
+      {
+        id: '1-2',
+        name: 'Parcours Palmeraie',
+        description: 'Un parcours moderne traversant la palmeraie.',
+        courseNumber: 2,
+        holesCount: 9,
+        date: '15/07/2026',
+        price: 300,
+        image: '/section2.png',
+        availableTimes: ['07:00', '08:00', '09:00'],
+      },
+    ],
   },
   {
     id: '2',
     name: "Golf d'Anfa",
     location: 'Casablanca',
-    description: "Un parcours urbain de 9 trous avec une vue imprenable sur l'océan Atlantique.",
-    courseNumber: 7,
-    holesCount: 9,
-    date: '16/07/2026',
-    price: 300,
-    image: '/section2.png',
-    availableTimes: ['07:00', '08:00', '09:00'],
+    description: "Un club urbain avec une vue imprenable sur l'océan Atlantique.",
+    logo: '/teetime-logo.png',
+    coverImage: '/section2.png',
+    courses: [
+      {
+        id: '2-1',
+        name: "Parcours Atlantique",
+        description: "Un parcours 9 trous bordant l'océan.",
+        courseNumber: 1,
+        holesCount: 9,
+        date: '16/07/2026',
+        price: 300,
+        image: '/section2.png',
+        availableTimes: ['07:00', '08:00', '09:00'],
+      },
+    ],
   },
   {
     id: '3',
     name: 'Golf du Palais Royal',
     location: 'Agadir',
-    description: "Un parcours de championnat bordant l'océan, offrant un défi technique et des vues spectaculaires.",
-    courseNumber: 12,
-    holesCount: 18,
-    date: '17/07/2026',
-    price: 450,
-    image: '/club2.png',
-    availableTimes: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '14:00', '15:00'],
-  },
-  {
-    id: '3',
-    name: 'Golf du Palais Royal',
-    location: 'Agadir',
-    description: "Un parcours de championnat bordant l'océan, offrant un défi technique et des vues spectaculaires.",
-    courseNumber: 12,
-    holesCount: 18,
-    date: '17/07/2026',
-    price: 450,
-    image: '/club2.png',
-    availableTimes: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '14:00', '15:00'],
-  },
-  {
-    id: '3',
-    name: 'Golf du Palais Royal',
-    location: 'Agadir',
-    description: "Un parcours de championnat bordant l'océan, offrant un défi technique et des vues spectaculaires.",
-    courseNumber: 12,
-    holesCount: 18,
-    date: '17/07/2026',
-    price: 450,
-    image: '/club2.png',
-    availableTimes: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '14:00', '15:00'],
+    description: "Un club de championnat offrant un défi technique et des vues spectaculaires.",
+    logo: '/teetime-logo.png',
+    coverImage: '/club2.png',
+    courses: [
+      {
+        id: '3-1',
+        name: 'Parcours Royal',
+        description: "Le parcours principal 18 trous, classé parmi les meilleurs d'Afrique.",
+        courseNumber: 1,
+        holesCount: 18,
+        date: '17/07/2026',
+        price: 450,
+        image: '/section3.png',
+        availableTimes: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '14:00', '15:00'],
+      },
+      {
+        id: '3-2',
+        name: 'Parcours Ocean',
+        description: "Un parcours 18 trous longeant la côte.",
+        courseNumber: 2,
+        holesCount: 18,
+        date: '17/07/2026',
+        price: 400,
+        image: '/section1.png',
+        availableTimes: ['06:00', '07:00', '08:00', '09:00'],
+      },
+    ],
   },
 ];
 
 export default function SearchPage() {
-
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  const handleCourseClick = (course: Course) => {
-    setSelectedCourse(course);
-    setDialogOpen(true);
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      <Header transparent/>
+      <Header transparent />
 
       <main>
-        {/* Search bar section */}
         <section className="border-b border-border bg-surface mt-20">
-          <div className="mx-auto max-w-7xl px-1">
+          <div className="mx-auto max-w-7xl px-6">
             <SearchBar />
           </div>
         </section>
 
-        {/* Course list */}
         <section className="py-8">
           <div className="mx-auto max-w-7xl px-6">
-            <div className="flex flex-col md:grid md:grid-cols-3 gap-6">
-              {mockCourses.map((course) => (
-                <CourseCard key={course.id} course={course} onClick={() => handleCourseClick(course)} />
+            <div className="flex flex-col md:grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {mockClubs.map((club) => (
+                <ClubCard key={club.id} club={club} />
               ))}
             </div>
           </div>
@@ -104,14 +116,6 @@ export default function SearchPage() {
       </main>
 
       <Footer />
-      <CourseDialog
-        course={selectedCourse}
-        open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) setSelectedCourse(null);
-        }}
-      />
     </div>
   );
 }

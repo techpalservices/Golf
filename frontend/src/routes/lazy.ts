@@ -4,13 +4,21 @@ const lazyLanding = () =>
 const lazyPlaceholder = () =>
   import('@/components/shared/PlaceHolder').then((m) => ({ Component: m.default }));
 
-const lazyCrouses = () =>
+const lazyClubs = () =>
   import('@/features/clubs/pages/SearchPage').then((m) => ({ Component: m.default }));
+
+const lazyClubDetail = () =>
+  import('@/features/clubs/pages/ClubDetailsPage').then((m) => ({ Component: m.default }));
+
+const lazyReservations = () =>
+  import('@/features/reservations/pages/ReservationPage').then((m) => ({ Component: m.default }));
 
 // ─── Public ───
 export const landing = { lazy: lazyLanding };
+export const clubs = { lazy: lazyClubs };
+export const clubProfile = { lazy: lazyClubDetail };
+export const reservations = { lazy: lazyReservations };
 export const search = { lazy: lazyPlaceholder };
-export const clubProfile = { lazy: lazyPlaceholder };
 export const campus = { lazy: lazyPlaceholder };
 export const campusDetail = { lazy: lazyPlaceholder };
 export const shop = { lazy: lazyPlaceholder };
@@ -52,5 +60,3 @@ export const adminProfile = { lazy: lazyPlaceholder };
 // ─── Errors ───
 export const forbidden = { lazy: lazyPlaceholder };
 export const notFound = { lazy: lazyPlaceholder };
-
-export const courses = { lazy: lazyCrouses };

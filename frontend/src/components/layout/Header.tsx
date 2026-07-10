@@ -8,7 +8,7 @@ export default function Header({ transparent = false }: { transparent?: boolean 
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { key: 'nav.Courses', to: '/courses' },
+    { key: 'nav.Reservations', to: '/reservations' },
     { key: 'nav.Memberships', to: '/search' },
     { key: 'nav.Tournaments', to: '/campus' },
     { key: 'nav.shop', to: '/shop' },

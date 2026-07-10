@@ -1,0 +1,36 @@
+{
+  "page": {
+    "title": "Reservation",
+    "selectDate": "Select a date",
+    "datePlaceholder": "Pick a date",
+    "confirm": "Confirm",
+    "availableSlots": "Available slots",
+    "noSlots": "No slots available for this date"
+  },
+  "slot": {
+    "available": "Available",
+    "full": "Full",
+    "places": "places"
+  },
+  "dialog": {
+    "title": "Book a slot",
+    "selectSlots": "Number of places",
+    "slots": "place(s)",
+    "reserve": "Reserve",
+    "summary": "Reservation summary",
+    "course": "Course",
+    "date": "Date",
+    "time": "Time",
+    "places": "Places",
+    "price": "Price",
+    "total": "Total",
+    "confirm": "Confirm reservation",
+    "perPlayer": "/ player"
+  },
+  "notification": {
+    "success": "Reservation request sent",
+    "successDesc": "Your request has been sent. Please wait for the club's confirmation.",
+    "error": "Error",
+    "errorDesc": "An error occurred. Please try again."
+  }
+}

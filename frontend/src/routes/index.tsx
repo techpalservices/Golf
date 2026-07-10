@@ -9,9 +9,10 @@ export const router = createBrowserRouter([
     path: '/',
     children: [
       { index: true, ...L.landing },
-      { path: 'courses', ...L.courses },
+      { path: 'reservations', ...L.clubs },
+      { path: 'reservations/:clubId', ...L.clubProfile },
+      { path: 'sessions/:courseId', ...L.reservations },
       { path: 'search', ...L.search },
-      { path: 'club/:clubId', ...L.clubProfile },
       { path: 'campus', ...L.campus },
       { path: 'campus/:packageId', ...L.campusDetail },
       { path: 'shop', ...L.shop },

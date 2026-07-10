@@ -19,6 +19,12 @@ const lazyTournaments = () =>
 const lazyMemberships = () =>
   import('@/features/memberships/pages/MembershipsPage').then((m) => ({ Component: m.default }));
 
+const lazyLogin = () =>
+  import('@/features/auth/pages/LoginPage').then((m) => ({ Component: m.default }));
+
+const lazyRegister = () =>
+  import('@/features/auth/pages/RegisterPage').then((m) => ({ Component: m.default }));
+
 // ─── Public ───
 export const landing = { lazy: lazyLanding };
 export const clubs = { lazy: lazyClubs };
@@ -29,8 +35,8 @@ export const campus = { lazy: lazyPlaceholder };
 export const campusDetail = { lazy: lazyPlaceholder };
 export const shop = { lazy: lazyPlaceholder };
 export const shopDetail = { lazy: lazyPlaceholder };
-export const login = { lazy: lazyPlaceholder };
-export const register = { lazy: lazyPlaceholder };
+export const login = { lazy: lazyLogin };
+export const register = { lazy: lazyRegister };
 export const forgotPassword = { lazy: lazyPlaceholder };
 export const resetPassword = { lazy: lazyPlaceholder };
 export const verifyEmail = { lazy: lazyPlaceholder };

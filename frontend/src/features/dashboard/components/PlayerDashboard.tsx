@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Calendar, Building2, Trophy, Clock, Users, ChevronRight, MapPin } from 'lucide-react';
+import { Calendar, Building2, Trophy, Clock, ChevronRight, MapPin } from 'lucide-react';
 import KpiCard from '@/components/shared/KpiCard';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

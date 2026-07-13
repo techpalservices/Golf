@@ -93,7 +93,36 @@
       "past": "Past",
       "cancelled": "Cancelled"
     },
-    "empty": "No reservations"
+    "empty": "No reservations",
+    "search": "Search",
+    "filter": "Filter",
+    "apply": "Apply",
+    "clubName": "Club",
+    "clubNamePlaceholder": "Ex: Royal Golf",
+    "date": "Date",
+    "datePlaceholder": "Pick a date",
+    "status": "Status",
+    "statusPlaceholder": "All statuses",
+    "item": {
+      "course": "Course",
+      "date": "Date",
+      "time": "Time",
+      "players": "Players",
+      "status": "Status"
+    },
+    "dialog": {
+      "details": "Details",
+      "description": "Description",
+      "club": "Club",
+      "course": "Course",
+      "date": "Date",
+      "time": "Time",
+      "players": "Players",
+      "price": "Price",
+      "status": "Status",
+      "cancel": "Cancel reservation",
+      "download": "Download receipt"
+    }
   },
   "clubs": {
     "myClubs": "My clubs",

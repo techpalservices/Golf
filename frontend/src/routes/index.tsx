@@ -34,7 +34,7 @@ export const router = createBrowserRouter([
       {
         Component: AppLayout,
         children: [
-          { path: 'reservations', ...L.myReservations },
+          { path: 'my-reservations', ...L.myReservations },
           { path: 'clubs', ...L.myClubs },
           { path: 'orders', ...L.myOrders },
           { path: 'campus-bookings', ...L.myCampus },

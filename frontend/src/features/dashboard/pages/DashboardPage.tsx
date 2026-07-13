@@ -17,11 +17,14 @@ function DashboardSpinner() {
 export default function DashboardPage() {
   const role = useAuthStore((s) => s.user?.role);
 
-  return (
-    <Suspense fallback={<DashboardSpinner />}>
-      {role === 'MANAGER' && <ManagerDashboard />}
-      {role === 'ADMIN' && <AdminDashboard />}
-      {role === 'PLAYER' && <PlayerDashboard />}
-    </Suspense>
-  );
+  // return (
+  //   <Suspense fallback={<DashboardSpinner />}>
+  //     {role === 'MANAGER' && <ManagerDashboard />}
+  //     {role === 'ADMIN' && <AdminDashboard />}
+  //     {role === 'PLAYER' && <PlayerDashboard />}
+  //   </Suspense>
+  // );
+
+  // used just in the dev mode, for testing
+  return <PlayerDashboard />;
 }

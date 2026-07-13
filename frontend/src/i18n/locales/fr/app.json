@@ -34,10 +34,22 @@
       "monthlyRevenue": "Revenus mensuels"
     },
     "player": {
-      "nextTeeTime": "Prochain départ",
-      "recentReservations": "Réservations récentes",
-      "myClubs": "Mes clubs",
-      "invitations": "Invitations"
+    "nextTeeTime": "Prochain départ",
+    "recentReservations": "Dernières réservations",
+    "myClubs": "Mes clubs",
+    "invitations": "Invitations",
+    "nextReservation": "Prochaine réservation",
+    "noUpcoming": "Aucune réservation à venir",
+    "viewAll": "Voir tout",
+    "manage": "Gérer",
+    "reservation": {
+        "club": "Club",
+        "course": "Parcours",
+        "date": "Date",
+        "time": "Heure",
+        "players": "Joueurs",
+        "status": "Statut"
+        }
     },
     "manager": {
       "pendingActions": "Actions en attente",
@@ -53,7 +65,14 @@
   "notifications": {
     "title": "Notifications",
     "markAllRead": "Tout marquer comme lu",
-    "empty": "Aucune notification"
+    "empty": "Aucune notification",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "earlier": "Plus ancien",
+    "viewAll": "Voir tout",
+    "minutesAgo": "il y a {{count}} min",
+    "hoursAgo": "il y a {{count}} h",
+    "daysAgo": "il y a {{count}} j"
   },
   "profile": {
     "title": "Profil & paramètres",

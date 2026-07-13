@@ -99,8 +99,67 @@
         }
     },
     "admin": {
-      "activityLog": "Activity log",
-      "clubPerformance": "Club performance"
+        "kpis": {
+            "totalUsers": "Total Users",
+            "totalClubs": "Total Clubs",
+            "totalReservations": "Reservations (30d)",
+            "pendingApprovals": "Pending Approvals",
+            "activeTournaments": "Active Tournaments",
+            "revenue": "Revenue (30d)"
+        },
+        "charts": {
+            "usersGrowth": "Users Growth (12 months)",
+            "reservations": "Reservations (30 days)",
+            "topClubs": "Top 10 Clubs by Reservations",
+            "attendance": "Platform Attendance",
+            "players": "Players",
+            "managers": "Managers",
+            "influencers": "Influencers"
+        },
+        "pendingActions": {
+            "title": "Pending Actions",
+            "approve": "Approve",
+            "reject": "Reject",
+            "viewAll": "View all",
+            "club": "Club",
+            "user": "User",
+            "tournament": "Tournament",
+            "membership": "Membership"
+        },
+        "activityLog": {
+            "title": "Activity Log",
+            "viewAll": "View all",
+            "clubApproved": "Club approved",
+            "userRegistered": "New user",
+            "newReservations": "New reservations",
+            "userSuspended": "User suspended",
+            "tournamentStarted": "Tournament started",
+            "clubSubmitted": "New club submitted",
+            "by": "by"
+        },
+        "clubTable": {
+            "title": "Club Performance",
+            "club": "Club",
+            "city": "City",
+            "manager": "Manager",
+            "members": "Members",
+            "reservations": "Reservations (30d)",
+            "utilization": "Utilization",
+            "revenue": "Revenue (30d)",
+            "status": "Status",
+            "published": "Published",
+            "draft": "Draft",
+            "unassigned": "Unassigned",
+            "filterCity": "City",
+            "filterStatus": "Status",
+            "filterManager": "Manager",
+            "all": "All",
+            "assigned": "Assigned",
+            "unassignedLabel": "Unassigned",
+            "prev": "Previous",
+            "next": "Next",
+            "page": "Page {{current}} of {{total}}"
+        }
     }
   },
   "notifications": {

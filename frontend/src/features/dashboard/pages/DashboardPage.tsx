@@ -4,8 +4,8 @@ import { lazy } from 'react';
 
 
 // const PlayerDashboard = lazy(() => import('../components/PlayerDashboard'));
-const ManagerDashboard = lazy(() => import('../components/ManagerDashboard'));
-// const AdminDashboard = lazy(() => import('../components/AdminDashboard'));
+// const ManagerDashboard = lazy(() => import('../components/ManagerDashboard'));
+const AdminDashboard = lazy(() => import('../components/AdminDashboard'));
 
 // function DashboardSpinner() {
 //   return (
@@ -27,5 +27,5 @@ export default function DashboardPage() {
   // );
 
   // used just in the dev mode, for testing
-  return <ManagerDashboard />;
+  return <AdminDashboard />;
 }

@@ -99,8 +99,67 @@
         }
     },
     "admin": {
-      "activityLog": "Journal d'activité",
-      "clubPerformance": "Performance des clubs"
+        "kpis": {
+            "totalUsers": "Utilisateurs Totaux",
+            "totalClubs": "Clubs Totaux",
+            "totalReservations": "Réservations (30j)",
+            "pendingApprovals": "Approbations en Attente",
+            "activeTournaments": "Tournois Actifs",
+            "revenue": "Revenu (30j)"
+        },
+        "charts": {
+            "usersGrowth": "Croissance Utilisateurs (12 mois)",
+            "reservations": "Réservations (30 jours)",
+            "topClubs": "Top 10 Clubs par Réservations",
+            "attendance": "Fréquentation Plateforme",
+            "players": "Joueurs",
+            "managers": "Gestionnaires",
+            "influencers": "Influenceurs"
+        },
+        "pendingActions": {
+            "title": "Actions en attente",
+            "approve": "Approuver",
+            "reject": "Rejeter",
+            "viewAll": "Voir tout",
+            "club": "Club",
+            "user": "Utilisateur",
+            "tournament": "Tournoi",
+            "membership": "Adhésion"
+        },
+        "activityLog": {
+            "title": "Journal d'activité",
+            "viewAll": "Voir tout",
+            "clubApproved": "Club approuvé",
+            "userRegistered": "Nouvel utilisateur",
+            "newReservations": "Nouvelles réservations",
+            "userSuspended": "Utilisateur suspendu",
+            "tournamentStarted": "Tournoi démarré",
+            "clubSubmitted": "Nouveau club soumis",
+            "by": "par"
+        },
+        "clubTable": {
+            "title": "Performance des Clubs",
+            "club": "Club",
+            "city": "Ville",
+            "manager": "Gestionnaire",
+            "members": "Membres",
+            "reservations": "Réservations (30j)",
+            "utilization": "Occupation",
+            "revenue": "Revenu (30j)",
+            "status": "Statut",
+            "published": "Publié",
+            "draft": "Brouillon",
+            "unassigned": "Non assigné",
+            "filterCity": "Ville",
+            "filterStatus": "Statut",
+            "filterManager": "Gestionnaire",
+            "all": "Tous",
+            "assigned": "Assigné",
+            "unassignedLabel": "Non assigné",
+            "prev": "Précédent",
+            "next": "Suivant",
+            "page": "Page {{current}} sur {{total}}"
+        }
     }
   },
   "notifications": {

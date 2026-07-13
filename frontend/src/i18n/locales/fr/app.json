@@ -16,7 +16,8 @@
     "shopManagement": "Gestion boutique",
     "notifications": "Notifications",
     "profile": "Profil",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "more": "Plus"
   },
   "dashboard": {
     "welcome": "Bienvenue, {{name}}",

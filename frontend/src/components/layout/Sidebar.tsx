@@ -24,40 +24,46 @@ export default function Sidebar({ items }: SidebarProps) {
   };
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-secondary">
+    <aside className="group fixed inset-y-0 left-0 z-40 hidden w-16 flex-col border-r border-border bg-secondary transition-all duration-300 hover:w-64 md:flex">
       {/* Logo */}
-      <div className="flex h-16 items-center justify-center border-b border-secondary-hover">
-        <img src="/teetime-logo.png" alt="TeeTime Executive" className="h-8 w-auto brightness-0 invert" />
+      <div className="flex h-16 items-center justify-center overflow-hidden border-b border-secondary-hover">
+        <img src="/teetime-logo.png" alt="TeeTime Executive" className="h-8 w-auto rounded-sm transition-all duration-300 group-hover:h-10" />
       </div>
 
       {/* Nav items */}
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-4">
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-2 ">
         {items.map((item) => (
           <NavLink
             key={item.key}
             to={item.to}
+            title={t(item.key)}
             className={({ isActive }) =>
-              `flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+              `flex items-center justify-center gap-0 rounded-md px-3 py-2.5 text-sm font-medium transition-all duration-300 group-hover:justify-start group-hover:gap-3 ${
                 isActive
                   ? 'bg-primary text-primary-foreground'
                   : 'text-secondary-foreground/70 hover:bg-secondary-hover hover:text-primary'
               }`
             }
           >
-            <item.icon size={18} />
-            <span>{t(item.key)}</span>
+            <item.icon size={18} className="shrink-0" />
+            <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 group-hover:max-w-50 group-hover:opacity-100">
+              {t(item.key)}
+            </span>
           </NavLink>
         ))}
       </nav>
 
       {/* Logout */}
-      <div className="border-t border-secondary-hover p-4">
+      <div className="border-t border-secondary-hover p-2 group-hover:p-4">
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-secondary-foreground/70 transition-colors hover:bg-secondary-hover hover:text-primary"
+          title={t('nav.logout')}
+          className="flex w-full items-center justify-center gap-0 rounded-md px-3 py-2.5 text-sm font-medium text-secondary-foreground/70 transition-all duration-300 hover:bg-secondary-hover hover:text-primary group-hover:justify-start group-hover:gap-3"
         >
-          <LogOut size={18} />
-          <span>{t('nav.logout')}</span>
+          <LogOut size={18} className="shrink-0" />
+          <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-300 group-hover:max-w-50 group-hover:opacity-100">
+            {t('nav.logout')}
+          </span>
         </button>
       </div>
     </aside>

@@ -2,9 +2,10 @@ import { useAuthStore } from '@/features/auth/store';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar, { type NavItem } from './Sidebar';
+import BottomNav from './BottomNav';
 import {
   LayoutDashboard, Calendar, Building2, ShoppingCart, GraduationCap,
-  CalendarClock, ClipboardList, Users, Trophy, Package, Settings,
+  CalendarClock, ClipboardList, Users, Trophy, Package,
   UserCog, Building, Store, Bell, User,
 } from 'lucide-react';
 
@@ -40,31 +41,38 @@ const roleNavItems: Record<string, NavItem[]> = {
 };
 
 export default function AppLayout() {
-  const role = useAuthStore((s) => s.user?.role || 'ADMIN');
+  const role = useAuthStore((s) => s.user?.role || 'PLAYER');
+  const user = useAuthStore((s) => s.user);
   const { t } = useTranslation('app');
   const { pathname } = useLocation();
   const items = roleNavItems[role] || [];
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Desktop sidebar (icon-only, expand on hover) */}
       <Sidebar items={items} />
-      <div className="ml-64">
-        {/* Top bar — shows current page name */}
-        <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-6">
+
+      {/* Content — offset for sidebar on desktop, bottom padding for nav on mobile */}
+      <div className="md:ml-16">
+        {/* Top bar */}
+        <header className="flex h-16 items-center justify-between border-b border-border bg-surface px-4 md:px-6">
           <h1 className="font-serif text-lg font-bold text-secondary">
             {t('nav.' + getCurrentPageKey(pathname, items))}
           </h1>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <User size={16} className="text-primary" />
-            <span>{useAuthStore.getState().user?.firstName}</span>
+            <span className="hidden sm:inline">{user?.firstName}</span>
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="p-6">
+        {/* Page content — extra bottom padding on mobile for the bottom nav */}
+        <main className="p-4 pb-20 md:p-6 md:pb-6">
           <Outlet />
         </main>
       </div>
+
+      {/* Mobile bottom navigation */}
+      <BottomNav items={items} />
     </div>
   );
 }

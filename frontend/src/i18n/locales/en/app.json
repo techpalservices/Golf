@@ -16,7 +16,8 @@
     "shopManagement": "Shop management",
     "notifications": "Notifications",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "more": "More"
   },
   "dashboard": {
     "welcome": "Welcome, {{name}}",

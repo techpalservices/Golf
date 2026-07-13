@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute';
 import { ManagerGuard, AdminGuard } from './RoleGuard';
 import * as L from './lazy';
 import AppLayout from '@/components/layout/AppLayout';

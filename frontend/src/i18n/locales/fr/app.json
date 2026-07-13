@@ -75,17 +75,56 @@
     "daysAgo": "il y a {{count}} j"
   },
   "profile": {
-    "title": "Profil & paramètres",
-    "tabs": {
-      "profile": "Profil",
-      "security": "Sécurité",
-      "notifications": "Notifications",
-      "preferences": "Préférences",
-      "privacy": "Confidentialité",
-      "account": "Compte",
-      "clubSettings": "Paramètres du club"
-    }
+  "title": "Profil & paramètres",
+  "tabs": {
+    "profile": "Profil",
+    "security": "Sécurité",
+    "settings": "Paramètres"
   },
+  "profileTab": {
+    "avatar": "Changer la photo",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "phone": "Téléphone",
+    "location": "Localisation",
+    "bio": "Bio",
+    "handicap": "Handicap",
+    "save": "Enregistrer",
+    "saved": "Profil mis à jour"
+  },
+  "securityTab": {
+        "changeEmail": "Changer l'email",
+        "currentEmail": "Email actuel",
+        "newEmail": "Nouvel email",
+        "password": "Mot de passe",
+        "changeEmailBtn": "Changer l'email",
+        "changePassword": "Changer le mot de passe",
+        "currentPassword": "Mot de passe actuel",
+        "newPassword": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "changePasswordBtn": "Changer le mot de passe",
+        "mfa": "MFA par email",
+        "mfaDesc": "Recevez un code par email à chaque connexion",
+        "emailChanged": "Email mis à jour",
+        "passwordChanged": "Mot de passe mis à jour",
+        "mfaEnabled": "MFA activé",
+        "mfaDisabled": "MFA désactivé"
+    },
+    "settingsTab": {
+        "system": "Système",
+        "language": "Langue",
+        "theme": "Thème",
+        "light": "Clair",
+        "dark": "Sombre",
+        "notifications": "Notifications",
+        "reservations": "Réservations",
+        "tournaments": "Tournois",
+        "promotions": "Promotions",
+        "email": "Email",
+        "push": "Push",
+        "sms": "SMS"
+    }
+    },
   "reservations": {
     "title": "Mes réservations",
     "tabs": {
@@ -168,6 +207,7 @@
       "level": "Niveau"
     }
   },
+  
   "planning": {
     "title": "Planning",
     "generateSlots": "Générer des créneaux",

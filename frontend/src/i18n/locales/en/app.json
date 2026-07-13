@@ -75,17 +75,56 @@
     "daysAgo": "{{count}} d ago"
   },
   "profile": {
-    "title": "Profile & settings",
-    "tabs": {
-      "profile": "Profile",
-      "security": "Security",
-      "notifications": "Notifications",
-      "preferences": "Preferences",
-      "privacy": "Privacy",
-      "account": "Account",
-      "clubSettings": "Club settings"
-    }
+  "title": "Profile & settings",
+  "tabs": {
+    "profile": "Profile",
+    "security": "Security",
+    "settings": "Settings"
   },
+  "profileTab": {
+        "avatar": "Change photo",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "phone": "Phone",
+        "location": "Location",
+        "bio": "Bio",
+        "handicap": "Handicap",
+        "save": "Save",
+        "saved": "Profile updated"
+    },
+    "securityTab": {
+        "changeEmail": "Change email",
+        "currentEmail": "Current email",
+        "newEmail": "New email",
+        "password": "Password",
+        "changeEmailBtn": "Change email",
+        "changePassword": "Change password",
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm password",
+        "changePasswordBtn": "Change password",
+        "mfa": "Email MFA",
+        "mfaDesc": "Receive a code by email on each login",
+        "emailChanged": "Email updated",
+        "passwordChanged": "Password updated",
+        "mfaEnabled": "MFA enabled",
+        "mfaDisabled": "MFA disabled"
+    },
+    "settingsTab": {
+        "system": "System",
+        "language": "Language",
+        "theme": "Theme",
+        "light": "Light",
+        "dark": "Dark",
+        "notifications": "Notifications",
+        "reservations": "Reservations",
+        "tournaments": "Tournaments",
+        "promotions": "Promotions",
+        "email": "Email",
+        "push": "Push",
+        "sms": "SMS"
+    }
+    },
   "reservations": {
     "title": "My reservations",
     "tabs": {

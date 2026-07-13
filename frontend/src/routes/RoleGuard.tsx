@@ -5,11 +5,7 @@ import type { Role } from '@/types/user.types';
 function RoleGuard({ allowedRoles }: { allowedRoles: Role[] }) {
   const user = useAuthStore((s) => s.user);
   if (!user) return <Navigate to="/login" replace />;
-  return allowedRoles.includes(user.role) ? <Outlet /> : <Navigate to="/403" replace />;
-}
-
-export function PlayerGuard() {
-  return <RoleGuard allowedRoles={['PLAYER']} />;
+  return allowedRoles.includes(user.role) ? <Outlet /> : <Navigate to="/dashboard" replace />;
 }
 
 export function ManagerGuard() {

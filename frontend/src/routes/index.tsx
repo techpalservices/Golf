@@ -1,7 +1,8 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
-import { PlayerGuard, ManagerGuard, AdminGuard } from './RoleGuard';
+import { ManagerGuard, AdminGuard } from './RoleGuard';
 import * as L from './lazy';
+import AppLayout from '@/components/layout/AppLayout';
 
 export const router = createBrowserRouter([
   // ─── Public ───
@@ -29,60 +30,41 @@ export const router = createBrowserRouter([
 
   // ─── Player (auth + PLAYER role) ───
   {
-    path: '/player',
-    Component: ProtectedRoute,
+    // Component: ProtectedRoute,
     children: [
       {
-        Component: PlayerGuard,
+        Component: AppLayout,
         children: [
-          { path: 'dashboard', ...L.playerDashboard },
-          { path: 'reservations', ...L.playerReservations },
-          { path: 'clubs', ...L.playerClubs },
-          { path: 'orders', ...L.playerOrders },
-          { path: 'campus-bookings', ...L.playerCampusBookings },
-          { path: 'notifications', ...L.playerNotifications },
-          { path: 'profile', ...L.playerProfile },
-        ],
-      },
-    ],
-  },
+          { path: 'reservations', ...L.myReservations },
+          { path: 'clubs', ...L.myClubs },
+          { path: 'orders', ...L.myOrders },
+          { path: 'campus-bookings', ...L.myCampus },
 
-  // ─── Manager (auth + MANAGER role) ───
-  {
-    path: '/manager',
-    Component: ProtectedRoute,
-    children: [
-      {
-        Component: ManagerGuard,
-        children: [
-          { path: 'dashboard', ...L.managerDashboard },
-          { path: 'club', ...L.managerClub },
-          { path: 'planning', ...L.managerPlanning },
-          { path: 'requests', ...L.managerRequests },
-          { path: 'members', ...L.managerMembers },
-          { path: 'tournaments', ...L.managerTournaments },
-          { path: 'packages', ...L.managerPackages },
-          { path: 'notifications', ...L.managerNotifications },
-          { path: 'profile', ...L.managerProfile },
-        ],
-      },
-    ],
-  },
+          // ─── Shared (auth + any role content changed based on the user's role) ───
+          { path: 'dashboard', ...L.dashboard },
+          { path: 'notifications', ...L.notifications },
+          { path: 'profile', ...L.profile },
 
-  // ─── Admin (auth + ADMIN role) ───
-  {
-    path: '/admin',
-    Component: ProtectedRoute,
-    children: [
-      {
-        Component: AdminGuard,
-        children: [
-          { path: 'dashboard', ...L.adminDashboard },
-          { path: 'users', ...L.adminUsers },
-          { path: 'clubs', ...L.adminClubs },
-          { path: 'shop', ...L.adminShop },
-          { path: 'notifications', ...L.adminNotifications },
-          { path: 'profile', ...L.adminProfile },
+          {
+            Component: ManagerGuard,
+            children: [
+              { path: 'club', ...L.myClub },
+              { path: 'planning', ...L.planning },
+              { path: 'requests', ...L.requests },
+              { path: 'members', ...L.members },
+              { path: 'tournaments', ...L.manageTournaments },
+              { path: 'packages', ...L.packages },
+            ],
+          },
+
+          {
+            Component: AdminGuard,
+            children: [
+              { path: 'users', ...L.users },
+              { path: 'clubs', ...L.clubsManagement },
+              { path: 'shop', ...L.shopManagement },
+            ],
+          },
         ],
       },
     ],

@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "reservations": "My reservations",
+    "clubs": "My clubs",
+    "orders": "My orders",
+    "campus": "My campus",
+    "planning": "Planning",
+    "requests": "Requests",
+    "members": "Members",
+    "tournaments": "Tournaments",
+    "packages": "Packages",
+    "myClub": "My club",
+    "users": "Users",
+    "clubsManagement": "Clubs management",
+    "shopManagement": "Shop management",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}",
+    "kpis": {
+      "nextTeeTime": "Next tee time",
+      "reservations": "Reservations",
+      "clubs": "Clubs",
+      "revenue": "Revenue",
+      "members": "Members",
+      "occupancy": "Occupancy rate",
+      "pendingRequests": "Pending requests",
+      "totalUsers": "Total users",
+      "totalClubs": "Total clubs",
+      "monthlyRevenue": "Monthly revenue"
+    },
+    "player": {
+      "nextTeeTime": "Next tee time",
+      "recentReservations": "Recent reservations",
+      "myClubs": "My clubs",
+      "invitations": "Invitations"
+    },
+    "manager": {
+      "pendingActions": "Pending actions",
+      "teeSheet": "Today's tee sheet",
+      "activityFeed": "Recent activity",
+      "charts": "Statistics"
+    },
+    "admin": {
+      "activityLog": "Activity log",
+      "clubPerformance": "Club performance"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications"
+  },
+  "profile": {
+    "title": "Profile & settings",
+    "tabs": {
+      "profile": "Profile",
+      "security": "Security",
+      "notifications": "Notifications",
+      "preferences": "Preferences",
+      "privacy": "Privacy",
+      "account": "Account",
+      "clubSettings": "Club settings"
+    }
+  },
+  "reservations": {
+    "title": "My reservations",
+    "tabs": {
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "cancelled": "Cancelled"
+    },
+    "empty": "No reservations"
+  },
+  "clubs": {
+    "myClubs": "My clubs",
+    "empty": "You are not a member of any club"
+  },
+  "planning": {
+    "title": "Planning",
+    "generateSlots": "Generate slots",
+    "day": "Day",
+    "week": "Week"
+  },
+  "requests": {
+    "title": "Booking requests",
+    "approve": "Approve",
+    "reject": "Reject",
+    "empty": "No pending requests"
+  },
+  "members": {
+    "title": "Members",
+    "suspend": "Suspend",
+    "reinstate": "Reinstate",
+    "search": "Search a member"
+  },
+  "users": {
+    "title": "User management",
+    "addUser": "Add",
+    "suspend": "Suspend",
+    "assignManager": "Assign manager"
+  },
+  "clubsManagement": {
+    "title": "Club management",
+    "addClub": "Add",
+    "assignManager": "Assign manager"
+  }
+}

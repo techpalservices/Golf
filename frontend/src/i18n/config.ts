@@ -17,6 +17,8 @@ import frMemberships from './locales/fr/memberships.json';
 import enMemberships from './locales/en/memberships.json';
 import frAuth from './locales/fr/auth.json';
 import enAuth from './locales/en/auth.json';
+import frApp from './locales/fr/app.json';
+import enApp from './locales/en/app.json';
 
 i18n
   .use(LanguageDetector)       // Detect user's language automatically
@@ -31,6 +33,7 @@ i18n
         tournaments: frTournaments,
         memberships: frMemberships,
         auth: frAuth,
+        app: frApp,
       },  // French translations
       en: { 
         common: enCommon, 
@@ -40,11 +43,12 @@ i18n
         tournaments: enTournaments,
         memberships: enMemberships,
         auth: enAuth,
+        app: enApp,
       },
     },
     fallbackLng: 'fr',         // If a key is missing, show French
     defaultNS: 'common',       // Default namespace (so we don't write t('common:hello'))
-    ns: ['common', 'landing', 'clubs', 'reservations', 'tournaments', 'memberships', 'auth'],  // Namespaces for different parts of the app
+    ns: ['common', 'landing', 'clubs', 'reservations', 'tournaments', 'memberships', 'auth', 'app'],  // Namespaces for different parts of the app
     interpolation: {
       escapeValue: false,      // React already escapes, no need for i18next to do it
     },

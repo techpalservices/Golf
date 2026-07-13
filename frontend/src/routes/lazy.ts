@@ -25,6 +25,60 @@ const lazyLogin = () =>
 const lazyRegister = () =>
   import('@/features/auth/pages/RegisterPage').then((m) => ({ Component: m.default }));
 
+// Shared
+const LazyDashboard = () =>
+  import('@/features/dashboard/pages/DashboardPage').then((m) => ({ Component: m.default }));
+
+const LazyNotifications = () =>
+  import('@/features/notifications/pages/NotificationsPage').then((m) => ({ Component: m.default }));
+
+const lazyProfile = () =>
+  import('@/features/profile/pages/ProfilePage').then((m) => ({ Component: m.default }));
+
+
+// Player
+const lazyMyReservations = () =>
+  import('@/features/player/pages/MyReservationsPage').then((m) => ({ Component: m.default }));
+
+const lazyMyClubs = () =>
+  import('@/features/player/pages/MyClubsPage').then((m) => ({ Component: m.default }));
+
+const lazyMyOrders = () =>
+  import('@/features/player/pages/MyOrdersPage').then((m) => ({ Component: m.default }));
+
+const lazyMyCampus = () =>
+  import('@/features/player/pages/MyCampusPage').then((m) => ({ Component: m.default }));
+
+
+// Manager
+const lazyMyClub = () =>
+  import('@/features/manager/pages/MyClubPage').then((m) => ({ Component: m.default }));
+
+const lazyPlanning = () =>
+  import('@/features/manager/pages/PlanningPage').then((m) => ({ Component: m.default }));
+
+const lazyRequests = () =>
+  import('@/features/manager/pages/RequestsPage').then((m) => ({ Component: m.default }));
+
+const lazyMembers = () =>
+  import('@/features/manager/pages/MembersPage').then((m) => ({ Component: m.default }));
+
+const lazyManageTournaments = () =>
+  import('@/features/manager/pages/ManageTournamentsPage').then((m) => ({ Component: m.default }));
+
+const lazyPackages = () =>
+  import('@/features/manager/pages/PackagesPage').then((m) => ({ Component: m.default }));
+
+// Admin
+const lazyUsers = () =>
+  import('@/features/admin/pages/UsersPage').then((m) => ({ Component: m.default }));
+
+const lazyClubsManagement = () =>
+  import('@/features/admin/pages/ClubsManagementPage').then((m) => ({ Component: m.default }));
+
+const lazyShopManagement = () =>
+  import('@/features/admin/pages/ShopManagementPage').then((m) => ({ Component: m.default }));
+
 // ─── Public ───
 export const landing = { lazy: lazyLanding };
 export const clubs = { lazy: lazyClubs };
@@ -41,33 +95,29 @@ export const forgotPassword = { lazy: lazyPlaceholder };
 export const resetPassword = { lazy: lazyPlaceholder };
 export const verifyEmail = { lazy: lazyPlaceholder };
 
+// ─── shared ───
+export const dashboard = { lazy: LazyDashboard };
+export const notifications = { lazy: LazyNotifications };
+export const profile = { lazy: lazyProfile };
+
 // ─── Player ───
-export const playerDashboard = { lazy: lazyPlaceholder };
-export const playerReservations = { lazy: lazyPlaceholder };
-export const playerClubs = { lazy: lazyPlaceholder };
-export const playerOrders = { lazy: lazyPlaceholder };
-export const playerCampusBookings = { lazy: lazyPlaceholder };
-export const playerNotifications = { lazy: lazyPlaceholder };
-export const playerProfile = { lazy: lazyPlaceholder };
+export const myReservations = { lazy: lazyMyReservations };
+export const myClubs = { lazy: lazyMyClubs };
+export const myOrders = { lazy: lazyMyOrders };
+export const myCampus = { lazy: lazyMyCampus };
 
 // ─── Manager ───
-export const managerDashboard = { lazy: lazyPlaceholder };
-export const managerClub = { lazy: lazyPlaceholder };
-export const managerPlanning = { lazy: lazyPlaceholder };
-export const managerRequests = { lazy: lazyPlaceholder };
-export const managerMembers = { lazy: lazyPlaceholder };
-export const managerTournaments = { lazy: lazyPlaceholder };
-export const managerPackages = { lazy: lazyPlaceholder };
-export const managerNotifications = { lazy: lazyPlaceholder };
-export const managerProfile = { lazy: lazyPlaceholder };
+export const myClub = { lazy: lazyMyClub };
+export const planning = { lazy: lazyPlanning };
+export const requests = { lazy: lazyRequests };
+export const members = { lazy: lazyMembers };
+export const manageTournaments = { lazy: lazyManageTournaments };
+export const packages = { lazy: lazyPackages };
 
 // ─── Admin ───
-export const adminDashboard = { lazy: lazyPlaceholder };
-export const adminUsers = { lazy: lazyPlaceholder };
-export const adminClubs = { lazy: lazyPlaceholder };
-export const adminShop = { lazy: lazyPlaceholder };
-export const adminNotifications = { lazy: lazyPlaceholder };
-export const adminProfile = { lazy: lazyPlaceholder };
+export const users = { lazy: lazyUsers };
+export const clubsManagement = { lazy: lazyClubsManagement };
+export const shopManagement = { lazy: lazyShopManagement };
 
 // ─── Errors ───
 export const forbidden = { lazy: lazyPlaceholder };

@@ -1,10 +1,7 @@
-import { useLocation } from 'react-router-dom';
-
-export default function Placeholder() {
-  const { pathname } = useLocation();
+export default function PagePlaceholder({ title }: { title: string }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <p className="text-muted-foreground">{pathname} — à venir</p>
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <p className="font-serif text-xl text-muted-foreground">{title} — à venir</p>
     </div>
   );
 }

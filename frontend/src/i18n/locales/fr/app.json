@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "reservations": "Mes réservations",
+    "clubs": "Mes clubs",
+    "orders": "Mes commandes",
+    "campus": "Mes stages",
+    "planning": "Planning",
+    "requests": "Demandes",
+    "members": "Membres",
+    "tournaments": "Tournois",
+    "packages": "Packages",
+    "myClub": "Mon club",
+    "users": "Utilisateurs",
+    "clubsManagement": "Gestion clubs",
+    "shopManagement": "Gestion boutique",
+    "notifications": "Notifications",
+    "profile": "Profil",
+    "logout": "Déconnexion"
+  },
+  "dashboard": {
+    "welcome": "Bienvenue, {{name}}",
+    "kpis": {
+      "nextTeeTime": "Prochain départ",
+      "reservations": "Réservations",
+      "clubs": "Clubs",
+      "revenue": "Revenus",
+      "members": "Membres",
+      "occupancy": "Taux d'occupation",
+      "pendingRequests": "Demandes en attente",
+      "totalUsers": "Utilisateurs",
+      "totalClubs": "Clubs",
+      "monthlyRevenue": "Revenus mensuels"
+    },
+    "player": {
+      "nextTeeTime": "Prochain départ",
+      "recentReservations": "Réservations récentes",
+      "myClubs": "Mes clubs",
+      "invitations": "Invitations"
+    },
+    "manager": {
+      "pendingActions": "Actions en attente",
+      "teeSheet": "Planning du jour",
+      "activityFeed": "Activité récente",
+      "charts": "Statistiques"
+    },
+    "admin": {
+      "activityLog": "Journal d'activité",
+      "clubPerformance": "Performance des clubs"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Aucune notification"
+  },
+  "profile": {
+    "title": "Profil & paramètres",
+    "tabs": {
+      "profile": "Profil",
+      "security": "Sécurité",
+      "notifications": "Notifications",
+      "preferences": "Préférences",
+      "privacy": "Confidentialité",
+      "account": "Compte",
+      "clubSettings": "Paramètres du club"
+    }
+  },
+  "reservations": {
+    "title": "Mes réservations",
+    "tabs": {
+      "upcoming": "À venir",
+      "past": "Passées",
+      "cancelled": "Annulées"
+    },
+    "empty": "Aucune réservation"
+  },
+  "clubs": {
+    "myClubs": "Mes clubs",
+    "empty": "Vous n'êtes membre d'aucun club"
+  },
+  "planning": {
+    "title": "Planning",
+    "generateSlots": "Générer des créneaux",
+    "day": "Jour",
+    "week": "Semaine"
+  },
+  "requests": {
+    "title": "Demandes de réservation",
+    "approve": "Approuver",
+    "reject": "Refuser",
+    "empty": "Aucune demande en attente"
+  },
+  "members": {
+    "title": "Membres",
+    "suspend": "Suspendre",
+    "reinstate": "Réintégrer",
+    "search": "Rechercher un membre"
+  },
+  "users": {
+    "title": "Gestion des utilisateurs",
+    "addUser": "Ajouter",
+    "suspend": "Suspendre",
+    "assignManager": "Assigner gestionnaire"
+  },
+  "clubsManagement": {
+    "title": "Gestion des clubs",
+    "addClub": "Ajouter",
+    "assignManager": "Assigner gestionnaire"
+  }
+}

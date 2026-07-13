@@ -52,10 +52,51 @@
         }
     },
     "manager": {
-      "pendingActions": "Actions en attente",
-      "teeSheet": "Planning du jour",
-      "activityFeed": "Activité récente",
-      "charts": "Statistiques"
+        "kpis": {
+            "todayReservations": "Réservations Aujourd'hui",
+            "pendingRequests": "Demandes en Attente",
+            "members": "Membres Actifs",
+            "todayRevenue": "Revenu du Jour"
+        },
+        "charts": {
+            "utilization": "Taux d'occupation (30 jours)",
+            "byType": "Réservations par Type",
+            "revenue": "Revenu (30 jours)",
+            "frequency": "Fréquentation",
+            "individual": "Individuel",
+            "social": "Social",
+            "squadParty": "Groupe"
+        },
+        "pendingActions": {
+            "title": "Actions en attente",
+            "approve": "Accepter",
+            "reject": "Refuser",
+            "viewAll": "Voir tout",
+            "reservation": "Réservation",
+            "membership": "Adhésion",
+            "tournament": "Tournoi"
+        },
+        "teeSheet": {
+            "title": "Planning du jour",
+            "viewFull": "Voir le planning complet",
+            "available": "Disponible",
+            "partial": "Partiel",
+            "full": "Complet",
+            "blocked": "Bloqué",
+            "past": "Passé",
+            "bookedBy": "Réservé par",
+            "players": "Joueurs",
+            "contact": "Contact"
+        },
+        "activityFeed": {
+            "title": "Activité récente",
+            "viewAll": "Voir tout",
+            "reservationConfirmed": "Réservation confirmée",
+            "reservationPending": "Réservation en attente",
+            "newMember": "Nouveau membre",
+            "slotBlocked": "Créneau bloqué",
+            "tournamentCreated": "Tournoi créé"
+        }
     },
     "admin": {
       "activityLog": "Journal d'activité",

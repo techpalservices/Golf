@@ -52,10 +52,51 @@
         }
     },
     "manager": {
-      "pendingActions": "Pending actions",
-      "teeSheet": "Today's tee sheet",
-      "activityFeed": "Recent activity",
-      "charts": "Statistics"
+        "kpis": {
+            "todayReservations": "Today's Reservations",
+            "pendingRequests": "Pending Requests",
+            "members": "Active Members",
+            "todayRevenue": "Today's Revenue"
+        },
+        "charts": {
+            "utilization": "Utilization (30 days)",
+            "byType": "Reservations by Type",
+            "revenue": "Revenue (30 days)",
+            "frequency": "Frequency",
+            "individual": "Individual",
+            "social": "Social",
+            "squadParty": "Squad Party"
+        },
+        "pendingActions": {
+            "title": "Pending Actions",
+            "approve": "Approve",
+            "reject": "Reject",
+            "viewAll": "View all",
+            "reservation": "Reservation",
+            "membership": "Membership",
+            "tournament": "Tournament"
+        },
+        "teeSheet": {
+            "title": "Today's Tee Sheet",
+            "viewFull": "View full planning",
+            "available": "Available",
+            "partial": "Partial",
+            "full": "Full",
+            "blocked": "Blocked",
+            "past": "Past",
+            "bookedBy": "Booked by",
+            "players": "Players",
+            "contact": "Contact"
+        },
+        "activityFeed": {
+            "title": "Recent Activity",
+            "viewAll": "View all",
+            "reservationConfirmed": "Reservation confirmed",
+            "reservationPending": "Reservation pending",
+            "newMember": "New member",
+            "slotBlocked": "Slot blocked",
+            "tournamentCreated": "Tournament created"
+        }
     },
     "admin": {
       "activityLog": "Activity log",

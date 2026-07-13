@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { User, Shield, Settings } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { useAuthStore } from '@/features/auth/store';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import ProfileTab from '../components/ProfileTab';
 import SecurityTab from '../components/SecurityTab';
@@ -14,7 +11,6 @@ type TabId = 'profile' | 'security' | 'settings';
 export default function ProfilePage() {
   const { t } = useTranslation('app');
   const isDesktop = useMediaQuery('(min-width: 768px)');
-  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState<TabId>('profile');
 
   const tabs: { id: TabId; label: string; icon: typeof User }[] = [
@@ -23,11 +19,11 @@ export default function ProfilePage() {
     { id: 'settings', label: t('profile.tabs.settings'), icon: Settings },
   ];
 
-  const roleLabel: Record<string, string> = {
-    PLAYER: 'Player',
-    MANAGER: 'Manager',
-    ADMIN: 'Admin',
-  };
+//   const roleLabel: Record<string, string> = {
+//     PLAYER: 'Player',
+//     MANAGER: 'Manager',
+//     ADMIN: 'Admin',
+//   };
 
   return (
     <div className="flex flex-col gap-6">

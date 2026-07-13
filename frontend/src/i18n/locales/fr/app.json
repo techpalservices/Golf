@@ -126,7 +126,47 @@
   },
   "clubs": {
     "myClubs": "Mes clubs",
-    "empty": "Vous n'êtes membre d'aucun club"
+    "empty": "Vous n'êtes membre d'aucun club",
+    "search": "Rechercher",
+    "searchPlaceholder": "Ex : Royal Golf",
+    "item": {
+      "location": "Lieu",
+      "membership": "Abonnement"
+    },
+    "dialog": {
+      "details": "Détails",
+      "description": "Description",
+      "location": "Lieu",
+      "membership": "Abonnement",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "courses": "Parcours disponibles",
+      "visit": "Visiter le club"
+    }
+  },
+  "campus": {
+    "myCampus": "Mes stages",
+    "search": "Rechercher",
+    "searchPlaceholder": "Ex : Royal Golf",
+    "filter": "Filtrer",
+    "empty": "Aucune réservation de stage",
+    "item": {
+      "club": "Club",
+      "duration": "Durée",
+      "date": "Date",
+      "status": "Statut"
+    },
+    "dialog": {
+      "details": "Détails",
+      "description": "Description",
+      "club": "Club",
+      "duration": "Durée",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "price": "Prix",
+      "instructor": "Instructeur",
+      "level": "Niveau"
+    }
   },
   "planning": {
     "title": "Planning",

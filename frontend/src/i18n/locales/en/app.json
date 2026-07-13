@@ -126,7 +126,47 @@
   },
   "clubs": {
     "myClubs": "My clubs",
-    "empty": "You are not a member of any club"
+    "empty": "You are not a member of any club",
+    "search": "Search",
+    "searchPlaceholder": "Ex: Royal Golf",
+    "item": {
+      "location": "Location",
+      "membership": "Membership"
+    },
+    "dialog": {
+      "details": "Details",
+      "description": "Description",
+      "location": "Location",
+      "membership": "Membership",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "courses": "Available courses",
+      "visit": "Visit club"
+    }
+  },
+  "campus": {
+    "myCampus": "My campus",
+    "search": "Search",
+    "searchPlaceholder": "Ex: Royal Golf",
+    "filter": "Filter",
+    "empty": "No campus bookings",
+    "item": {
+      "club": "Club",
+      "duration": "Duration",
+      "date": "Date",
+      "status": "Status"
+    },
+    "dialog": {
+      "details": "Details",
+      "description": "Description",
+      "club": "Club",
+      "duration": "Duration",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "price": "Price",
+      "instructor": "Instructor",
+      "level": "Level"
+    }
   },
   "planning": {
     "title": "Planning",

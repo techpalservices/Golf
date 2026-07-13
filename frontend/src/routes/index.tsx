@@ -35,9 +35,9 @@ export const router = createBrowserRouter([
         Component: AppLayout,
         children: [
           { path: 'my-reservations', ...L.myReservations },
-          { path: 'clubs', ...L.myClubs },
+          { path: 'my-clubs', ...L.myClubs },
           { path: 'orders', ...L.myOrders },
-          { path: 'campus-bookings', ...L.myCampus },
+          { path: 'my-campus', ...L.myCampus },
 
           // ─── Shared (auth + any role content changed based on the user's role) ───
           { path: 'dashboard', ...L.dashboard },

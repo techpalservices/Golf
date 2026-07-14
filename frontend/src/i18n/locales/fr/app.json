@@ -628,9 +628,48 @@
   },
   "users": {
     "title": "Gestion des utilisateurs",
-    "addUser": "Ajouter",
-    "suspend": "Suspendre",
-    "assignManager": "Assigner gestionnaire"
+    "search": "Rechercher",
+    "searchPlaceholder": "Ex : Ahmed, joueur...",
+    "filterRole": "Rôle",
+    "filterStatus": "Statut",
+    "all": "Tous",
+    "empty": "Aucun utilisateur",
+    "item": {
+      "role": "Rôle",
+      "status": "Statut",
+      "registered": "Inscrit"
+    },
+    "role": {
+      "player": "Joueur",
+      "manager": "Gestionnaire",
+      "admin": "Administrateur"
+    },
+    "status": {
+      "active": "Actif",
+      "suspended": "Suspendu",
+      "pending": "En attente"
+    },
+    "details": {
+      "title": "Détails de l'utilisateur",
+      "email": "Email",
+      "phone": "Téléphone",
+      "role": "Rôle",
+      "status": "Statut",
+      "registeredAt": "Inscrit le",
+      "club": "Club géré",
+      "reservations": "Réservations",
+      "actions": "Actions",
+      "suspend": "Suspendre",
+      "reinstate": "Réintégrer",
+      "assignManager": "Assigner comme gestionnaire",
+      "removeManager": "Retirer le rôle gestionnaire",
+      "delete": "Supprimer",
+      "suspended": "Utilisateur suspendu",
+      "reinstated": "Utilisateur réintégré",
+      "assignedManager": "Rôle gestionnaire assigné",
+      "removedManager": "Rôle gestionnaire retiré",
+      "deleted": "Utilisateur supprimé"
+    }
   },
   "clubsManagement": {
     "title": "Gestion des clubs",

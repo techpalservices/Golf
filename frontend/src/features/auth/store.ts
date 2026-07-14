@@ -16,7 +16,7 @@ const user : User = {
   email: "john.doe@example.com",
   firstName: "John",
   lastName: "Doe",
-  role: "MANAGER"
+  role: "ADMIN"
 }
   
 

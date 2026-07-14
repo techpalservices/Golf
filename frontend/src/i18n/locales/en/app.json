@@ -627,9 +627,48 @@
   },
   "users": {
     "title": "User management",
-    "addUser": "Add",
-    "suspend": "Suspend",
-    "assignManager": "Assign manager"
+    "search": "Search",
+    "searchPlaceholder": "Ex: Ahmed, player...",
+    "filterRole": "Role",
+    "filterStatus": "Status",
+    "all": "All",
+    "empty": "No users",
+    "item": {
+      "role": "Role",
+      "status": "Status",
+      "registered": "Registered"
+    },
+    "role": {
+      "player": "Player",
+      "manager": "Manager",
+      "admin": "Admin"
+    },
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended",
+      "pending": "Pending"
+    },
+    "details": {
+      "title": "User details",
+      "email": "Email",
+      "phone": "Phone",
+      "role": "Role",
+      "status": "Status",
+      "registeredAt": "Registered on",
+      "club": "Managed club",
+      "reservations": "Reservations",
+      "actions": "Actions",
+      "suspend": "Suspend",
+      "reinstate": "Reinstate",
+      "assignManager": "Assign as manager",
+      "removeManager": "Remove manager role",
+      "delete": "Delete",
+      "suspended": "User suspended",
+      "reinstated": "User reinstated",
+      "assignedManager": "Manager role assigned",
+      "removedManager": "Manager role removed",
+      "deleted": "User deleted"
+    }
   },
   "clubsManagement": {
     "title": "Club management",

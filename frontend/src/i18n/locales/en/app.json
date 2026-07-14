@@ -354,9 +354,35 @@
   },
   "planning": {
     "title": "Planning",
-    "generateSlots": "Generate slots",
-    "day": "Day",
-    "week": "Week"
+    "tabSessions": "Sessions",
+    "tabCalendar": "Calendar",
+    "search": "Search",
+    "searchPlaceholder": "Ex: Ahmed, Massy...",
+    "filterDate": "Date",
+    "filterStatus": "Status",
+    "filterCourse": "Course",
+    "filterTimeFrom": "From",
+    "filterTimeTo": "To",
+    "all": "All",
+    "allCourses": "All courses",
+    "noSessions": "No sessions",
+    "status": {
+      "available": "Available",
+      "partial": "Partial",
+      "full": "Full",
+      "blocked": "Blocked"
+    },
+    "details": {
+      "title": "Session details",
+      "time": "Time",
+      "date": "Date",
+      "status": "Status",
+      "players": "Players",
+      "course": "Course",
+      "club": "Club",
+      "price": "Price",
+      "contact": "Contact"
+    }
   },
   "requests": {
     "title": "Booking requests",

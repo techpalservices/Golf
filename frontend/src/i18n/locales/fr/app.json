@@ -355,9 +355,35 @@
   
   "planning": {
     "title": "Planning",
-    "generateSlots": "Générer des créneaux",
-    "day": "Jour",
-    "week": "Semaine"
+    "tabSessions": "Séances",
+    "tabCalendar": "Calendrier",
+    "search": "Rechercher",
+    "searchPlaceholder": "Ex : Ahmed, Massy...",
+    "filterDate": "Date",
+    "filterStatus": "Statut",
+    "filterCourse": "Parcours",
+    "filterTimeFrom": "De",
+    "filterTimeTo": "À",
+    "all": "Tous",
+    "allCourses": "Tous les parcours",
+    "noSessions": "Aucune séance",
+    "status": {
+      "available": "Disponible",
+      "partial": "Partiel",
+      "full": "Complet",
+      "blocked": "Bloqué"
+    },
+    "details": {
+      "title": "Détails de la séance",
+      "time": "Heure",
+      "date": "Date",
+      "status": "Statut",
+      "players": "Joueurs",
+      "course": "Parcours",
+      "club": "Club",
+      "price": "Prix",
+      "contact": "Contact"
+    }
   },
   "requests": {
     "title": "Demandes de réservation",

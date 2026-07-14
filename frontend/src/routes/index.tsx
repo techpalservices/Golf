@@ -51,7 +51,7 @@ export const router = createBrowserRouter([
               { path: 'planning', ...L.planning },
               { path: 'requests', ...L.requests },
               { path: 'members', ...L.members },
-              { path: 'tournaments', ...L.manageTournaments },
+              { path: 'manage-tournaments', ...L.manageTournaments },
               { path: 'packages', ...L.packages },
             ],
           },

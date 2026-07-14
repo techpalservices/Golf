@@ -671,8 +671,74 @@
     }
   },
   "clubsManagement": {
-    "title": "Club management",
-    "addClub": "Add",
-    "assignManager": "Assign manager"
+    "title": "Clubs management",
+    "search": "Search",
+    "searchPlaceholder": "Ex: Royal Golf, Marrakech...",
+    "filterStatus": "Status",
+    "filterCity": "City",
+    "all": "All",
+    "allCities": "All cities",
+    "empty": "No clubs",
+    "add": "Add club",
+    "status": {
+      "published": "Published",
+      "draft": "Draft",
+      "pending": "Pending"
+    },
+    "item": {
+      "city": "City",
+      "manager": "Manager",
+      "unassigned": "Unassigned",
+      "members": "Members"
+    },
+    "details": {
+      "title": "Club details",
+      "description": "Description",
+      "city": "City",
+      "address": "Address",
+      "manager": "Manager",
+      "unassigned": "No manager assigned",
+      "members": "Members",
+      "courses": "Courses",
+      "createdAt": "Created on",
+      "status": "Status",
+      "contact": "Contact",
+      "phone": "Phone",
+      "email": "Email",
+      "actions": "Actions",
+      "edit": "Edit",
+      "assignManager": "Assign manager",
+      "reassignManager": "Reassign manager",
+      "delete": "Delete",
+      "updated": "Club updated",
+      "deleted": "Club deleted",
+      "managerAssigned": "Manager assigned",
+      "managerReassigned": "Manager reassigned"
+    },
+    "form": {
+      "createTitle": "New club",
+      "editTitle": "Edit club",
+      "name": "Club name",
+      "namePlaceholder": "Ex: Royal Golf de Marrakech",
+      "description": "Description",
+      "descriptionPlaceholder": "Club description...",
+      "city": "City",
+      "cityPlaceholder": "Ex: Marrakech",
+      "address": "Address",
+      "addressPlaceholder": "Ex: Route de l'Ourika, Marrakech 40000",
+      "phone": "Phone",
+      "phonePlaceholder": "Ex: +212 5 24 32 50 50",
+      "email": "Email",
+      "emailPlaceholder": "Ex: contact@royalgolf.ma",
+      "logo": "Logo URL",
+      "coverImage": "Cover image URL",
+      "status": "Status",
+      "manager": "Manager (optional)",
+      "managerPlaceholder": "Select a user",
+      "noManager": "No manager",
+      "save": "Save",
+      "cancel": "Cancel",
+      "created": "Club created successfully"
+    }
   }
 }

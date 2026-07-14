@@ -70,7 +70,7 @@ const roleNavItems: Record<string, NavItem[]> = {
   ADMIN: [
     { key: 'nav.dashboard', to: '/dashboard', icon: LayoutDashboard },
     { key: 'nav.users', to: '/users', icon: UserCog },
-    { key: 'nav.clubsManagement', to: '/clubs-management', icon: Building },
+    { key: 'nav.clubsManagement', to: '/clubs', icon: Building },
     { key: 'nav.shopManagement', to: '/shop-management', icon: Store },
     { key: 'nav.profile', to: '/profile', icon: User },
   ],

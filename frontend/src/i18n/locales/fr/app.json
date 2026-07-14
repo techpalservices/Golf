@@ -19,6 +19,51 @@
     "logout": "Déconnexion",
     "more": "Plus"
   },
+  "myClub": {
+    "title": "Mon Club",
+    "courses": "Parcours",
+    "createCourse": "Créer un parcours",
+    "clubInfo": "Informations du club",
+    "status": "Statut",
+    "createdAt": "Date de création",
+    "contact": "Contact",
+    "phone": "Téléphone",
+    "email": "Email",
+    "address": "Adresse",
+    "viewMap": "Voir sur Google Maps",
+    "published": "Publié",
+    "draft": "Brouillon",
+    "form": {
+      "title": "Nouveau parcours",
+      "name": "Nom du parcours",
+      "namePlaceholder": "Ex: Parcours Royal",
+      "description": "Description",
+      "descriptionPlaceholder": "Description du parcours...",
+      "holes": "Nombre de trous",
+      "price": "Prix par joueur (MAD)",
+      "image": "URL de l'image",
+      "create": "Créer",
+      "cancel": "Annuler",
+      "created": "Parcours créé avec succès"
+    },
+    "editClub": "Modifier le club",
+    "editForm": {
+      "title": "Modifier le club",
+      "name": "Nom du club",
+      "location": "Localisation",
+      "description": "Description",
+      "logo": "URL du logo",
+      "coverImage": "URL de l'image de couverture",
+      "status": "Statut",
+      "phone": "Téléphone",
+      "email": "Email",
+      "address": "Adresse",
+      "mapsUrl": "URL Google Maps",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "saved": "Club mis à jour avec succès"
+    }
+  },
   "dashboard": {
     "welcome": "Bienvenue, {{name}}",
     "kpis": {

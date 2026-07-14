@@ -47,7 +47,7 @@ export const router = createBrowserRouter([
           {
             Component: ManagerGuard,
             children: [
-              { path: 'club', ...L.myClub },
+              { path: 'my-club', ...L.myClub },
               { path: 'planning', ...L.planning },
               { path: 'requests', ...L.requests },
               { path: 'members', ...L.members },

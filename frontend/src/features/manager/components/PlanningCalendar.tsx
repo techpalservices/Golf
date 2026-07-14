@@ -1,27 +1,20 @@
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import moment from 'moment';
+import { momentLocalizer } from 'react-big-calendar';
+import ShadcnBigCalendar from '@/components/shadcn-big-calendar/shadcn-big-calendar';
 import type { Session } from '../pages/PlanningPage';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
-import 'react-big-calendar/lib/css/react-big-calendar.css';
+import '@/components/shadcn-big-calendar/shadcn-big-calendar.css';
 
-const locales = { fr };
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-});
+const localizer = momentLocalizer(moment);
 
-const statusToColor: Record<string, string> = {
-  available: '#2D6A4F',
-  partial: '#C9A84C',
-  full: '#dc2626',
-  blocked: '#6C757D',
+// Map session status → event variant class
+const statusToClass: Record<string, string> = {
+  available: 'event-variant-secondary',   // green
+  partial: 'event-variant-primary',        // gold
+  full: 'event-variant-destructive',       // red
+  blocked: 'event-variant-outline',        // muted
 };
 
 interface PlanningCalendarProps {
@@ -35,7 +28,6 @@ export default function PlanningCalendar({
   onSelectEvent,
   onSelectSlot,
 }: PlanningCalendarProps) {
-  const { t } = useTranslation('app');
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const events = useMemo(
@@ -55,26 +47,9 @@ export default function PlanningCalendar({
   const maxDate = new Date();
   maxDate.setHours(21, 0, 0, 0);
 
-  const eventStyleGetter = (event: { resource?: Session }) => {
+  const eventPropGetter = (event: { resource?: Session }) => {
     const status = event.resource?.status ?? 'available';
-    const color = statusToColor[status] ?? '#2D6A4F';
-    return {
-      style: {
-        backgroundColor: color,
-        opacity: 0.85,
-        borderRadius: '4px',
-        border: 'none',
-        color: '#fff',
-        fontSize: '11px',
-        padding: '2px 4px',
-      },
-    };
-  };
-
-  const formats = {
-    timeGutterFormat: 'HH:mm',
-    dayFormat: 'EEE dd/MM',
-    eventTimeRangeFormat: () => '',
+    return { className: statusToClass[status] ?? 'event-variant-primary' };
   };
 
   return (
@@ -82,28 +57,21 @@ export default function PlanningCalendar({
       className="rounded-lg border border-border bg-surface p-2"
       style={{ height: isDesktop ? '70vh' : '60vh' }}
     >
-      <Calendar
+      <ShadcnBigCalendar
         localizer={localizer}
         events={events}
-        defaultView={isDesktop ? Views.WEEK : Views.DAY}
-        views={[Views.WEEK, Views.DAY]}
+        defaultView={isDesktop ? 'week' : 'day'}
+        views={['week', 'day']}
         culture="fr"
-        formats={formats}
         step={60}
         showMultiDayTimes
         min={minDate}
         max={maxDate}
-        eventPropGetter={eventStyleGetter as never}
+        eventPropGetter={eventPropGetter as never}
         onSelectEvent={(event: { resource?: Session }) => onSelectEvent(event.resource as Session)}
         onSelectSlot={onSelectSlot}
         selectable
-        messages={{
-          next: '›',
-          previous: '‹',
-          today: new Date().toLocaleDateString('fr-FR'),
-          day: 'Jour',
-          week: 'Semaine',
-        }}
+        style={{ height: '100%' }}
       />
     </div>
   );

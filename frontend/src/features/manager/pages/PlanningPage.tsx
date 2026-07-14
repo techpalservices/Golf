@@ -113,19 +113,19 @@ export default function PlanningPage() {
     setOpen(true);
   };
 
-  const handleEventDrop = ({ event, start, end }: { event: Session; start: Date; end: Date }) => {
-    setSessions((prev) =>
-      prev.map((s) =>
-        s.id === event.id
-          ? { ...s, start, end, time: `${String(start.getHours()).padStart(2, '0')}:00`, date: fmtDate(start) }
-          : s
-      )
-    );
-  };
+  // const handleEventDrop = ({ event, start, end }: { event: Session; start: Date; end: Date }) => {
+  //   setSessions((prev) =>
+  //     prev.map((s) =>
+  //       s.id === event.id
+  //         ? { ...s, start, end, time: `${String(start.getHours()).padStart(2, '0')}:00`, date: fmtDate(start) }
+  //         : s
+  //     )
+  //   );
+  // };
 
-  const handleEventResize = ({ event, start, end }: { event: Session; start: Date; end: Date }) => {
-    setSessions((prev) => prev.map((s) => (s.id === event.id ? { ...s, start, end } : s)));
-  };
+  // const handleEventResize = ({ event, start, end }: { event: Session; start: Date; end: Date }) => {
+  //   setSessions((prev) => prev.map((s) => (s.id === event.id ? { ...s, start, end } : s)));
+  // };
 
   const handleSelectSlot = (slot: { start: Date; end: Date }) => {
     setPendingSlot(slot);

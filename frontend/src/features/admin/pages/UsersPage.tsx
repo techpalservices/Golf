@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { Search, Mail, Phone, Calendar, Building, CalendarCheck, Check, X, UserCog, UserMinus, Trash2 } from 'lucide-react';
+import { Search, Mail, Phone, Calendar, Building, CalendarCheck, Check, X, UserCog, UserMinus, Trash2, Plus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import CreateUserDialog from '../components/CreateUserDialog';
 
 type Role = 'player' | 'manager' | 'admin';
 type UserStatus = 'active' | 'suspended' | 'pending';
@@ -63,6 +64,7 @@ export default function UsersPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selected, setSelected] = useState<User | null>(null);
   const [open, setOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
@@ -97,6 +99,23 @@ export default function UsersPage() {
     setUsers((prev) => prev.filter((u) => u.id !== id));
     setOpen(false);
     toast.success(t('users.details.deleted'));
+  };
+
+  const handleCreate = (data: { fullName: string; email: string; phone: string; role: Role; password: string }) => {
+    const newUser: User = {
+      id: `user-${Date.now()}`,
+      fullName: data.fullName,
+      initials: data.fullName.split(' ').map((n) => n[0]).join(''),
+      email: data.email,
+      phone: data.phone,
+      role: data.role,
+      status: 'active',
+      registeredAt: new Date().toLocaleDateString('fr-FR'),
+      reservationsCount: 0,
+    };
+    setUsers((prev) => [...prev, newUser]);
+    setFormOpen(false);
+    toast.success(t('users.createForm.created'));
   };
 
   const detailsContent = selected && (
@@ -195,17 +214,23 @@ export default function UsersPage() {
     <div className="flex flex-col gap-6">
       <h1 className="font-serif text-2xl font-bold text-secondary">{t('users.title')}</h1>
 
-      {/* Filter bar */}
+      {/* Filter bar + Add button */}
       <Card className="p-4">
         <div className="flex flex-col gap-3">
-          <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('users.searchPlaceholder')}
-              className="pl-10 border-primary placeholder:text-secondary"
-            />
+          <div className="flex items-center justify-between gap-3">
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={t('users.searchPlaceholder')}
+                className="pl-10 border-primary placeholder:text-secondary"
+              />
+            </div>
+            <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setFormOpen(true)}>
+              <Plus size={16} />
+              <span className="hidden sm:inline">{t('users.addUser')}</span>
+            </Button>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -300,6 +325,13 @@ export default function UsersPage() {
           </DrawerContent>
         </Drawer>
       )}
+
+      {/* Create user dialog */}
+      <CreateUserDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        onSubmit={handleCreate}
+      />
     </div>
   );
 }

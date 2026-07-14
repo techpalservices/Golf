@@ -387,9 +387,40 @@
   },
   "requests": {
     "title": "Demandes de réservation",
-    "approve": "Approuver",
-    "reject": "Refuser",
-    "empty": "Aucune demande en attente"
+    "search": "Rechercher",
+    "searchPlaceholder": "Ex : Ahmed, Massy...",
+    "filterStatus": "Statut",
+    "filterCourse": "Parcours",
+    "filterDate": "Date",
+    "all": "Toutes",
+    "allCourses": "Tous les parcours",
+    "allDates": "Toutes les dates",
+    "empty": "Aucune demande",
+    "item": {
+      "players": "joueurs",
+      "at": "à",
+      "requested": "Demandé"
+    },
+    "status": {
+      "pending": "En attente",
+      "approved": "Approuvée",
+      "rejected": "Refusée"
+    },
+    "details": {
+      "title": "Détails de la demande",
+      "player": "Joueur",
+      "course": "Parcours",
+      "date": "Date",
+      "time": "Heure",
+      "players": "Joueurs",
+      "price": "Prix",
+      "contact": "Contact",
+      "requestedAt": "Demandé le",
+      "accept": "Accepter",
+      "reject": "Refuser",
+      "accepted": "Demande acceptée",
+      "rejected": "Demande refusée"
+    }
   },
   "members": {
     "title": "Membres",

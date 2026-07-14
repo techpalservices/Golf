@@ -386,9 +386,40 @@
   },
   "requests": {
     "title": "Booking requests",
-    "approve": "Approve",
-    "reject": "Reject",
-    "empty": "No pending requests"
+    "search": "Search",
+    "searchPlaceholder": "Ex: Ahmed, Massy...",
+    "filterStatus": "Status",
+    "filterCourse": "Course",
+    "filterDate": "Date",
+    "all": "All",
+    "allCourses": "All courses",
+    "allDates": "All dates",
+    "empty": "No requests",
+    "item": {
+      "players": "players",
+      "at": "at",
+      "requested": "Requested"
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "details": {
+      "title": "Request details",
+      "player": "Player",
+      "course": "Course",
+      "date": "Date",
+      "time": "Time",
+      "players": "Players",
+      "price": "Price",
+      "contact": "Contact",
+      "requestedAt": "Requested on",
+      "accept": "Accept",
+      "reject": "Reject",
+      "accepted": "Request accepted",
+      "rejected": "Request rejected"
+    }
   },
   "members": {
     "title": "Members",

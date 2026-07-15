@@ -1,5 +1,6 @@
 package com.golf.golf_project.users.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.golf.golf_project.base.entities.AuditableEntity;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.users.enums.EUGender;
@@ -37,6 +38,7 @@ public class User extends AuditableEntity {
     private String username;
 
     @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(nullable = false)
@@ -44,7 +46,7 @@ public class User extends AuditableEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EUStatus status;
+    private EUStatus status = EUStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -54,8 +56,12 @@ public class User extends AuditableEntity {
 
     private String bio;
 
-    @Column(nullable = false)
     private LocalDate birthDate;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean isTotpEnabled = false;
+
+    private String totpSecret;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")

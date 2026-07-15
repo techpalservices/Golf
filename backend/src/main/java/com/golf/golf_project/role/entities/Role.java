@@ -28,4 +28,6 @@ public class Role extends AuditableEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "role", orphanRemoval = true)
     private List<User> users;
+
+
 }

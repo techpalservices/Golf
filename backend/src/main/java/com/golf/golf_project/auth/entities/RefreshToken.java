@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -27,10 +28,10 @@ public class RefreshToken extends AuditableEntity {
     private String token;
 
     @Column(nullable = false)
-    private LocalDateTime expiresAt;
+    private Date expiresAt;
 
     @Column(nullable = false)
-    private boolean revoked;
+    private boolean revoked = false;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)

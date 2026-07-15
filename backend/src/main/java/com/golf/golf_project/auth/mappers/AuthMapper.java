@@ -5,10 +5,15 @@ import java.time.LocalDateTime;
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
 import com.golf.golf_project.users.entities.User;
+import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class AuthMapper {
+
+    private final PasswordEncoder passwordEncoder;
 
     public User toUser(SignUpDTORequest signUpDTORequest) {
         User user = new User();
@@ -18,7 +23,7 @@ public class AuthMapper {
         user.setEmail(signUpDTORequest.email());
         user.setPhoneNumber(signUpDTORequest.phoneNumber());
         user.setUsername(signUpDTORequest.username());
-        user.setPassword(signUpDTORequest.password());
+        user.setPassword(passwordEncoder.encode(signUpDTORequest.password()));
 
         return user;
     }
@@ -41,7 +46,7 @@ public class AuthMapper {
                         user.getEmail(),
                         user.getPhoneNumber(),
                         user.getGender().toString(),
-                        user.getRole().toString()
+                        user.getRole().getName()
                 )
         );
     }

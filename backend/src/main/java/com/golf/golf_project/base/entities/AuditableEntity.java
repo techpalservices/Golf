@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@SQLRestriction("deleted_at is null")
 @Getter
 @Setter
 public class AuditableEntity {
@@ -26,7 +27,7 @@ public class AuditableEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @SQLRestriction("deleted_at is null")
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 }

@@ -6,7 +6,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
+import com.golf.golf_project.auth.entities.RefreshToken;
 import com.golf.golf_project.auth.mappers.AuthMapper;
+import com.golf.golf_project.auth.repositories.RefreshTokenRepository;
 import com.golf.golf_project.auth.utils.AuthUtils;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
@@ -14,9 +16,9 @@ import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -32,27 +34,41 @@ import java.util.Map;
 public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final AuthMapper authMapper;
     private final AuthUtils authUtils;
 
     public SignUpDTOResponse signUp(SignUpDTORequest signUpDTORequest) {
+
+        if (userRepository.existsByUsername(signUpDTORequest.username())) {
+            throw new RuntimeException("Username already taken");
+        }
+
         User user = authMapper.toUser(signUpDTORequest);
         Role role = roleRepository.findByName("ROLE_PLAYER");
         user.setRole(role);
+        User savedUser = userRepository.save(user);
 
+        Date ATexpirationDate = new Date(System.currentTimeMillis()+10*60*1000);
+        Date RTexpirationDate = new Date(System.currentTimeMillis()+7L*24*60*60*1000);
 
         Algorithm algorithm = Algorithm.HMAC256(authUtils.getMySecret());
         String jwtAccessToken = JWT.create()
                 .withSubject(user.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis()*10*60*1000))
+                .withExpiresAt(ATexpirationDate)
                 .withClaim("roles", List.of("ROLE_PLAYER"))
                 .sign(algorithm);
 
         String jwtRefreshToken = JWT.create()
                 .withSubject(user.getUsername())
+                .withExpiresAt(RTexpirationDate)
                 .sign(algorithm);
 
-        User savedUser = userRepository.save(user);
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setToken(jwtRefreshToken);
+        refreshToken.setUser(savedUser);
+        refreshToken.setExpiresAt(RTexpirationDate);
+        refreshTokenRepository.save(refreshToken);
 
         return authMapper.toSignUpDTOResponse(
                 jwtAccessToken,

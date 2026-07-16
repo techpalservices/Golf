@@ -3,6 +3,7 @@ package com.golf.golf_project.auth.controllers;
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
 import com.golf.golf_project.auth.services.AuthService;
+import com.golf.golf_project.exeptions.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +23,10 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<SignUpDTOResponse> signUp(
-            @RequestBody @Valid SignUpDTORequest signUpDTORequest
-    ){
-        return ResponseEntity.ok(authService.signUp(signUpDTORequest));
+    public ApiResponse<SignUpDTOResponse> signUp(
+            @RequestBody @Valid SignUpDTORequest req
+    ) {
+        return ApiResponse.success(authService.signUp(req));
     }
 
     @PreAuthorize("isAuthenticated()")

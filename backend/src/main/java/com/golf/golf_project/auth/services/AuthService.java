@@ -7,6 +7,7 @@ import com.golf.golf_project.auth.entities.RefreshToken;
 import com.golf.golf_project.auth.mappers.AuthMapper;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import com.golf.golf_project.auth.repositories.RefreshTokenRepository;
+import com.golf.golf_project.exeptions.entities.BusinessException;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
 import com.golf.golf_project.users.entities.User;
@@ -38,7 +39,11 @@ public class AuthService {
     public SignUpDTOResponse signUp(SignUpDTORequest signUpDTORequest) {
 
         if (userRepository.existsByUsername(signUpDTORequest.username())) {
-            throw new RuntimeException("Username already taken");
+            throw new BusinessException("Username already taken");
+        }
+
+        if (userRepository.existsByEmail(signUpDTORequest.email())) {
+            throw new BusinessException("Email already taken");
         }
 
         User user = authMapper.toUser(signUpDTORequest);

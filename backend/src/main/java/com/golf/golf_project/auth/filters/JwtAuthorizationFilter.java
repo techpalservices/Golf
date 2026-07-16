@@ -1,10 +1,7 @@
 package com.golf.golf_project.auth.filters;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.golf.golf_project.auth.utils.AuthUtils;
+import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,8 +10,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -24,8 +19,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
-    private final AuthUtils authUtils;
-    private final UserDetailsService userDetailsService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     protected void doFilterInternal(
@@ -44,14 +38,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if (jwtAuthorizationToken != null && jwtAuthorizationToken.startsWith("Bearer ")) {
             try {
                 String jwt = jwtAuthorizationToken.substring(7);
-
-                Algorithm algorithm = Algorithm.HMAC256(authUtils.getMySecret());
-                JWTVerifier jwtVerifier = JWT.require(algorithm).build();
-                DecodedJWT decodedJWT = jwtVerifier.verify(jwt);
+                DecodedJWT decodedJWT = jwtTokenProvider.decode(jwt);
 
                 String username = decodedJWT.getSubject();
-
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 List<String> rolesFromToken = decodedJWT.getClaim("roles").asList(String.class);
 
@@ -63,7 +52,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails,
+                                username,
                                 null,
                                 authorities
                         );

@@ -1,9 +1,8 @@
 package com.golf.golf_project.auth.filters;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse.AuthUser;
+import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import com.golf.golf_project.auth.utils.AuthUtils;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
@@ -28,6 +27,7 @@ public class JwtAuthenticationFilter
     private final AuthenticationManager authenticationManager;
     private final AuthUtils authUtils;
     private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public Authentication attemptAuthentication(
@@ -63,16 +63,9 @@ public class JwtAuthenticationFilter
         UserDetailsImpl userDetails = (UserDetailsImpl) authResult.getPrincipal();
         User user = userRepository.findUserByUsername(userDetails.getUsername());
         boolean mfaRequired = user.isTotpEnabled();
-        Algorithm algorithm = Algorithm.HMAC256(authUtils.getMySecret());
 
         if (mfaRequired) {
-            String mfaToken = JWT.create()
-                    .withSubject(user.getUsername())
-                    .withExpiresAt(
-                            new Date(System.currentTimeMillis() + 5 * 60 * 1000)
-                    )
-                    .withClaim("roles", List.of("ROLE_PRE_AUTH"))
-                    .sign(algorithm);
+            String mfaToken = jwtTokenProvider.generateMfaToken(user.getUsername());
 
             String gender =
                     user.getGender() != null ? user.getGender().name() : null;

@@ -2,6 +2,7 @@ package com.golf.golf_project.config;
 
 import com.golf.golf_project.auth.filters.JwtAuthenticationFilter;
 import com.golf.golf_project.auth.filters.JwtAuthorizationFilter;
+import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import com.golf.golf_project.auth.utils.AuthUtils;
 import com.golf.golf_project.users.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,8 @@ public class SecurityConfig {
             HttpSecurity http,
             AuthenticationConfiguration authenticationConfiguration,
             AuthUtils authUtils,
-            UserRepository userRepository
+            UserRepository userRepository,
+            JwtTokenProvider jwtTokenProvider
     ) throws Exception {
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
 
@@ -70,8 +72,8 @@ public class SecurityConfig {
                 );
         http.sessionManagement(
                 s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.addFilter(new JwtAuthenticationFilter(authenticationManager, authUtils, userRepository));
-        http.addFilterBefore(new JwtAuthorizationFilter(authUtils, userDetailsService),
+        http.addFilter(new JwtAuthenticationFilter(authenticationManager, authUtils, userRepository, jwtTokenProvider));
+        http.addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

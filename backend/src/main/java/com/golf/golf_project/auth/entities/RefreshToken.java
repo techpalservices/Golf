@@ -33,7 +33,7 @@ public class RefreshToken extends AuditableEntity {
     @Column(nullable = false)
     private boolean revoked = false;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }

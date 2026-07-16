@@ -3,6 +3,7 @@ package com.golf.golf_project.config;
 import com.golf.golf_project.auth.filters.JwtAuthenticationFilter;
 import com.golf.golf_project.auth.filters.JwtAuthorizationFilter;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
+import com.golf.golf_project.auth.services.MfaService;
 import com.golf.golf_project.auth.utils.AuthUtils;
 import com.golf.golf_project.users.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -55,8 +56,8 @@ public class SecurityConfig {
             AuthenticationConfiguration authenticationConfiguration,
             AuthUtils authUtils,
             UserRepository userRepository,
-            JwtTokenProvider jwtTokenProvider
-    ) throws Exception {
+            JwtTokenProvider jwtTokenProvider,
+            MfaService mfaService) throws Exception {
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
 
         http.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable)
@@ -74,7 +75,7 @@ public class SecurityConfig {
                 );
         http.sessionManagement(
                 s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.addFilter(new JwtAuthenticationFilter(authenticationManager, authUtils, userRepository, jwtTokenProvider));
+        http.addFilter(new JwtAuthenticationFilter(authenticationManager, authUtils, userRepository, jwtTokenProvider, mfaService));
         http.addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class);
         return http.build();

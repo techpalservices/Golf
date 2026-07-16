@@ -2,6 +2,7 @@ package com.golf.golf_project.auth.services;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
+import com.golf.golf_project.auth.dto.responses.MfaVerifyResponse;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
 import com.golf.golf_project.auth.entities.RefreshToken;
 import com.golf.golf_project.auth.mappers.AuthMapper;
@@ -35,6 +36,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthMapper authMapper;
     private final JwtTokenProvider  jwtTokenProvider;
+    private final MfaService mfaService;
 
     public SignUpDTOResponse signUp(SignUpDTORequest signUpDTORequest) {
 
@@ -111,5 +113,24 @@ public class AuthService {
         }else{
             throw new IllegalArgumentException("Refresh token is missing from the request body");
         }
+    }
+
+    public MfaVerifyResponse verifyMfa(String preAuthToken, String code) {
+        DecodedJWT decoded = jwtTokenProvider.decode(preAuthToken);
+        String username = decoded.getSubject();
+
+        User user = userRepository.findUserByUsername(username);
+        if (user == null) throw new BusinessException("User not found");
+
+        User verifiedUser = mfaService.verifyCode(user.getId(), code);
+
+        String accessToken = jwtTokenProvider.generateAccessToken(
+                verifiedUser.getUsername(), verifiedUser.getRole().getName(), null);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(verifiedUser);
+
+        return new MfaVerifyResponse(
+                accessToken, refreshToken,
+                verifiedUser.getId(), verifiedUser.getUsername(),
+                verifiedUser.getRole().getName());
     }
 }

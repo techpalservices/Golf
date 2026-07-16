@@ -3,6 +3,7 @@ package com.golf.golf_project.auth.filters;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse.AuthUser;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
+import com.golf.golf_project.auth.services.MfaService;
 import com.golf.golf_project.auth.utils.AuthUtils;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
@@ -28,6 +29,7 @@ public class JwtAuthenticationFilter
     private final AuthUtils authUtils;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final MfaService mfaService;
 
     @Override
     public Authentication attemptAuthentication(
@@ -65,31 +67,14 @@ public class JwtAuthenticationFilter
         boolean mfaRequired = user.isTotpEnabled();
 
         if (mfaRequired) {
+            mfaService.initiateMfa(user);
+
             String mfaToken = jwtTokenProvider.generateMfaToken(user.getUsername());
 
-            String gender =
-                    user.getGender() != null ? user.getGender().name() : null;
-
             Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("mfaTokens", mfaToken);
-
-            AuthUser authUser = new AuthUser(
-                    user.getId(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getUsername(),
-                    user.getEmail(),
-                    user.getPhoneNumber(),
-                    gender,
-                    "ROLE_PRE_AUTH"
-            );
-
-            responseBody.put("user", authUser);
-
-            List<String> methods = new ArrayList<>();
-            methods.add("Email");
-            if (user.isTotpEnabled()) methods.add("Authenticator App");
-            responseBody.put("availableMethods", methods);
+            responseBody.put("preAuthToken", mfaToken);
+            responseBody.put("message", "MFA code sent to your email");
+            responseBody.put("availableMethods", List.of("Email"));
 
             res.setContentType("application/json");
             new ObjectMapper().writeValue(res.getOutputStream(), responseBody);

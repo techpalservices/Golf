@@ -63,7 +63,7 @@ public class User extends AuditableEntity {
 
     private String totpSecret;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER) // resolving the bug related to the close of session before transforming the role proxy to the actual user's role
     @JoinColumn(name = "role_id")
     private Role role;
 }

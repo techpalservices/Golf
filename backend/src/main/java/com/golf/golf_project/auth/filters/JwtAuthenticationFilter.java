@@ -109,7 +109,7 @@ public class JwtAuthenticationFilter
 
             String roleStr =
                     user.getRole() != null
-                            ? user.getRole().toString()
+                            ? user.getRole().getName()
                             : null;
 
             SignUpDTOResponse.AuthUser authUser =

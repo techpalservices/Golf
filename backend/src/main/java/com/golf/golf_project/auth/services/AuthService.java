@@ -3,8 +3,10 @@ package com.golf.golf_project.auth.services;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
+import com.golf.golf_project.auth.entities.RefreshToken;
 import com.golf.golf_project.auth.mappers.AuthMapper;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
+import com.golf.golf_project.auth.repositories.RefreshTokenRepository;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
 import com.golf.golf_project.users.entities.User;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
+import javax.security.auth.Refreshable;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
@@ -28,6 +31,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final AuthMapper authMapper;
     private final JwtTokenProvider  jwtTokenProvider;
 
@@ -57,6 +61,18 @@ public class AuthService {
                 jwtRefreshToken,
                 savedUser
         );
+    }
+
+    public void logout(String refreshToken) throws IOException {
+        DecodedJWT decodedJWT = jwtTokenProvider.decode(refreshToken);
+        RefreshToken token = refreshTokenRepository.findByToken(refreshToken);
+
+        if (token == null || token.isRevoked()) {
+            throw new AccessDeniedException("Refresh token is invalid or revoked");
+        }
+
+        token.setRevoked(true);
+        refreshTokenRepository.save(token);
     }
 
     public void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException {

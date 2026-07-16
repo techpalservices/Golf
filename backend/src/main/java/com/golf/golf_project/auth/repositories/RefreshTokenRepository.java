@@ -4,4 +4,5 @@ import com.golf.golf_project.auth.entities.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, String> {
+    RefreshToken findByToken(String token);
 }

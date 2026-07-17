@@ -2,7 +2,9 @@ package com.golf.golf_project.config;
 
 import com.golf.golf_project.auth.filters.JwtAuthenticationFilter;
 import com.golf.golf_project.auth.filters.JwtAuthorizationFilter;
+import com.golf.golf_project.auth.handlers.OAuth2AuthenticationSuccessHandler;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
+import com.golf.golf_project.auth.services.CustomOAuth2UserService;
 import com.golf.golf_project.auth.services.MfaService;
 import com.golf.golf_project.auth.utils.AuthUtils;
 import com.golf.golf_project.users.repositories.UserRepository;
@@ -57,7 +59,10 @@ public class SecurityConfig {
             AuthUtils authUtils,
             UserRepository userRepository,
             JwtTokenProvider jwtTokenProvider,
-            MfaService mfaService) throws Exception {
+            MfaService mfaService,
+            CustomOAuth2UserService customOAuth2UserService,
+            OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler
+            ) throws Exception {
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
 
         http.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable)
@@ -78,6 +83,12 @@ public class SecurityConfig {
         http.addFilter(new JwtAuthenticationFilter(authenticationManager, authUtils, userRepository, jwtTokenProvider, mfaService));
         http.addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class);
+
+        http.oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo
+                        .userService(customOAuth2UserService))
+                .successHandler(oAuth2SuccessHandler));
+
         return http.build();
     }
 

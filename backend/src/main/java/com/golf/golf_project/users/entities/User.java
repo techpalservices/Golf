@@ -37,11 +37,11 @@ public class User extends AuditableEntity {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @Column(nullable = false)
+    @Column
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)

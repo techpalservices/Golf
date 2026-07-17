@@ -18,7 +18,7 @@ import java.util.UUID;
                         name = "uk_oauth_provider_provider_id",
                         columnNames = {"provider", "providerId"}
                 )
-        })
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -33,11 +33,11 @@ public class OAuthAccount extends AuditableEntity {
     private String providerId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private EOAProvider provider;
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
 }

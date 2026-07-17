@@ -71,7 +71,14 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/roles/**").permitAll() // for now 3la 9bl testing wsafi
-                                //.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                .requestMatchers(
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",    // ← ADD THIS
+                                        "/v3/api-docs/**",
+                                        "/v3/api-docs",
+                                        "/swagger-resources/**",
+                                        "/webjars/**"
+                                ).permitAll()
                                 //.requestMatchers("/auth/mfa/**").hasRole("PRE_AUTH")
                                 //.requestMatchers("/ws").permitAll() // Allow WebSocket endpoint HTTP upgrade without JWT at HTTP level;
                                 // JWT validation happens at STOMP layer

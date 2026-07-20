@@ -77,7 +77,8 @@ public class SecurityConfig {
                                         "/v3/api-docs/**",
                                         "/v3/api-docs",
                                         "/swagger-resources/**",
-                                        "/webjars/**"
+                                        "/webjars/**",
+                                        "/ws/**"
                                 ).permitAll()
                                 //.requestMatchers("/auth/mfa/**").hasRole("PRE_AUTH")
                                 //.requestMatchers("/ws").permitAll() // Allow WebSocket endpoint HTTP upgrade without JWT at HTTP level;

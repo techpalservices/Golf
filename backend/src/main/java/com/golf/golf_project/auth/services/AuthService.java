@@ -9,6 +9,9 @@ import com.golf.golf_project.auth.mappers.AuthMapper;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import com.golf.golf_project.auth.repositories.RefreshTokenRepository;
 import com.golf.golf_project.exeptions.entities.BusinessException;
+import com.golf.golf_project.notifications.entities.Notification;
+import com.golf.golf_project.notifications.enums.ENotificationType;
+import com.golf.golf_project.notifications.services.NotificationService;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
 import com.golf.golf_project.users.entities.User;
@@ -37,6 +40,7 @@ public class AuthService {
     private final AuthMapper authMapper;
     private final JwtTokenProvider  jwtTokenProvider;
     private final MfaService mfaService;
+    private final NotificationService notificationService;
 
     public SignUpDTOResponse signUp(SignUpDTORequest signUpDTORequest) {
 
@@ -61,6 +65,11 @@ public class AuthService {
 
         String jwtRefreshToken = jwtTokenProvider.generateRefreshToken(
                 savedUser
+        );
+
+        notificationService.sendNotification(
+                savedUser,
+                "Welcome to Golf Project! Your account has been successfully created."
         );
 
         return authMapper.toSignUpDTOResponse(

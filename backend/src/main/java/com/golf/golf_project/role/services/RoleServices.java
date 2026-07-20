@@ -24,6 +24,7 @@ public class RoleServices {
         }
         Role role = roleMapper.toRole(newRoleRequest);
         roleRepository.save(role);
+
         return roleMapper.toNewRoleResponse(role);
     }
 }

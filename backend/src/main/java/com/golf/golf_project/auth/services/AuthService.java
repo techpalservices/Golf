@@ -67,11 +67,6 @@ public class AuthService {
                 savedUser
         );
 
-        notificationService.sendNotification(
-                savedUser,
-                "Welcome to Golf Project! Your account has been successfully created."
-        );
-
         return authMapper.toSignUpDTOResponse(
                 jwtAccessToken,
                 jwtRefreshToken,
@@ -136,6 +131,11 @@ public class AuthService {
         String accessToken = jwtTokenProvider.generateAccessToken(
                 verifiedUser.getUsername(), verifiedUser.getRole().getName(), null);
         String refreshToken = jwtTokenProvider.generateRefreshToken(verifiedUser);
+
+        notificationService.sendNotification(
+                verifiedUser,
+                "Welcome to Golf Project! Your account has been successfully created."
+        );
 
         return new MfaVerifyResponse(
                 accessToken, refreshToken,

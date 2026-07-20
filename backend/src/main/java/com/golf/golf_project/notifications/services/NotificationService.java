@@ -2,6 +2,7 @@ package com.golf.golf_project.notifications.services;
 
 import com.golf.golf_project.notifications.dto.NotificationResponse;
 import com.golf.golf_project.notifications.entities.Notification;
+import com.golf.golf_project.notifications.enums.ENotificationType;
 import com.golf.golf_project.notifications.repository.NotificationRepository;
 import com.golf.golf_project.users.entities.User;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,11 @@ public class NotificationService {
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setMessage(message);
+
+        // Add these two lines!
+        notification.setTitle("Welcome");
+        notification.setType(ENotificationType.USER_REGISTRATION);
+
         notificationRepository.save(notification);
 
         NotificationResponse dto = new NotificationResponse(
@@ -30,11 +36,6 @@ public class NotificationService {
                 user.getId()
         );
 
-        messagingTemplate.convertAndSendToUser(user.getId().toString(), "/queue/notifications", dto);
-        System.out.println("Sent notification");
-        System.out.println("Sent notification");
-        System.out.println("Sent notification");
-        System.out.println("Sent notification");
-        System.out.println("Sent notification");
+        messagingTemplate.convertAndSendToUser(user.getUsername(), "/queue/notifications", dto);
     }
 }

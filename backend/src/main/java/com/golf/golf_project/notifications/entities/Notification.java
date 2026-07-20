@@ -35,6 +35,6 @@ public class Notification extends AuditableEntity {
     @Column(name = "is_read")
     boolean isRead = false;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     User user;
 }

@@ -134,7 +134,10 @@ public class AuthService {
         }
     }
 
-    public MfaVerifyResponse verifyMfa(String preAuthToken, String code) {
+    public void verifyMfa(String preAuthToken,
+                                       String code,
+                                       HttpServletResponse response
+    ) {
         DecodedJWT decoded = jwtTokenProvider.decode(preAuthToken);
         String username = decoded.getSubject();
 
@@ -152,9 +155,32 @@ public class AuthService {
                 "Welcome to Golf Project! Your account has been successfully created."
         );
 
-        return new MfaVerifyResponse(
-                accessToken, refreshToken,
-                verifiedUser.getId(), verifiedUser.getUsername(),
-                verifiedUser.getRole().getName());
+        boolean production = false; // Set this based on your environment
+
+        ResponseCookie jwtCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(production)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(24 * 60 * 60) // 1 day in seconds
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(production)
+                .path("/")
+                .sameSite("Lax")
+                .maxAge(7 * 24 * 60 * 60) // 1 week in seconds
+                .build();
+
+        ResponseCookie deletePreAuthToken = ResponseCookie.from("preAuthToken", "")
+                .httpOnly(true)
+                .path("/mfa/verify")
+                .maxAge(0)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, deletePreAuthToken.toString());
     }
 }

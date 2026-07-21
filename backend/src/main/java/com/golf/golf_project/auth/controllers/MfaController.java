@@ -32,28 +32,7 @@ public class MfaController {
                     .body("MFA token is missing"); // just for the test
         }
 
-        boolean production = false; // Set this based on your environment
-
-        MfaVerifyResponse authResponse = authService.verifyMfa(preAuthToken, request.code());
-
-        ResponseCookie jwtCookie = ResponseCookie.from("accessToken", authResponse.accessToken())
-                .httpOnly(true)
-                .secure(production)
-                .path("/")
-                .sameSite("Lax")
-                .maxAge(24 * 60 * 60) // 1 day in seconds
-                .build();
-
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", authResponse.refreshToken())
-                .httpOnly(true)
-                .secure(production)
-                .path("/")
-                .sameSite("Lax")
-                .maxAge(7 * 24 * 60 * 60) // 1 week in seconds
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        authService.verifyMfa(preAuthToken, request.code(), response);
 
         return ResponseEntity.ok(ApiResponse.success("Successfully authenticated"));
     }

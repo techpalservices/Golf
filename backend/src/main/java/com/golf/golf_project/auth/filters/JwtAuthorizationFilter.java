@@ -33,8 +33,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 req.getServletPath().equals("/auth/sign-up") ||
                 req.getServletPath().equals("/login") ||
                 req.getServletPath().equals("/mfa/verify") ||
-                req.getServletPath().equals("/mfa/enable") /*||
-                req.getServletPath().startsWith("/ws"))*/
+                req.getServletPath().equals("/mfa/enable")
         )
         {
             filterChain.doFilter(req, res);

@@ -4,19 +4,19 @@ import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
 import com.golf.golf_project.auth.services.AuthService;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
+import com.golf.golf_project.users.entities.User;
+import com.golf.golf_project.users.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.Response;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -24,12 +24,35 @@ import java.util.Map;
 @AllArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final UserRepository userRepository;
 
     @PostMapping("/sign-up")
     public ApiResponse<SignUpDTOResponse> signUp(
             @RequestBody @Valid SignUpDTORequest req
     ) {
         return ApiResponse.success(authService.signUp(req));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Not authenticated");
+        }
+
+        String username = auth.getName();
+        User user = userRepository.findUserByUsername(username);
+
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("id", user.getId());
+        userInfo.put("firstName", user.getFirstName());
+        userInfo.put("lastName", user.getLastName());
+        userInfo.put("username", user.getUsername());
+        userInfo.put("email", user.getEmail());
+        userInfo.put("role", user.getRole().getName());
+
+        return ResponseEntity.ok(ApiResponse.success(userInfo));
     }
 
     @PreAuthorize("isAuthenticated()")

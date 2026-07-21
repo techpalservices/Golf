@@ -85,7 +85,6 @@ public class JwtAuthenticationFilter
             res.addHeader(HttpHeaders.SET_COOKIE, mfaCookie.toString());
 
             Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("preAuthToken", mfaToken);
             responseBody.put("message", "MFA code sent to your email");
             responseBody.put("availableMethods", List.of("Email"));
 

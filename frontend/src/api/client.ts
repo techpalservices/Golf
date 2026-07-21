@@ -1,9 +1,9 @@
 import * as axios from "axios";
-import {useEnv} from "@/hooks/useEnv.ts";
+import { getEnv } from "@/hooks/getEnv.ts";
 
-const { dev } = useEnv()
+const { dev } = getEnv();
 
 export const apiClient = axios.create({
     baseURL: dev.server,
-    withCredentials: true
-})
+    withCredentials: true,
+});

@@ -1,34 +1,39 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuthStore } from '../store';
+import {useLogin} from "@/features/auth/hooks/useLogin.ts";
 
 export default function LoginForm() {
   const { t } = useTranslation('auth');
-  const navigate = useNavigate();
-  const login = useAuthStore((s) => s.login);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+
+  const loginmutate = useLogin();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock — replace with API call
-    login({
-      id: '1',
-      email,
-      firstName: 'Jean',
-      lastName: 'Dupont',
-      role: 'PLAYER',
-    });
-    toast.success(t('notification.loginSuccess'), {
-      description: t('notification.loginSuccessDesc'),
-    });
-    navigate('/player/dashboard');
-  };
+
+    loginmutate.mutate(
+        { identifier: email, password },
+        {
+          onSuccess: (res) => {
+            if (res.data.success) {
+              toast.success(t('notification.loginSuccess'));
+              navigate("/dashboard");
+            }
+          },
+          onError: (err: any) => {
+            const message = err?.response?.data?.message || t('notification.loginError');
+            toast.error(message);
+          }
+        }
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">

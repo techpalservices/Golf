@@ -19,6 +19,8 @@ import com.golf.golf_project.users.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
@@ -74,16 +76,16 @@ public class AuthService {
         );
     }
 
-    public void logout(String refreshToken) throws IOException {
-        DecodedJWT decodedJWT = jwtTokenProvider.decode(refreshToken);
-        RefreshToken token = refreshTokenRepository.findByToken(refreshToken);
+    // can be deleted or used after that
+    public void logout(HttpServletResponse response) throws IOException {
+        ResponseCookie deleteJwt = ResponseCookie.from("accessToken", "")
+                .httpOnly(true).path("/").maxAge(0).build();
 
-        if (token == null || token.isRevoked()) {
-            throw new AccessDeniedException("Refresh token is invalid or revoked");
-        }
+        ResponseCookie deleteRefresh = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true).path("/").maxAge(0).build();
 
-        token.setRevoked(true);
-        refreshTokenRepository.save(token);
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteJwt.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteRefresh.toString());
     }
 
     public void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException {
@@ -104,11 +106,24 @@ public class AuthService {
                         req.getRequestURL().toString()
                 );
 
-                Map<String, String> idToken = new HashMap<>();
-                idToken.put("accessToken", jwtAccessToken);
-                idToken.put("refreshToken", jwt);
+                boolean production = false;
+
+                ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtAccessToken)
+                        .httpOnly(true)
+                        .secure(production)
+                        .path("/")
+                        .sameSite("Lax")
+                        .maxAge(24 * 60 * 60)
+                        .build();
+
+                res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+
+                Map<String, Object> responseBody = new HashMap<>();
+                responseBody.put("success", true);
+                responseBody.put("message", "Token refreshed successfully");
+
                 res.setContentType("application/json");
-                new ObjectMapper().writeValue(res.getOutputStream(), idToken);
+                new ObjectMapper().writeValue(res.getOutputStream(), responseBody);
 
             }catch(Exception e){
                 System.out.println("Refresh token error: " + e.getMessage());

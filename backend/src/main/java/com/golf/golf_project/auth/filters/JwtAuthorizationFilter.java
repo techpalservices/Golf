@@ -4,6 +4,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -33,11 +34,18 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String jwtAuthorizationToken = req.getHeader("Authorization");
+        String jwt = null;
+        if (req.getCookies() != null) {
+            for (Cookie cookie : req.getCookies()) {
+                if ("accessToken".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
+        }
 
-        if (jwtAuthorizationToken != null && jwtAuthorizationToken.startsWith("Bearer ")) {
+        if (jwt != null) {
             try {
-                String jwt = jwtAuthorizationToken.substring(7);
                 DecodedJWT decodedJWT = jwtTokenProvider.decode(jwt);
 
                 String username = decodedJWT.getSubject();

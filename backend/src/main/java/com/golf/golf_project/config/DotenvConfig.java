@@ -1,5 +1,6 @@
 package com.golf.golf_project.config;
 
+import java.io.File;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -13,7 +14,32 @@ public class DotenvConfig implements ApplicationContextInitializer<ConfigurableA
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        Dotenv dotenv = Dotenv.configure().directory(".").ignoreIfMissing().load();
+        String userDir = System.getProperty("user.dir");
+
+        // Try the current working directory first, then /backend subdirectory
+        String[] pathsToTry = {
+                userDir,
+                userDir + File.separator + "backend"
+        };
+
+        Dotenv dotenv = null;
+        for (String path : pathsToTry) {
+            File envFile = new File(path, ".env");
+            if (envFile.exists()) {
+                dotenv = Dotenv.configure()
+                        .directory(path)
+                        .load();
+                break;
+            }
+        }
+
+        // Fallback: ignore if missing (no .env found at all)
+        if (dotenv == null) {
+            dotenv = Dotenv.configure()
+                    .directory(".")
+                    .ignoreIfMissing()
+                    .load();
+        }
 
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
 

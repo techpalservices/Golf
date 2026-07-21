@@ -1,7 +1,6 @@
 package com.golf.golf_project.auth.filters;
 
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
-import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse.AuthUser;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import com.golf.golf_project.auth.services.MfaService;
 import com.golf.golf_project.auth.utils.AuthUtils;
@@ -14,6 +13,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -85,27 +86,46 @@ public class JwtAuthenticationFilter
 
             SignUpDTOResponse.Tokens tokens = token.tokens();
 
+            boolean production = false; // change based on environment
+
+            ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokens.accessToken())
+                    .httpOnly(true)
+                    .secure(production)
+                    .path("/")
+                    .sameSite("Lax")
+                    .maxAge(24 * 60 * 60)
+                    .build();
+
+            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokens.refreshToken())
+                    .httpOnly(true)
+                    .secure(production)
+                    .path("/")
+                    .sameSite("Lax")
+                    .maxAge(7 * 24 * 60 * 60)
+                    .build();
+
+            res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+            res.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
             String roleStr =
                     user.getRole() != null
                             ? user.getRole().getName()
                             : null;
 
-            SignUpDTOResponse.AuthUser authUser =
-                    new SignUpDTOResponse.AuthUser(
-                            user.getId(),
-                            user.getFirstName(),
-                            user.getLastName(),
-                            user.getUsername(),
-                            user.getEmail(),
-                            user.getPhoneNumber(),
-                            user.getGender() != null ? user.getGender().name() : null,
-                            roleStr
-                    );
+            Map<String, Object> userInfo = new HashMap<>();
+            userInfo.put("id", user.getId());
+            userInfo.put("firstName", user.getFirstName());
+            userInfo.put("lastName", user.getLastName());
+            userInfo.put("username", user.getUsername());
+            userInfo.put("email", user.getEmail());
+            userInfo.put("phoneNumber", user.getPhoneNumber());
+            userInfo.put("gender", user.getGender() != null ? user.getGender().name() : null);
+            userInfo.put("role", roleStr);
 
-            SignUpDTOResponse responseBody = new SignUpDTOResponse(
-                    tokens,
-                    authUser
-            );
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("success", true);
+            responseBody.put("message", "Successfully authenticated");
+            responseBody.put("data", userInfo);
 
             res.setContentType("application/json");
             new ObjectMapper().writeValue(res.getOutputStream(), responseBody);

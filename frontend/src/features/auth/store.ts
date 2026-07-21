@@ -8,9 +8,6 @@ interface AuthState {
   logout: () => void;
 }
 
-// costum user for testing purposes, 
-// replace with actual user data from API or authentication service 
-// after implementing authentication in the server side.
 const user : User = {
   id: "1",
   email: "john.doe@example.com",

@@ -4,8 +4,12 @@ import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
 import com.golf.golf_project.auth.services.AuthService;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.Response;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,13 +35,9 @@ public class AuthController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
-            @RequestBody Map<String, String> body
+            HttpServletResponse response
     ) throws Exception {
-        String refreshToken = body.get("refreshToken");
-        if (refreshToken == null || refreshToken.isEmpty()) {
-            return ResponseEntity.badRequest().body("Refresh token is required");
-        }
-        authService.logout(refreshToken);
+        authService.logout(response);
         return ResponseEntity.ok("User logged out");
     }
 }

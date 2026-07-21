@@ -70,6 +70,7 @@ public class SecurityConfig {
                         auth -> auth
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/mfa/**")
                                 .requestMatchers("/roles/**").permitAll() // for now 3la 9bl testing wsafi
                                 .requestMatchers(
                                         "/swagger-ui/**",

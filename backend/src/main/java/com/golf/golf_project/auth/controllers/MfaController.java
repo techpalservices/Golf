@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +21,19 @@ public class MfaController {
     private final AuthService authService;
 
     @PostMapping("/verify")
-    public ResponseEntity<ApiResponse<?>> verifyMfa(
-            @RequestHeader("Authorization") String authHeader,
+    public ResponseEntity<?> verifyMfa(
+            @CookieValue(value = "preAuthToken") String preAuthToken,
             @RequestBody @Valid MfaAppReq request,
             HttpServletResponse response
     ) {
+
+        if (preAuthToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("MFA token is missing"); // just for the test
+        }
+
         boolean production = false; // Set this based on your environment
 
-        String preAuthToken = authHeader.substring(7);
         MfaVerifyResponse authResponse = authService.verifyMfa(preAuthToken, request.code());
 
         ResponseCookie jwtCookie = ResponseCookie.from("accessToken", authResponse.accessToken())

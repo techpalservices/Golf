@@ -29,7 +29,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        if (req.getServletPath().equals("/auth/refreshToken")) {
+        if (req.getServletPath().equals("/auth/refreshToken") || req.getServletPath().equals("/auth/sign-up") || req.getServletPath().equals("/login") || req.getServletPath().equals("/mfa/verify")) {
             filterChain.doFilter(req, res);
             return;
         }

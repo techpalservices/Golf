@@ -72,6 +72,18 @@ public class JwtAuthenticationFilter
 
             String mfaToken = jwtTokenProvider.generateMfaToken(user.getUsername());
 
+            boolean production = false;
+
+            ResponseCookie mfaCookie = ResponseCookie.from("preAuthToken", mfaToken)
+                    .httpOnly(true)
+                    .secure(production)
+                    .path("/mfa/verify")
+                    .sameSite("Lax")
+                    .maxAge(5 * 60) // 5 minutes, matches token expiry
+                    .build();
+
+            res.addHeader(HttpHeaders.SET_COOKIE, mfaCookie.toString());
+
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("preAuthToken", mfaToken);
             responseBody.put("message", "MFA code sent to your email");

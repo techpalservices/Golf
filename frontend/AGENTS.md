@@ -34,7 +34,7 @@ One Vite application with feature-based folder organization. Route-based code sp
 ```
 src/
 ├── api/                        # API layer
-│   ├── client.ts                # Axios instance + interceptors (auth token, 401 refresh)
+│   ├── apiConfig.ts                # Axios instance + interceptors (auth token, 401 refresh)
 │   └── endpoints/                # One file per feature endpoint
 │       ├── auth.api.ts
 │       ├── clubs.api.ts

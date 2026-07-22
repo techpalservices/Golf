@@ -94,15 +94,13 @@ export default function NotificationDropdown({ notifications, onMarkAllRead }: N
   if (isDesktop) {
     return (
       <Popover>
-        <PopoverTrigger>
-          <button className="relative" aria-label="Notifications">
+        <PopoverTrigger className="relative" aria-label="Notifications">
             <Bell size={18} className="text-secondary hover:text-primary transition-colors" />
             {unreadCount > 0 && (
               <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
                 {unreadCount}
               </span>
             )}
-          </button>
         </PopoverTrigger>
         <PopoverContent className="w-80 p-0 bg-white" align="end">
           {notificationList}
@@ -114,15 +112,13 @@ export default function NotificationDropdown({ notifications, onMarkAllRead }: N
   // ─── Mobile: Drawer ───
   return (
     <Drawer>
-        <DrawerTrigger asChild>
-            <button className="relative" aria-label="Notifications">
+        <DrawerTrigger className="relative" aria-label="Notifications">
                 <Bell size={18} className="text-secondary hover:text-primary transition-colors" />
                 {unreadCount > 0 && (
                 <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
                     {unreadCount}
                 </span>
                 )}
-            </button>
       </DrawerTrigger>
       <DrawerContent className="max-h-[70vh] bg-white">
         <div className="overflow-y-auto">{notificationList}</div>

@@ -13,12 +13,12 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const loginmutate = useLogin();
+  const loginMutation = useLogin();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    loginmutate.mutate(
+    loginMutation.mutate(
         { identifier: email, password },
         {
           onSuccess: (res) => {

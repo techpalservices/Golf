@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { LogOut, type LucideIcon } from 'lucide-react';
-import { useAuthStore } from '@/features/auth/store';
+import {useLogout} from "@/features/auth/hooks/useLogout.ts";
 
 export interface NavItem {
   key: string;
@@ -15,12 +15,11 @@ interface SidebarProps {
 
 export default function Sidebar({ items }: SidebarProps) {
   const { t } = useTranslation('app');
-  const navigate = useNavigate();
-  const logout = useAuthStore((s) => s.logout);
+
+  const logoutMutation = useLogout();
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    logoutMutation.mutate();
   };
 
   return (

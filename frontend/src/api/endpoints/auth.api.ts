@@ -7,4 +7,7 @@ export const authApi = {
 
     me: () =>
         api.get<ApiResponse<AuthUserDTO>>('/auth/me'),
+
+    logout: () =>
+        api.post('/auth/logout'),
 };

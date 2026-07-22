@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ManagerGuard, AdminGuard } from './RoleGuard';
 import * as L from './lazy';
 import AppLayout from '@/components/layout/AppLayout';
+import ProtectedRoute from "@/routes/ProtectedRoute.tsx";
 
 export const router = createBrowserRouter([
   // ─── Public ───
@@ -29,7 +30,7 @@ export const router = createBrowserRouter([
 
   // ─── Player (auth + PLAYER role) ───
   {
-    // Component: ProtectedRoute,
+    Component: ProtectedRoute,
     children: [
       {
         Component: AppLayout,

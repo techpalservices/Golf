@@ -2,15 +2,12 @@ package com.golf.golf_project.auth.services;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
-import com.golf.golf_project.auth.dto.responses.MfaVerifyResponse;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
 import com.golf.golf_project.auth.entities.RefreshToken;
 import com.golf.golf_project.auth.mappers.AuthMapper;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import com.golf.golf_project.auth.repositories.RefreshTokenRepository;
 import com.golf.golf_project.exeptions.entities.BusinessException;
-import com.golf.golf_project.notifications.entities.Notification;
-import com.golf.golf_project.notifications.enums.ENotificationType;
 import com.golf.golf_project.notifications.services.NotificationService;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
@@ -24,13 +21,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.ObjectMapper;
 
-import javax.security.auth.Refreshable;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor

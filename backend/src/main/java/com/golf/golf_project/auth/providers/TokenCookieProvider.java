@@ -1,6 +1,5 @@
 package com.golf.golf_project.auth.providers;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 

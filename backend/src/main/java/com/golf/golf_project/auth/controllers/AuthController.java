@@ -6,6 +6,7 @@ import com.golf.golf_project.auth.services.AuthService;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -55,12 +56,22 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(userInfo));
     }
 
+    @PostMapping("/refreshToken")
+    public ResponseEntity<String> refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws Exception {
+        authService.refreshToken(request, response);
+        return ResponseEntity.ok("Token refreshed successfully");
+    }
+
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
+            HttpServletRequest request,
             HttpServletResponse response
     ) throws Exception {
-        authService.logout(response);
+        authService.logout(request, response);
         return ResponseEntity.ok("User logged out");
     }
 }

@@ -16,6 +16,7 @@ import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -76,8 +77,20 @@ public class AuthService {
         );
     }
 
-    // can be deleted or used after that
-    public void logout(HttpServletResponse response) throws IOException {
+    public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    String refreshTokenValue = cookie.getValue();
+                    RefreshToken storedToken = refreshTokenRepository.findByToken(refreshTokenValue);
+                    if (storedToken != null && !storedToken.isRevoked()) {
+                        storedToken.setRevoked(true);
+                        refreshTokenRepository.save(storedToken);
+                    }
+                    break;
+                }
+            }
+        }
         ResponseCookie deleteJwt = ResponseCookie.from("accessToken", "")
                 .httpOnly(true).path("/").maxAge(0).build();
 
@@ -89,17 +102,27 @@ public class AuthService {
     }
 
     public void refreshToken(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        @SuppressWarnings("unchecked")
-        Map<String, String> requestBody = mapper.readValue(req.getInputStream(), Map.class);
-        String jwt = requestBody.get("refreshToken");
+        String jwt = null;
+        if (req.getCookies() != null) {
+            for (Cookie cookie : req.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
+        }
 
         if(jwt != null && !jwt.isEmpty()){
-            try{;
+            try{
                 DecodedJWT decodedJWT = jwtTokenProvider.decode(jwt);
                 String username = decodedJWT.getSubject();
                 User user = userRepository.findUserByUsername(username);
-                // create access token
+
+                RefreshToken storedToken = refreshTokenRepository.findByToken(jwt);
+                if (storedToken == null || storedToken.isRevoked()) {
+                    throw new AccessDeniedException("Refresh token is revoked");
+                }
+
                 String jwtAccessToken = jwtTokenProvider.generateAccessToken(
                         username,
                         user.getRole().getName(),
@@ -118,15 +141,7 @@ public class AuthService {
 
                 res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
 
-                Map<String, Object> responseBody = new HashMap<>();
-                responseBody.put("success", true);
-                responseBody.put("message", "Token refreshed successfully");
-
-                res.setContentType("application/json");
-                new ObjectMapper().writeValue(res.getOutputStream(), responseBody);
-
             }catch(Exception e){
-                System.out.println("Refresh token error: " + e.getMessage());
                 throw new AccessDeniedException(e.getMessage());
             }
         }else{

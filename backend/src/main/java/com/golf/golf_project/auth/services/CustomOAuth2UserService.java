@@ -11,6 +11,7 @@ import com.golf.golf_project.users.enums.EUStatus;
 import com.golf.golf_project.users.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -33,7 +34,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) {
         // 1. Fetch user info from provider (Google/Facebook)
-        OAuth2User delegate = new org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService().loadUser(request);
+        OAuth2User delegate = new DefaultOAuth2UserService().loadUser(request);
         Map<String, Object> attrs = delegate.getAttributes();
 
         // Provider ID: Google uses "sub", Facebook uses "id"

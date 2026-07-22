@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {useLogin} from "@/features/auth/hooks/useLogin.ts";
+import { FaChrome} from "react-icons/fa";
 
 export default function LoginForm() {
   const { t } = useTranslation('auth');
@@ -73,6 +74,25 @@ export default function LoginForm() {
       <Button type="submit" size="lg" className="w-full">
         {t('login.button')}
       </Button>
+
+        <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+    <span className="bg-surface px-2 text-muted-foreground">
+      {t('login.orContinueWith', 'or continue with')}
+    </span>
+            </div>
+        </div>
+
+        <a
+            href="http://localhost:8081/oauth2/authorization/google"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-border py-2.5 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
+        >
+            <FaChrome size={18} />
+            {t('login.signInWithGoogle', 'Sign in with Google')}
+        </a>
 
       {/* Switch to register */}
       <div className="mt-2 text-center text-sm text-muted-foreground">

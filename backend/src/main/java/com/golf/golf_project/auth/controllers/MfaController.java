@@ -1,6 +1,7 @@
 package com.golf.golf_project.auth.controllers;
 
 import com.golf.golf_project.auth.dto.requests.MfaAppReq;
+import com.golf.golf_project.auth.dto.responses.MfaVerifyResponse;
 import com.golf.golf_project.auth.services.AuthService;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,8 +30,8 @@ public class MfaController {
                     .body("MFA token is missing"); // just for the test
         }
 
-        authService.verifyMfa(preAuthToken, request.code(), response);
+        MfaVerifyResponse mfaVerifyResponse = authService.verifyMfa(preAuthToken, request.code(), response);
 
-        return ResponseEntity.ok(ApiResponse.success("Successfully authenticated"));
+        return ResponseEntity.ok(ApiResponse.success(mfaVerifyResponse));
     }
 }

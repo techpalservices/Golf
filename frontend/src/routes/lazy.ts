@@ -22,6 +22,9 @@ const lazyMemberships = () =>
 const lazyLogin = () =>
   import('@/features/auth/pages/LoginPage').then((m) => ({ Component: m.default }));
 
+const lazyMfaVerification = () =>
+    import('@/features/auth/pages/MfaVerificationPage').then((m) => ({ Component: m.default }));
+
 const lazyRegister = () =>
   import('@/features/auth/pages/RegisterPage').then((m) => ({ Component: m.default }));
 
@@ -90,6 +93,7 @@ export const campusDetail = { lazy: lazyPlaceholder };
 export const shop = { lazy: lazyPlaceholder };
 export const shopDetail = { lazy: lazyPlaceholder };
 export const login = { lazy: lazyLogin };
+export const mfaVerification = { lazy: lazyMfaVerification };
 export const register = { lazy: lazyRegister };
 export const forgotPassword = { lazy: lazyPlaceholder };
 export const resetPassword = { lazy: lazyPlaceholder };

@@ -21,6 +21,7 @@ export const router = createBrowserRouter([
       { path: 'shop', ...L.shop },
       { path: 'shop/:productId', ...L.shopDetail },
       { path: 'login', ...L.login },
+      { path: 'mfa-verification', ...L.mfaVerification },
       { path: 'register', ...L.register },
       { path: 'forgot-password', ...L.forgotPassword },
       { path: 'reset-password', ...L.resetPassword },

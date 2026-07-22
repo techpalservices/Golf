@@ -49,6 +49,8 @@ public class AuthController {
         userInfo.put("id", user.getId());
         userInfo.put("firstName", user.getFirstName());
         userInfo.put("lastName", user.getLastName());
+        userInfo.put("gender", user.getGender());
+        userInfo.put("phoneNumber", user.getPhoneNumber());
         userInfo.put("username", user.getUsername());
         userInfo.put("email", user.getEmail());
         userInfo.put("role", user.getRole().getName());

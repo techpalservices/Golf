@@ -2,6 +2,7 @@ package com.golf.golf_project.auth.services;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
+import com.golf.golf_project.auth.dto.responses.MfaVerifyResponse;
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
 import com.golf.golf_project.auth.entities.RefreshToken;
 import com.golf.golf_project.auth.mappers.AuthMapper;
@@ -142,7 +143,7 @@ public class AuthService {
         }
     }
 
-    public void verifyMfa(String preAuthToken,
+    public MfaVerifyResponse verifyMfa(String preAuthToken,
                                        String code,
                                        HttpServletResponse response
     ) {
@@ -190,5 +191,16 @@ public class AuthService {
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, deletePreAuthToken.toString());
+
+        return new MfaVerifyResponse(
+                user.getFirstName(),
+                user.getLastName(),
+                user.getPhoneNumber(),
+                user.getRole().getName(),
+                user.getGender(),
+                user.getId(),
+                user.getEmail(),
+                user.getUsername()
+        );
     }
 }

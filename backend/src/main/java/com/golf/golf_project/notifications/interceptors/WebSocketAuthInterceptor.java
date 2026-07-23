@@ -1,4 +1,4 @@
-package com.golf.golf_project.config;
+package com.golf.golf_project.notifications.interceptors;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
@@ -11,6 +11,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,11 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                 MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
+            if (accessor.getSessionAttributes() != null
+                    && accessor.getSessionAttributes().get("auth") instanceof Authentication auth) {
+                accessor.setUser(auth);
+                return message;
+            }
 
             String authHeader = accessor.getFirstNativeHeader("Authorization");
 

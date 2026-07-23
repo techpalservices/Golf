@@ -1,5 +1,7 @@
 package com.golf.golf_project.config;
 
+import com.golf.golf_project.notifications.interceptors.WebSocketAuthInterceptor;
+import com.golf.golf_project.notifications.interceptors.WebSocketHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
+    private final WebSocketHandshakeInterceptor webSocketHandshakeInterceptor;
 
     @Value("${CLIENT_URL}")
     private String clientUrl;
@@ -38,6 +41,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(org.springframework.web.socket.config.annotation.StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns(clientUrl)
+                .addInterceptors(webSocketHandshakeInterceptor)
                 .setAllowedOriginPatterns("*");
 //                .withSockJS();
     }

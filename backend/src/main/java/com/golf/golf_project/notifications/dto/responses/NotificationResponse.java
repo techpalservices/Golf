@@ -1,4 +1,4 @@
-package com.golf.golf_project.notifications.dto;
+package com.golf.golf_project.notifications.dto.responses;
 
 import com.golf.golf_project.notifications.enums.ENotificationType;
 

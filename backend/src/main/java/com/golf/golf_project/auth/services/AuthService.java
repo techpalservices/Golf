@@ -167,7 +167,7 @@ public class AuthService {
 
         notificationService.sendNotification(
                 verifiedUser,
-                "Welcome to Golf Project! Your account has been successfully created."
+                "Welcome to Golf Project! Your login has been successfully verified!."
         );
 
         boolean production = false; // Set this based on your environment

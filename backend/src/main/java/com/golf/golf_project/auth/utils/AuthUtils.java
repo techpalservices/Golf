@@ -1,15 +1,16 @@
 package com.golf.golf_project.auth.utils;
 
 import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
-import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse.Tokens;
-import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse.AuthUser;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ public class AuthUtils {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    public SignUpDTOResponse generateTokenResponse(UserDetails userDetails){
+    public SignUpDTOResponse generateTokenResponse(UserDetails userDetails, HttpServletResponse res){
 
         User user = userRepository.findUserByUsername(userDetails.getUsername());
 
@@ -42,21 +43,23 @@ public class AuthUtils {
                 ? user.getRole().getName()
                 : null;
 
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtAccessToken)
+                .httpOnly(true).secure(false).path("/").sameSite("Lax").maxAge(86400).build();
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", jwtRefreshToken)
+                .httpOnly(true).secure(false).path("/").sameSite("Lax").maxAge(604800).build();
+
+        res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        res.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
         return new SignUpDTOResponse(
-                new Tokens(
-                        jwtAccessToken,
-                        jwtRefreshToken
-                ),
-                new AuthUser(
-                        user.getId(),
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getPhoneNumber(),
-                        gender,
-                        role
-                )
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                gender,
+                role
         );
     }
 }

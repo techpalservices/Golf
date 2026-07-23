@@ -29,25 +29,17 @@ public class AuthMapper {
     }
 
     public SignUpDTOResponse toSignUpDTOResponse(
-            String accessToken,
-            String refreshToken,
             User user
     ) {
         return new SignUpDTOResponse(
-                new SignUpDTOResponse.Tokens(
-                        accessToken,
-                        refreshToken
-                ),
-                new SignUpDTOResponse.AuthUser(
-                        user.getId(),
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getPhoneNumber(),
-                        user.getGender().toString(),
-                        user.getRole().getName()
-                )
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getGender().toString(),
+                user.getRole().getName()
         );
     }
 }

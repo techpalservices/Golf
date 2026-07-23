@@ -29,9 +29,10 @@ public class AuthController {
 
     @PostMapping("/sign-up")
     public ApiResponse<SignUpDTOResponse> signUp(
-            @RequestBody @Valid SignUpDTORequest req
+            @RequestBody @Valid SignUpDTORequest req,
+            HttpServletResponse res
     ) {
-        return ApiResponse.success(authService.signUp(req));
+        return ApiResponse.success(authService.signUp(req,res));
     }
 
     @GetMapping("/me")

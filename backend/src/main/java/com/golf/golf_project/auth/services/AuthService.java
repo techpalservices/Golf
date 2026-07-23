@@ -39,7 +39,7 @@ public class AuthService {
     private final MfaService mfaService;
     private final NotificationService notificationService;
 
-    public SignUpDTOResponse signUp(SignUpDTORequest signUpDTORequest) {
+    public SignUpDTOResponse signUp(SignUpDTORequest signUpDTORequest, HttpServletResponse res) {
 
         if (userRepository.existsByUsername(signUpDTORequest.username())) {
             throw new BusinessException("Username already taken");
@@ -64,9 +64,15 @@ public class AuthService {
                 savedUser
         );
 
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtAccessToken)
+                .httpOnly(true).secure(false).path("/").sameSite("Lax").maxAge(86400).build();
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", jwtRefreshToken)
+                .httpOnly(true).secure(false).path("/").sameSite("Lax").maxAge(604800).build();
+
+        res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        res.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
         return authMapper.toSignUpDTOResponse(
-                jwtAccessToken,
-                jwtRefreshToken,
                 savedUser
         );
     }

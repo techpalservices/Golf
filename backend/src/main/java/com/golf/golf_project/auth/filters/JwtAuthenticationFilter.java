@@ -92,31 +92,9 @@ public class JwtAuthenticationFilter
             new ObjectMapper().writeValue(res.getOutputStream(), responseBody);
         } else {
             SignUpDTOResponse token = authUtils.generateTokenResponse(
-                    userDetails
+                    userDetails,
+                    res
             );
-
-            SignUpDTOResponse.Tokens tokens = token.tokens();
-
-            boolean production = false; // change based on environment
-
-            ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokens.accessToken())
-                    .httpOnly(true)
-                    .secure(production)
-                    .path("/")
-                    .sameSite("Lax")
-                    .maxAge(24 * 60 * 60)
-                    .build();
-
-            ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokens.refreshToken())
-                    .httpOnly(true)
-                    .secure(production)
-                    .path("/")
-                    .sameSite("Lax")
-                    .maxAge(7 * 24 * 60 * 60)
-                    .build();
-
-            res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
-            res.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
             String roleStr =
                     user.getRole() != null

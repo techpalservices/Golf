@@ -23,7 +23,7 @@ export interface AuthUserDTO {
   lastName: string;
   username: string;
   email: string;
-  phoneNumber: string | null;
+  phoneNumber: string;
   gender: string | null;
   role: string;
 }
@@ -31,4 +31,14 @@ export interface AuthUserDTO {
 export interface LoginDTO {
   identifier: string;
   password: string;
+}
+
+export interface SignUpDTO {
+    firstName: string;
+    lastName: string;
+    email: string;
+    gender: string | null;
+    phoneNumber: string;
+    username: string;
+    password: string;
 }

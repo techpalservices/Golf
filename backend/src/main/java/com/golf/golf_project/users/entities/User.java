@@ -2,6 +2,8 @@ package com.golf.golf_project.users.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.golf.golf_project.base.entities.AuditableEntity;
+import com.golf.golf_project.clubs.entities.Club;
+import com.golf.golf_project.memberships.entities.Membership;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.users.enums.EUGender;
 import com.golf.golf_project.users.enums.EUStatus;
@@ -66,4 +68,12 @@ public class User extends AuditableEntity {
     @ManyToOne(fetch = FetchType.EAGER) // resolving the bug related to the close of session before transforming the role proxy to the actual user's role
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_id")
+    private Club club;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "membership_id")
+    private Membership membership;
 }

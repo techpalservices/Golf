@@ -13,6 +13,7 @@ import com.golf.golf_project.notifications.services.NotificationService;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
 import com.golf.golf_project.users.entities.User;
+import com.golf.golf_project.users.mappers.UserMapper;
 import com.golf.golf_project.users.repositories.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthMapper authMapper;
+    private final UserMapper userMapper;
     private final JwtTokenProvider  jwtTokenProvider;
     private final MfaService mfaService;
     private final NotificationService notificationService;
@@ -49,7 +51,7 @@ public class AuthService {
             throw new BusinessException("Email already taken");
         }
 
-        User user = authMapper.toUser(signUpDTORequest);
+        User user = userMapper.toUser(signUpDTORequest);
         Role role = roleRepository.findByName("ROLE_PLAYER");
         user.setRole(role);
         User savedUser = userRepository.save(user);

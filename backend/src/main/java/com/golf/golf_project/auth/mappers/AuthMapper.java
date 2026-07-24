@@ -13,21 +13,6 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class AuthMapper {
 
-    private final PasswordEncoder passwordEncoder;
-
-    public User toUser(SignUpDTORequest signUpDTORequest) {
-        User user = new User();
-        user.setFirstName(signUpDTORequest.firstName());
-        user.setLastName(signUpDTORequest.lastName());
-        user.setGender(signUpDTORequest.gender());
-        user.setEmail(signUpDTORequest.email());
-        user.setPhoneNumber(signUpDTORequest.phoneNumber());
-        user.setUsername(signUpDTORequest.username());
-        user.setPassword(passwordEncoder.encode(signUpDTORequest.password()));
-
-        return user;
-    }
-
     public SignUpDTOResponse toSignUpDTOResponse(
             User user
     ) {

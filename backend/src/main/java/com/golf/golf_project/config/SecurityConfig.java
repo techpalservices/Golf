@@ -74,6 +74,7 @@ public class SecurityConfig {
                                 .requestMatchers("/mfa/verify").permitAll()
                                 .requestMatchers("/login").permitAll()
                                 .requestMatchers("/roles/**").permitAll() // for now 3la 9bl testing wsafi
+                                .requestMatchers("/users/**").permitAll()
                                 .requestMatchers(
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",    // ← ADD THIS

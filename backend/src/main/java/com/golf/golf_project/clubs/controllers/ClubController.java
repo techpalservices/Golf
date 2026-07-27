@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/clubs")
@@ -25,5 +22,11 @@ public class ClubController {
             @Valid @RequestBody CreateClubRequests request
     ){
         return ResponseEntity.ok(ApiResponse.success(clubService.createClub(request)));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllClubs() {
+        return ResponseEntity.ok(ApiResponse.success(clubService.getAllClubs()));
     }
 }

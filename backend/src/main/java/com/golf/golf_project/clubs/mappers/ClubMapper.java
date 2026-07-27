@@ -1,6 +1,7 @@
 package com.golf.golf_project.clubs.mappers;
 
 import com.golf.golf_project.clubs.dto.requests.CreateClubRequests;
+import com.golf.golf_project.clubs.dto.response.ClubDataResponse;
 import com.golf.golf_project.clubs.dto.response.CreateClubResponse;
 import com.golf.golf_project.clubs.entities.Club;
 import com.golf.golf_project.clubs.enums.ECStatus;
@@ -32,6 +33,23 @@ public class ClubMapper {
                 club.getName(),
                 club.getAddress(),
                 club.getCity(),
+                club.getDdNSNumber(),
+                club.getDdEWNumber(),
+                club.getStatus(),
+                club.getOwner() != null ? club.getOwner().getId() : null
+        );
+    }
+
+    public ClubDataResponse toClubDataResponse(Club club) {
+        return new ClubDataResponse(
+                club.getId(),
+                club.getName(),
+                club.getAddress(),
+                club.getCity(),
+                club.getPhone(),
+                club.getEmail(),
+                club.getLogoURL(),
+                club.getCoverURL(),
                 club.getDdNSNumber(),
                 club.getDdEWNumber(),
                 club.getStatus(),

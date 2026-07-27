@@ -28,6 +28,17 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/managers")
+    public ResponseEntity<?> getManagers() {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        userService.getManagers(),
+                        "Managers retrieved successfully"
+                )
+        );
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add-manager")
     public ResponseEntity<?> addManager(
             @RequestBody @Valid SignUpDTORequest signUpDTORequest

@@ -1,8 +1,10 @@
 package com.golf.golf_project.users.services;
 
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
+import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
+import com.golf.golf_project.users.dto.responce.ManagerDataResponse;
 import com.golf.golf_project.users.dto.responce.UserDataManagementResponse;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.mappers.UserMapper;
@@ -23,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final ClubRepository clubRepository;
 
     public boolean AddManager(SignUpDTORequest signUpDTORequest) {
         if (userRepository.existsByUsername(signUpDTORequest.username())) {
@@ -52,13 +55,19 @@ public class UserService {
         List<User> players_Managers = new ArrayList<>(players);
         players_Managers.addAll(managers);
 
-        System.out.println("players: " + players);
-        System.out.println("managers: " + managers);
-
-        System.out.println("Players and Managers: " + players_Managers);
-
         return players_Managers.stream()
                 .map(userMapper::toUserDataManagementResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<ManagerDataResponse> getManagers() {
+        Role managerRole = roleRepository.findByName("ROLE_MANAGER");
+
+        List<User> managers = new ArrayList<>(userRepository.findUserByRole(managerRole));
+
+        return managers.stream()
+                .filter(user -> !clubRepository.existsByOwner(user))
+                .map(userMapper::toManagerDataResponse)
                 .collect(Collectors.toList());
     }
 }

@@ -2,6 +2,7 @@ package com.golf.golf_project.users.mappers;
 
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.role.repositories.RoleRepository;
+import com.golf.golf_project.users.dto.responce.ManagerDataResponse;
 import com.golf.golf_project.users.dto.responce.UserDataManagementResponse;
 import com.golf.golf_project.users.entities.User;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,14 @@ public class UserMapper {
                 user.getAvatarURL(),
                 user.getBirthDate(),
                 user.getRole().getName()
+        );
+    }
+
+    public ManagerDataResponse toManagerDataResponse(User user) {
+        return new ManagerDataResponse(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName()
         );
     }
 }

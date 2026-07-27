@@ -1,6 +1,7 @@
 package com.golf.golf_project.clubs.controllers;
 
-import com.golf.golf_project.clubs.dto.requests.CreateClubRequests;
+import com.golf.golf_project.clubs.dto.requests.CreateClubRequest;
+import com.golf.golf_project.clubs.dto.requests.UpdateClubRequest;
 import com.golf.golf_project.clubs.services.ClubService;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -19,7 +20,7 @@ public class ClubController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<?> createClub(
-            @Valid @RequestBody CreateClubRequests request
+            @Valid @RequestBody CreateClubRequest request
     ){
         return ResponseEntity.ok(ApiResponse.success(clubService.createClub(request)));
     }
@@ -28,5 +29,13 @@ public class ClubController {
     @GetMapping("/all")
     public ResponseEntity<?> getAllClubs() {
         return ResponseEntity.ok(ApiResponse.success(clubService.getAllClubs()));
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    @PatchMapping("/update")
+    public ResponseEntity<?> firstModification(
+            @Valid @RequestBody UpdateClubRequest request
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(clubService.updateClub(request)));
     }
 }

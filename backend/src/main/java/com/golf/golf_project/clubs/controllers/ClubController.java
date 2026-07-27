@@ -2,6 +2,7 @@ package com.golf.golf_project.clubs.controllers;
 
 import com.golf.golf_project.clubs.dto.requests.CreateClubRequest;
 import com.golf.golf_project.clubs.dto.requests.UpdateClubRequest;
+import com.golf.golf_project.clubs.enums.ECStatus;
 import com.golf.golf_project.clubs.services.ClubService;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -9,6 +10,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/clubs")
@@ -37,5 +40,15 @@ public class ClubController {
             @Valid @RequestBody UpdateClubRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(clubService.updateClub(request)));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/change-status")
+    public ResponseEntity<?> changeClubStatus(
+            @RequestParam UUID clubId,
+            @RequestParam ECStatus status
+    ) {
+        clubService.changeClubStatus(clubId, status);
+        return ResponseEntity.ok(ApiResponse.success("Club status updated successfully"));
     }
 }

@@ -5,6 +5,7 @@ import com.golf.golf_project.clubs.dto.requests.UpdateClubRequest;
 import com.golf.golf_project.clubs.dto.response.ClubDataResponse;
 import com.golf.golf_project.clubs.dto.response.CreateClubResponse;
 import com.golf.golf_project.clubs.entities.Club;
+import com.golf.golf_project.clubs.enums.ECStatus;
 import com.golf.golf_project.clubs.mappers.ClubMapper;
 import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.users.entities.User;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -28,8 +30,10 @@ public class ClubService {
 
     public CreateClubResponse createClub(CreateClubRequest request) {
         Club club = clubMapper.toClub(request);
+        club.setStatus(ECStatus.ACTIVE);
 
-        if (!club.getOwner().getRole().getName().equals("MANAGER")) {
+        if (!club.getOwner().getRole().getName().equals("ROLE_MANAGER")) {
+            System.out.println(club.getOwner().getRole().getName());
             throw new IllegalArgumentException("Owner should be MANAGER");
         }
         return clubMapper.toCreateClubResponse(clubRepository.save(club));
@@ -55,5 +59,11 @@ public class ClubService {
         return clubs.stream()
                 .map(clubMapper::toClubDataResponse)
                 .toList();
+    }
+
+    public void changeClubStatus(UUID clubId, ECStatus status) {
+        Club club = clubRepository.findById(clubId).orElseThrow(() -> new IllegalArgumentException("Club not found"));
+        club.setStatus(status);
+        clubRepository.save(club);
     }
 }

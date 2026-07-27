@@ -54,6 +54,7 @@ public class Club extends AuditableEntity {
     private Number ddEWNumber;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ECStatus status;
 
     @OneToOne

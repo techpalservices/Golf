@@ -7,28 +7,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import CreateUserDialog from '../components/CreateUserDialog';
+import {useDataUsers} from "@/features/admin/hooks/useDataUsers.ts";
+import type {User} from "@/features/user/types.ts";
 
 type Role = 'player' | 'manager' | 'admin';
 type UserStatus = 'active' | 'suspended' | 'pending';
 
-interface User {
-  id: string;
-  fullName: string;
-  initials: string;
-  email: string;
-  phone: string;
-  role: Role;
-  status: UserStatus;
-  registeredAt: string;
-  managedClub?: string;
-  reservationsCount: number;
+function role(role: string) {
+  switch(role) {
+    case 'ROLE_PLAYER': return 'player';
+    case 'ROLE_MANAGER': return 'manager';
+    case 'ROLE_ADMIN': return 'admin';
+    default: return 'Unknown';
+  }
 }
 
 const roleColors: Record<Role, string> = {
@@ -37,28 +35,26 @@ const roleColors: Record<Role, string> = {
   admin: 'border-blue-500 bg-blue-500/15 text-blue-600',
 };
 
+function status(status: string) {
+  switch (status) {
+    case 'ACTIVE': return 'active';
+    case 'SUSPENDED': return 'suspended';
+    case 'PENDING': return 'pending';
+    default: return 'Unknown';
+  }
+}
+
 const statusColors: Record<UserStatus, string> = {
   active: 'border-secondary bg-secondary/15 text-secondary',
   suspended: 'border-red-500 bg-red-500/15 text-red-600',
   pending: 'border-primary bg-primary/15 text-primary',
 };
 
-const mockUsers: User[] = [
-  { id: '1', fullName: 'Ahmed Benali', initials: 'AB', email: 'ahmed.benali@email.com', phone: '+212 6 12 34 56 78', role: 'player', status: 'active', registeredAt: '15/01/2024', reservationsCount: 24 },
-  { id: '2', fullName: 'Sara Mansouri', initials: 'SM', email: 'sara.mansouri@email.com', phone: '+212 6 98 76 54 32', role: 'manager', status: 'active', registeredAt: '03/06/2024', managedClub: 'Royal Golf de Marrakech', reservationsCount: 0 },
-  { id: '3', fullName: 'Youssef Khalfouni', initials: 'YK', email: 'youssef.k@email.com', phone: '+212 6 55 44 33 22', role: 'player', status: 'suspended', registeredAt: '20/09/2023', reservationsCount: 8 },
-  { id: '4', fullName: 'Imane Rachidi', initials: 'IR', email: 'imane.r@email.com', phone: '+212 6 77 88 99 00', role: 'player', status: 'active', registeredAt: '11/02/2024', reservationsCount: 15 },
-  { id: '5', fullName: 'Karim El Idrissi', initials: 'KE', email: 'karim.e@email.com', phone: '+212 6 11 22 33 44', role: 'manager', status: 'active', registeredAt: '28/11/2023', managedClub: 'Golf du Palais', reservationsCount: 0 },
-  { id: '6', fullName: 'Nadia Lamrani', initials: 'NL', email: 'nadia.l@email.com', phone: '+212 6 90 80 70 60', role: 'player', status: 'pending', registeredAt: '01/07/2026', reservationsCount: 0 },
-  { id: '7', fullName: 'Omar Fassi', initials: 'OF', email: 'omar.f@email.com', phone: '+212 6 33 22 11 00', role: 'admin', status: 'active', registeredAt: '15/03/2023', reservationsCount: 0 },
-  { id: '8', fullName: 'Leila Alaoui', initials: 'LA', email: 'leila.a@email.com', phone: '+212 6 44 55 66 77', role: 'player', status: 'active', registeredAt: '22/05/2024', reservationsCount: 32 },
-];
-
 export default function UsersPage() {
   const { t } = useTranslation('app');
+  const { data, isLoading, error } = useDataUsers();
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  const [users, setUsers] = useState(mockUsers);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -66,11 +62,13 @@ export default function UsersPage() {
   const [open, setOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
 
+  const users = data?.data?? [];
+
   const filtered = useMemo(() => {
     return users.filter((u) => {
       if (search) {
         const q = search.toLowerCase();
-        if (!u.fullName.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
+        if (!u.firstName.toLowerCase().includes(q) && !u.lastName.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
       }
       if (roleFilter !== 'all' && u.role !== roleFilter) return false;
       if (statusFilter !== 'all' && u.status !== statusFilter) return false;
@@ -78,61 +76,53 @@ export default function UsersPage() {
     });
   }, [users, search, roleFilter, statusFilter]);
 
+  if (isLoading) return <div>Loading managers...</div>;
+  if (error) return <div>Failed to load managers</div>;
+
   const handleClick = (user: User) => {
     setSelected(user);
     setOpen(true);
   };
 
   const handleSuspend = (id: string, status: UserStatus) => {
-    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u)));
-    setSelected((prev) => (prev ? { ...prev, status } : null));
-    toast.success(status === 'suspended' ? t('users.details.suspended') : t('users.details.reinstated'));
+    // later
   };
 
   const handleRoleChange = (id: string, role: Role) => {
-    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role, managedClub: role === 'manager' ? u.managedClub : undefined } : u)));
-    setSelected((prev) => (prev ? { ...prev, role } : null));
-    toast.success(role === 'manager' ? t('users.details.assignedManager') : t('users.details.removedManager'));
+    //later
   };
 
   const handleDelete = (id: string) => {
-    setUsers((prev) => prev.filter((u) => u.id !== id));
-    setOpen(false);
-    toast.success(t('users.details.deleted'));
+    //later
   };
 
   const handleCreate = (data: { fullName: string; email: string; phone: string; role: Role; password: string }) => {
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      fullName: data.fullName,
-      initials: data.fullName.split(' ').map((n) => n[0]).join(''),
-      email: data.email,
-      phone: data.phone,
-      role: data.role,
-      status: 'active',
-      registeredAt: new Date().toLocaleDateString('fr-FR'),
-      reservationsCount: 0,
-    };
-    setUsers((prev) => [...prev, newUser]);
-    setFormOpen(false);
-    toast.success(t('users.createForm.created'));
+    // later
   };
+
+  console.log('Users data:', data);
 
   const detailsContent = selected && (
     <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Avatar size="lg" className="border-2 border-primary">
-          <AvatarFallback className="bg-primary/15 font-bold text-primary">{selected.initials}</AvatarFallback>
+          {
+            selected.avatarURL == null
+                ? <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">
+                  {selected.firstName.charAt(0).toLocaleUpperCase()}{selected.lastName.charAt(0).toLocaleUpperCase()}
+                </AvatarFallback>
+                : <AvatarImage src={selected.avatarURL} />
+          }
         </Avatar>
         <div className="flex flex-col gap-1">
-          <span className="font-serif text-lg font-bold text-secondary">{selected.fullName}</span>
+          <span className="font-serif text-lg font-bold text-secondary">{selected.firstName} {selected.lastName}</span>
           <div className="flex gap-2">
-            <Badge className={`border text-xs ${roleColors[selected.role]}`}>
-              {t(`users.role.${selected.role}`)}
+            <Badge className={`border text-xs ${roleColors[role(selected.role)]}`}>
+              {t(`users.role.${role(selected.role)}`)}
             </Badge>
-            <Badge className={`border text-xs ${statusColors[selected.status]}`}>
-              {t(`users.status.${selected.status}`)}
+            <Badge className={`border text-xs ${statusColors[status(selected.status)]}`}>
+              {t(`users.status.${status(selected.status)}`)}
             </Badge>
           </div>
         </div>
@@ -151,29 +141,30 @@ export default function UsersPage() {
         <div className="col-span-2 flex flex-col gap-1 rounded-lg border border-border p-3">
           <span className="text-xs text-muted-foreground">{t('users.details.phone')}</span>
           <span className="flex items-center gap-2 text-sm font-semibold text-secondary">
-            <Phone size={14} className="text-primary" /> {selected.phone}
+            <Phone size={14} className="text-primary" /> {selected.phoneNumber}
           </span>
         </div>
-        <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
-          <span className="text-xs text-muted-foreground">{t('users.details.registeredAt')}</span>
-          <span className="flex items-center gap-2 text-sm font-semibold text-secondary">
-            <Calendar size={14} className="text-primary" /> {selected.registeredAt}
-          </span>
-        </div>
-        <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
-          <span className="text-xs text-muted-foreground">{t('users.details.reservations')}</span>
-          <span className="flex items-center gap-2 text-sm font-semibold text-secondary">
-            <CalendarCheck size={14} className="text-primary" /> {selected.reservationsCount}
-          </span>
-        </div>
-        {selected.managedClub && (
-          <div className="col-span-2 flex flex-col gap-1 rounded-lg border border-border p-3">
-            <span className="text-xs text-muted-foreground">{t('users.details.club')}</span>
-            <span className="flex items-center gap-2 text-sm font-semibold text-secondary">
-              <Building size={14} className="text-primary" /> {selected.managedClub}
-            </span>
-          </div>
-        )}
+        {/*later*/}
+        {/*<div className="flex flex-col gap-1 rounded-lg border border-border p-3">*/}
+        {/*  <span className="text-xs text-muted-foreground">{t('users.details.registeredAt')}</span>*/}
+        {/*  <span className="flex items-center gap-2 text-sm font-semibold text-secondary">*/}
+        {/*    <Calendar size={14} className="text-primary" /> {selected.registeredAt}*/}
+        {/*  </span>*/}
+        {/*</div>*/}
+        {/*<div className="flex flex-col gap-1 rounded-lg border border-border p-3">*/}
+        {/*  <span className="text-xs text-muted-foreground">{t('users.details.reservations')}</span>*/}
+        {/*  <span className="flex items-center gap-2 text-sm font-semibold text-secondary">*/}
+        {/*    <CalendarCheck size={14} className="text-primary" /> {selected.reservationsCount}*/}
+        {/*  </span>*/}
+        {/*</div>*/}
+        {/*{selected.managedClub && (*/}
+        {/*  <div className="col-span-2 flex flex-col gap-1 rounded-lg border border-border p-3">*/}
+        {/*    <span className="text-xs text-muted-foreground">{t('users.details.club')}</span>*/}
+        {/*    <span className="flex items-center gap-2 text-sm font-semibold text-secondary">*/}
+        {/*      <Building size={14} className="text-primary" /> {selected.managedClub}*/}
+        {/*    </span>*/}
+        {/*  </div>*/}
+        {/*)}*/}
       </div>
     </div>
   );
@@ -279,19 +270,25 @@ export default function UsersPage() {
               className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-shadow hover:shadow-md"
             >
               <Avatar size="lg" className="border border-border">
-                <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">{u.initials}</AvatarFallback>
+                {
+                  u.avatarURL == null
+                    ? <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">
+                        {u.firstName.charAt(0).toLocaleUpperCase()}{u.lastName.charAt(0).toLocaleUpperCase()}
+                      </AvatarFallback>
+                    : <AvatarImage src={u.avatarURL} />
+                }
               </Avatar>
               <Separator orientation="vertical" className="h-12" />
               <div className="flex flex-1 flex-col gap-1">
-                <span className="font-medium text-secondary">{u.fullName}</span>
+                <span className="font-medium text-secondary">{u.firstName} {u.lastName}</span>
                 <span className="text-xs text-muted-foreground">{u.email}</span>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <Badge className={`border text-xs ${roleColors[u.role]}`}>
-                  {t(`users.role.${u.role}`)}
+                <Badge className={`border text-xs ${roleColors[role(u.role)]}`}>
+                  {t(`users.role.${role(u.role)}`)}
                 </Badge>
-                <Badge className={`border text-xs ${statusColors[u.status]}`}>
-                  {t(`users.status.${u.status}`)}
+                <Badge className={`border text-xs ${statusColors[status(u.status)]}`}>
+                  {t(`users.status.${status(u.status)}`)}
                 </Badge>
               </div>
             </div>

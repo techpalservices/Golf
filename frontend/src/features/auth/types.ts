@@ -1,13 +1,13 @@
 import type { User, Role } from '@/types/user.types';
 
 export function toUser(raw: any): User {
-  return {
-    id: raw.id,
-    email: raw.email,
-    firstName: raw.firstName,
-    lastName: raw.lastName,
-    role: (raw.role?.replace('ROLE_', '') || 'PLAYER') as Role,
-  };
+    return {
+        id: raw.id,
+        email: raw.email,
+        firstName: raw.firstName,
+        lastName: raw.lastName,
+        role: (raw.role?.replace('ROLE_', '') || 'PLAYER') as Role,
+    };
 }
 
 export interface ApiResponse<T> {

@@ -13,18 +13,24 @@ export interface Course {
 export interface Club {
   id: string;
   name: string;
-  address: string;
+  description: string;
   city: string;
-  phone: string | null;
-  email: string | null;
-  description: string | null;
-  logoURL: string | null;
-  coverURL: string | null;
-  ddNSNumber: number;
-  ddEWNumber: number;
-  status: string;
-  ownerId: string;
+  address: string;
+  phone: string;
+  email: string;
+  logoURL: string;
+  coverURL: string;
+  ddNSNumber: string;
+  ddEWNumber: string;
+  status: ClubStatus;
+  managerId: string | null;
+  managerName: string | null;
+  membersCount: number;
+  coursesCount: number;
+  createdAt: string;
 }
+
+export type ClubStatus = 'active' | 'suspended' | 'archived';
 
 export interface SearchFilters {
   city: string;
@@ -38,8 +44,8 @@ export interface CreateClub {
   name: string;
   address: string;
   city: string;
-  ddNSNumber: number;
-  ddEWNumber: number;
+  ddNSNumber: string;
+  ddEWNumber: string;
   ownerId: string
 }
 

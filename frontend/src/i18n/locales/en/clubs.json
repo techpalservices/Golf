@@ -39,6 +39,13 @@
     "viewCourses": "View courses",
     "back": "Back"
   },
+  "clubsManagement": {
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended",
+      "archived": "Archived"
+    }
+  },
   "page": {
     "title": "Find your club",
     "results": "Available clubs"

@@ -682,9 +682,9 @@
     "empty": "Aucun club",
     "add": "Ajouter un club",
     "status": {
-      "published": "Publié",
-      "draft": "Brouillon",
-      "pending": "En attente"
+      "active": "Actif",
+      "suspended": "Suspendu",
+      "archived": "Archivé"
     },
     "item": {
       "city": "Ville",

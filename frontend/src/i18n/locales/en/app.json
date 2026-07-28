@@ -681,9 +681,9 @@
     "empty": "No clubs",
     "add": "Add club",
     "status": {
-      "published": "Published",
-      "draft": "Draft",
-      "pending": "Pending"
+      "active": "Active",
+      "suspended": "Suspended",
+      "archived": "Archived"
     },
     "item": {
       "city": "City",

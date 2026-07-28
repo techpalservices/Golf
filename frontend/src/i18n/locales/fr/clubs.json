@@ -39,6 +39,13 @@
     "viewCourses": "Voir les parcours",
     "back": "Retour"
   },
+  "clubsManagement": {
+    "status": {
+      "active": "Actif",
+      "suspended": "Suspendu",
+      "archived": "Archivé"
+    }
+  },
   "page": {
     "title": "Trouvez votre club",
     "results": "Clubs disponibles"

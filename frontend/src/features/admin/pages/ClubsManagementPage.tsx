@@ -1,39 +1,20 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
 import { Search, Plus, MapPin, Building, Users, Flag, Phone, Mail, Calendar, Pencil, UserCog, Trash2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import ClubFormDialog from '../components/ClubFormDialog';
-
-type ClubStatus = 'published' | 'draft' | 'pending';
-
-interface Club {
-  id: string;
-  name: string;
-  description: string;
-  city: string;
-  address: string;
-  phone: string;
-  email: string;
-  logo: string;
-  coverImage: string;
-  status: ClubStatus;
-  managerId: string | null;
-  managerName: string | null;
-  membersCount: number;
-  coursesCount: number;
-  createdAt: string;
-}
+import type { Club, ClubStatus } from '../../clubs/types.ts'
+import {useDataClubs} from "@/features/admin/hooks/useDataClubs.ts";
 
 interface ManagerOption {
   id: string;
@@ -41,10 +22,19 @@ interface ManagerOption {
   initials: string;
 }
 
+function status(status: string){
+  switch (status){
+    case 'ACTIVE': return 'active';
+    case 'SUSPENDED': return 'suspended';
+    case 'ARCHIVED': return 'archived';
+    default: return 'unknown';
+  }
+}
+
 const statusColors: Record<ClubStatus, string> = {
-  published: 'border-secondary bg-secondary/15 text-secondary',
-  draft: 'border-border bg-muted text-muted-foreground',
-  pending: 'border-primary bg-primary/15 text-primary',
+  active:    'border-secondary bg-secondary/15 text-secondary', // green
+  suspended: 'border-red-500 bg-red-500/15 text-red-600',       // red
+  archived:  'border-border bg-muted text-muted-foreground',    // gray (for archived)
 };
 
 const mockManagers: ManagerOption[] = [
@@ -54,19 +44,11 @@ const mockManagers: ManagerOption[] = [
   { id: 'u10', fullName: 'Imane Rachidi', initials: 'IR' },
 ];
 
-const mockClubs: Club[] = [
-  { id: '1', name: 'Royal Golf de Marrakech', description: 'Un club légendaire au cœur de la palmeraie, fondé en 1920.', city: 'Marrakech', address: 'Route de l\'Ourika, Marrakech 40000', phone: '+212 5 24 32 50 50', email: 'contact@royalgolf.ma', logo: '/teetime-logo.png', coverImage: '/club 1.png', status: 'published', managerId: 'u2', managerName: 'Sara Mansouri', membersCount: 142, coursesCount: 2, createdAt: '15/03/2020' },
-  { id: '2', name: 'Golf du Palais', description: 'Un club de championnat offrant un défi technique.', city: 'Casablanca', address: 'Boulevard de l\'Océan, Casablanca', phone: '+212 5 22 36 78 90', email: 'contact@golfdupalais.ma', logo: '/teetime-logo.png', coverImage: '/club2.png', status: 'published', managerId: 'u5', managerName: 'Karim El Idrissi', membersCount: 98, coursesCount: 1, createdAt: '22/06/2021' },
-  { id: '3', name: 'Michlifen Golf', description: 'Un parcours de montagne à Ifrane.', city: 'Ifrane', address: 'Route d\'Ifrane, Ifrane 53000', phone: '+212 5 35 56 12 34', email: 'contact@michlifen.ma', logo: '/teetime-logo.png', coverImage: '/section3.png', status: 'draft', managerId: null, managerName: null, membersCount: 0, coursesCount: 0, createdAt: '10/01/2026' },
-  { id: '4', name: "Golf d'Anfa", description: 'Un club urbain avec vue sur l\'océan.', city: 'Casablanca', address: 'Corniche d\'Anfa, Casablanca', phone: '+212 5 22 79 45 67', email: 'contact@golfanfa.ma', logo: '/teetime-logo.png', coverImage: '/section2.png', status: 'published', managerId: 'u9', managerName: 'Hassan Tazi', membersCount: 120, coursesCount: 1, createdAt: '05/09/2022' },
-  { id: '5', name: 'Ocean Golf Agadir', description: 'Golf bordant l\'océan Atlantique.', city: 'Agadir', address: ' Boulevard du 20 Août, Agadir', phone: '+212 5 28 82 11 22', email: 'contact@oceangolf.ma', logo: '/teetime-logo.png', coverImage: '/section1.png', status: 'pending', managerId: null, managerName: null, membersCount: 0, coursesCount: 0, createdAt: '01/07/2026' },
-];
-
 export default function ClubsManagementPage() {
   const { t } = useTranslation('app');
+  const { data, isLoading, error } = useDataClubs();
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  const [clubs, setClubs] = useState(mockClubs);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('all');
@@ -78,7 +60,7 @@ export default function ClubsManagementPage() {
   const [assignClubId, setAssignClubId] = useState<string | null>(null);
   const [selectedManagerId, setSelectedManagerId] = useState<string>('none');
 
-  const cities = useMemo(() => ['all', ...Array.from(new Set(mockClubs.map((c) => c.city)))], []);
+  const clubs = data?.data?? [];
 
   const filtered = useMemo(() => {
     return clubs.filter((c) => {
@@ -92,50 +74,28 @@ export default function ClubsManagementPage() {
     });
   }, [clubs, search, statusFilter, cityFilter]);
 
+  if (isLoading) return <div>Loading managers...</div>;
+  if (error) return <div>Failed to load managers</div>;
+
   const handleClick = (club: Club) => {
     setSelected(club);
     setOpen(true);
   };
 
   const handleDelete = (id: string) => {
-    setClubs((prev) => prev.filter((c) => c.id !== id));
-    setOpen(false);
-    toast.success(t('clubsManagement.details.deleted'));
+    //later
   };
 
   const handleCreate = (data: Omit<Club, 'id' | 'membersCount' | 'coursesCount' | 'createdAt' | 'managerId' | 'managerName'> & { managerId?: string | null }) => {
-    const manager = mockManagers.find((m) => m.id === data.managerId);
-    const newClub: Club = {
-      ...data,
-      id: `club-${Date.now()}`,
-      membersCount: 0,
-      coursesCount: 0,
-      createdAt: new Date().toLocaleDateString('fr-FR'),
-      managerId: data.managerId ?? null,
-      managerName: manager?.fullName ?? null,
-    };
-    setClubs((prev) => [...prev, newClub]);
-    setFormOpen(false);
-    toast.success(t('clubsManagement.form.created'));
+   //later
   };
 
   const handleUpdate = (data: Omit<Club, 'id' | 'membersCount' | 'coursesCount' | 'createdAt' | 'managerId' | 'managerName'> & { managerId?: string | null }) => {
-    if (!editing) return;
-    const manager = mockManagers.find((m) => m.id === data.managerId);
-    setClubs((prev) => prev.map((c) => (c.id === editing.id ? { ...c, ...data, managerId: data.managerId ?? null, managerName: manager?.fullName ?? null } : c)));
-    setSelected((prev) => (prev && prev.id === editing.id ? { ...prev, ...data, managerId: data.managerId ?? null, managerName: manager?.fullName ?? null } : prev));
-    setFormOpen(false);
-    setEditing(null);
-    toast.success(t('clubsManagement.details.updated'));
+    //later
   };
 
   const handleAssignManager = () => {
-    if (!assignClubId) return;
-    const manager = mockManagers.find((m) => m.id === selectedManagerId);
-    setClubs((prev) => prev.map((c) => (c.id === assignClubId ? { ...c, managerId: selectedManagerId === 'none' ? null : selectedManagerId, managerName: selectedManagerId === 'none' ? null : manager?.fullName ?? null } : c)));
-    setSelected((prev) => (prev && prev.id === assignClubId ? { ...prev, managerId: selectedManagerId === 'none' ? null : selectedManagerId, managerName: selectedManagerId === 'none' ? null : manager?.fullName ?? null } : prev));
-    setAssignOpen(false);
-    toast.success(t('clubsManagement.details.managerAssigned'));
+    //later
   };
 
   const openAssignDialog = (club: Club) => {
@@ -144,15 +104,25 @@ export default function ClubsManagementPage() {
     setAssignOpen(true);
   };
 
+  console.log("clubs data: " + clubs);
+
   const detailsContent = selected && (
     <div className="flex flex-col gap-4">
-      <img src={selected.coverImage} alt={selected.name} className="h-32 w-full rounded-lg object-cover" />
+      <img src={selected.coverURL} alt={selected.name} className="h-32 w-full rounded-lg object-cover" />
       <div className="flex items-center gap-3">
-        <img src={selected.logo} alt={selected.name} className="size-12 rounded-full border-2 border-primary object-cover" />
+        <Avatar size="lg" className="border border-border">
+          {
+            selected.logoURL == null
+                ? <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">
+                  {selected.name.charAt(0).toLocaleUpperCase()}
+                </AvatarFallback>
+                : <AvatarImage src={selected.logoURL} />
+          }
+        </Avatar>
         <div className="flex flex-col gap-1">
           <span className="font-serif text-lg font-bold text-secondary">{selected.name}</span>
-          <Badge className={`w-fit border text-xs ${statusColors[selected.status]}`}>
-            {t(`clubsManagement.status.${selected.status}`)}
+          <Badge className={`w-fit border text-xs ${statusColors[status(selected.status)]}`}>
+            {t(`clubsManagement.status.${status(selected.status)}`)}
           </Badge>
         </div>
       </div>
@@ -290,9 +260,9 @@ export default function ClubsManagementPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t('clubsManagement.all')}</SelectItem>
-                  <SelectItem value="published">{t('clubsManagement.status.published')}</SelectItem>
-                  <SelectItem value="draft">{t('clubsManagement.status.draft')}</SelectItem>
-                  <SelectItem value="pending">{t('clubsManagement.status.pending')}</SelectItem>
+                  <SelectItem value="active">{t('clubsManagement.status.active')}</SelectItem>
+                  <SelectItem value="suspended">{t('clubsManagement.status.suspended')}</SelectItem>
+                  <SelectItem value="archived">{t('clubsManagement.status.archived')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -303,11 +273,11 @@ export default function ClubsManagementPage() {
                 <SelectTrigger size="sm" className="w-full border-border">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  {cities.map((c) => (
-                    <SelectItem key={c} value={c}>{c === 'all' ? t('clubsManagement.allCities') : c}</SelectItem>
-                  ))}
-                </SelectContent>
+                {/*<SelectContent>*/}
+                {/*  {cities.map((c) => (*/}
+                {/*    <SelectItem key={c} value={c}>{c === 'all' ? t('clubsManagement.allCities') : c}</SelectItem>*/}
+                {/*  ))}*/}
+                {/*</SelectContent>*/}
               </Select>
             </div>
           </div>
@@ -325,7 +295,15 @@ export default function ClubsManagementPage() {
               onClick={() => handleClick(c)}
               className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-shadow hover:shadow-md"
             >
-              <img src={c.logo} alt={c.name} className="size-12 shrink-0 rounded-full border border-border object-cover" />
+              <Avatar size="lg" className="border border-border">
+                {
+                  c.logoURL == null
+                      ? <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">
+                        {c.name.charAt(0).toLocaleUpperCase()}
+                      </AvatarFallback>
+                      : <AvatarImage src={c.logoURL} />
+                }
+              </Avatar>
               <Separator orientation="vertical" className="h-14" />
               <div className="flex flex-1 flex-col gap-1">
                 <span className="font-medium text-secondary">{c.name}</span>
@@ -337,8 +315,8 @@ export default function ClubsManagementPage() {
                   </span>
                 </div>
               </div>
-              <Badge className={`shrink-0 border text-xs ${statusColors[c.status]}`}>
-                {t(`clubsManagement.status.${c.status}`)}
+              <Badge className={`shrink-0 border text-xs ${statusColors[status(c.status)]}`}>
+                {t(`clubsManagement.status.${status(c.status)}`)}
               </Badge>
             </div>
           ))

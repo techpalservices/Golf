@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
-import { Search, Mail, Phone, Calendar, Building, CalendarCheck, Check, X, UserCog, UserMinus, Trash2, Plus } from 'lucide-react';
+import { Search, Mail, Phone, Check, X, UserCog, UserMinus, Trash2, Plus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -99,8 +98,6 @@ export default function UsersPage() {
   const handleCreate = (data: { fullName: string; email: string; phone: string; role: Role; password: string }) => {
     // later
   };
-
-  console.log('Users data:', data);
 
   const detailsContent = selected && (
     <div className="flex flex-col gap-4">

@@ -7,44 +7,49 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-
-export interface CreateUserData {
-  fullName: string;
-  email: string;
-  phone: string;
-  role: 'player' | 'manager' | 'admin';
-  password: string;
-}
+import type {CreateManager} from "@/features/manager/types.ts";
+import {useCreateManager} from "@/features/admin/hooks/useCreateManager.ts";
 
 interface CreateUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateUserData) => void;
+  onSubmit: (data: CreateManager) => void;
 }
 
-export default function CreateUserDialog({ open, onOpenChange, onSubmit }: CreateUserDialogProps) {
+export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) {
   const { t } = useTranslation('app');
+  const createManager = useCreateManager();
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [gender, setGender] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [role, setRole] = useState<'player' | 'manager' | 'admin'>('player');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
     if (open) {
-      setFullName('');
+      setFirstName('');
+      setLastName('');
+      setGender('');
       setEmail('');
-      setPhone('');
-      setRole('player');
+      setPhoneNumber('');
+      setUsername('');
       setPassword('');
     }
   }, [open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ fullName, email, phone, role, password });
+    createManager.mutate({ firstName, lastName, gender, email, phoneNumber, username, password },
+        {
+          onSuccess: () => {
+            onOpenChange(false); // close dialog
+          },
+        }
+        );
   };
 
   const formFields = (
@@ -52,12 +57,32 @@ export default function CreateUserDialog({ open, onOpenChange, onSubmit }: Creat
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('users.createForm.fullName')}</Label>
         <Input
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
           placeholder={t('users.createForm.fullNamePlaceholder')}
           className="border-border"
           required
         />
+        <Input
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder={t('users.createForm.fullNamePlaceholder')}
+            className="border-border"
+            required
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-sm text-secondary">{t('users.createForm.role')}</Label>
+        <Select value={gender} onValueChange={(v) => setGender(v as 'male' | 'female' | 'other')}>
+          <SelectTrigger className="w-full border-border">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="MALE">{t('users.gender.male')}</SelectItem>
+            <SelectItem value="FEMALE">{t('users.gender.female')}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -75,8 +100,8 @@ export default function CreateUserDialog({ open, onOpenChange, onSubmit }: Creat
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('users.createForm.phone')}</Label>
         <Input
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
           placeholder={t('users.createForm.phonePlaceholder')}
           className="border-border"
           required
@@ -84,17 +109,15 @@ export default function CreateUserDialog({ open, onOpenChange, onSubmit }: Creat
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('users.createForm.role')}</Label>
-        <Select value={role} onValueChange={(v) => setRole(v as 'player' | 'manager' | 'admin')}>
-          <SelectTrigger className="w-full border-border">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="player">{t('users.role.player')}</SelectItem>
-            <SelectItem value="manager">{t('users.role.manager')}</SelectItem>
-            <SelectItem value="admin">{t('users.role.admin')}</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label className="text-sm text-secondary">{t('users.createForm.password')}</Label>
+        <Input
+            type="email"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder={t('users.createForm.usernamePlaceholder')}
+            className="border-border"
+            required
+        />
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -113,8 +136,8 @@ export default function CreateUserDialog({ open, onOpenChange, onSubmit }: Creat
         <Button type="button" variant="outline" className="flex-1 border-border" onClick={() => onOpenChange(false)}>
           {t('users.createForm.cancel')}
         </Button>
-        <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
-          {t('users.createForm.save')}
+        <Button type="submit" disabled={createManager.isPending} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
+          {createManager.isPending ? 'Saving...' : t('users.createForm.save')}
         </Button>
       </div>
     </form>

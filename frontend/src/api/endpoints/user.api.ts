@@ -11,5 +11,5 @@ export const userApi = {
         api.get<ApiResponse<ManagerListProps>>('/users/managers'),
 
     addManager: (data: CreateManager) =>
-        api.post('/users/add-manager', { data }),
+        api.post('/users/add-manager', data),
 }

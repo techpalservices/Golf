@@ -7,7 +7,7 @@ export function useDataManagers() {
         queryKey: ['getAllManagers'],
         queryFn: async () => {
             const response = await userApi.getAllManagers();
-            return response.data;
+            return response.data.data;
         },
         retry: false,
     })

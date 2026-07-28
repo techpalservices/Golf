@@ -7,11 +7,11 @@ export const clubApi = {
         api.get<ApiResponse<Club[]>>('/clubs/all'),
 
     addClub: (data: CreateClub) =>
-        api.post('/clubs/add', { data }),
+        api.post('/clubs/add', data),
 
     updateClub: (data: UpdateClub) =>
-        api.patch('/clubs/update', { data }),
+        api.patch('/clubs/update', data),
 
-    changeClubStatus: (id: string, status: string) =>
-        api.patch(`/clubs/status`, { id, status }),
+    changeClubStatus: (clubId: string, status: string) =>
+        api.patch(`/clubs/change-status`, null, { params: { clubId, status } }),
 }

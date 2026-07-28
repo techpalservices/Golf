@@ -44,8 +44,8 @@ export interface CreateClub {
   name: string;
   address: string;
   city: string;
-  ddNSNumber: string;
-  ddEWNumber: string;
+  ddNSNumber: number;
+  ddEWNumber: number;
   ownerId: string
 }
 

@@ -8,7 +8,7 @@ export const userApi = {
         api.get<ApiResponse<User[]>>('/users/all'),
 
     getAllManagers: () =>
-        api.get<ApiResponse<ManagerListProps>>('/users/managers'),
+        api.get<ApiResponse<ManagerListProps[]>>('/users/managers'),
 
     addManager: (data: CreateManager) =>
         api.post('/users/add-manager', data),

@@ -16,12 +16,6 @@ import ClubFormDialog from '../components/ClubFormDialog';
 import type { Club, ClubStatus } from '../../clubs/types.ts'
 import {useDataClubs} from "@/features/admin/hooks/useDataClubs.ts";
 
-interface ManagerOption {
-  id: string;
-  fullName: string;
-  initials: string;
-}
-
 function status(status: string){
   switch (status){
     case 'ACTIVE': return 'active';
@@ -36,13 +30,6 @@ const statusColors: Record<ClubStatus, string> = {
   suspended: 'border-red-500 bg-red-500/15 text-red-600',       // red
   archived:  'border-border bg-muted text-muted-foreground',    // gray (for archived)
 };
-
-const mockManagers: ManagerOption[] = [
-  { id: 'u2', fullName: 'Sara Mansouri', initials: 'SM' },
-  { id: 'u5', fullName: 'Karim El Idrissi', initials: 'KE' },
-  { id: 'u9', fullName: 'Hassan Tazi', initials: 'HT' },
-  { id: 'u10', fullName: 'Imane Rachidi', initials: 'IR' },
-];
 
 export default function ClubsManagementPage() {
   const { t } = useTranslation('app');
@@ -216,23 +203,6 @@ export default function ClubsManagementPage() {
     </div>
   );
 
-  const assignDialog = (
-    <>
-      <p className="text-sm text-muted-foreground">{t('clubsManagement.form.manager')}</p>
-      <Select value={selectedManagerId} onValueChange={(v) => setSelectedManagerId(v ?? 'none')}>
-        <SelectTrigger className="w-full border-border">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="none">{t('clubsManagement.form.noManager')}</SelectItem>
-          {mockManagers.map((m) => (
-            <SelectItem key={m.id} value={m.id}>{m.fullName}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </>
-  );
-
   return (
     <div className="flex flex-col gap-6">
       <h1 className="font-serif text-2xl font-bold text-secondary">{t('clubsManagement.title')}</h1>
@@ -311,7 +281,7 @@ export default function ClubsManagementPage() {
                   <span className="flex items-center gap-1"><MapPin size={12} className="text-primary" /> {c.city}</span>
                   <span className="flex items-center gap-1"><Users size={12} className="text-primary" /> {c.membersCount}</span>
                   <span>
-                    {c.managerName ? c.managerName : <span className="text-red-500">{t('clubsManagement.item.unassigned')}</span>}
+                    {c.ownerId ? c.managerName : <span className="text-red-500">{t('clubsManagement.item.unassigned')}</span>}
                   </span>
                 </div>
               </div>
@@ -356,7 +326,6 @@ export default function ClubsManagementPage() {
         onOpenChange={setFormOpen}
         onSubmit={editing ? handleUpdate : handleCreate}
         initialData={editing ?? undefined}
-        managers={mockManagers}
       />
 
       {/* Assign manager dialog */}
@@ -368,7 +337,6 @@ export default function ClubsManagementPage() {
                 {t('clubsManagement.details.assignManager')}
               </DialogTitle>
             </DialogHeader>
-            <div className="flex flex-col gap-3">{assignDialog}</div>
             <DialogFooter className="gap-2">
               <Button variant="outline" className="flex-1 border-border" onClick={() => setAssignOpen(false)}>
                 {t('clubsManagement.form.cancel')}
@@ -387,16 +355,6 @@ export default function ClubsManagementPage() {
                 {t('clubsManagement.details.assignManager')}
               </DrawerTitle>
             </DrawerHeader>
-            <div className="flex flex-col gap-3 px-4 pb-6">{assignDialog}
-              <div className="flex gap-2 pt-2">
-                <Button variant="outline" className="flex-1 border-border" onClick={() => setAssignOpen(false)}>
-                  {t('clubsManagement.form.cancel')}
-                </Button>
-                <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleAssignManager}>
-                  {t('clubsManagement.form.save')}
-                </Button>
-              </div>
-            </div>
           </DrawerContent>
         </Drawer>
       )}

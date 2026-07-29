@@ -746,5 +746,32 @@
       "created": "Club created successfully",
       "owner": "Owner"
     }
+  },
+  "user" : {
+    "addUser": "Add user",
+    "createForm": {
+      "firstName": "First name",
+      "firstNamePlaceholder": "Ex: John",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "Ex: Doe",
+      "email": "Email",
+      "emailPlaceholder": "Ex: john.doe@example.com",
+      "phone": "Phone number",
+      "phonePlaceholder": "Ex: 0600000000",
+      "role": "Gender",
+      "rolePlaceholder": "Select a role",
+      "username": "Username",
+      "usernamePlaceholder": "Ex: johndoe",
+      "password": "Password",
+      "passwordPlaceholder": "Ex: ********",
+      "confirmPassword": "Confirm password",
+      "confirmPasswordPlaceholder": "Ex: ********",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female"
+    }
   }
 }

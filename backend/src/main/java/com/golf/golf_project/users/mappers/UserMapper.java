@@ -1,6 +1,8 @@
 package com.golf.golf_project.users.mappers;
 
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
+import com.golf.golf_project.clubs.entities.Club;
+import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.role.repositories.RoleRepository;
 import com.golf.golf_project.users.dto.responce.ManagerDataResponse;
 import com.golf.golf_project.users.dto.responce.UserDataManagementResponse;
@@ -17,6 +19,7 @@ public class UserMapper {
 
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final ClubRepository clubRepository;
 
     public User toUser (SignUpDTORequest request) {
         User user = new User();
@@ -32,6 +35,8 @@ public class UserMapper {
     }
 
     public UserDataManagementResponse toUserDataManagementResponse(User user) {
+        Club club = clubRepository.findByOwnerId(user.getId());
+
         return new UserDataManagementResponse(
                 user.getId(),
                 user.getFirstName(),
@@ -42,7 +47,10 @@ public class UserMapper {
                 user.getGender(),
                 user.getAvatarURL(),
                 user.getBirthDate(),
-                user.getRole().getName()
+                user.getRole().getName(),
+                user.getCreatedAt().toLocalDate(),
+                club == null ? null : club.getId(),
+                club == null ? null : club.getName()
         );
     }
 

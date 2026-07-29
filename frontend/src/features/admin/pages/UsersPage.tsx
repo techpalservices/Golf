@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Mail, Phone, Check, X, UserCog, UserMinus, Trash2, Plus } from 'lucide-react';
+import {Search, Mail, Phone, Check, X, UserCog, UserMinus, Trash2, Plus, Building, Calendar} from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -142,26 +142,26 @@ export default function UsersPage() {
           </span>
         </div>
         {/*later*/}
-        {/*<div className="flex flex-col gap-1 rounded-lg border border-border p-3">*/}
-        {/*  <span className="text-xs text-muted-foreground">{t('users.details.registeredAt')}</span>*/}
-        {/*  <span className="flex items-center gap-2 text-sm font-semibold text-secondary">*/}
-        {/*    <Calendar size={14} className="text-primary" /> {selected.registeredAt}*/}
-        {/*  </span>*/}
-        {/*</div>*/}
+        <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
+          <span className="text-xs text-muted-foreground">{t('users.details.registeredAt')}</span>
+          <span className="flex items-center gap-2 text-sm font-semibold text-secondary">
+            <Calendar size={14} className="text-primary" /> {selected.registerAt}
+          </span>
+        </div>
         {/*<div className="flex flex-col gap-1 rounded-lg border border-border p-3">*/}
         {/*  <span className="text-xs text-muted-foreground">{t('users.details.reservations')}</span>*/}
         {/*  <span className="flex items-center gap-2 text-sm font-semibold text-secondary">*/}
         {/*    <CalendarCheck size={14} className="text-primary" /> {selected.reservationsCount}*/}
         {/*  </span>*/}
         {/*</div>*/}
-        {/*{selected.managedClub && (*/}
-        {/*  <div className="col-span-2 flex flex-col gap-1 rounded-lg border border-border p-3">*/}
-        {/*    <span className="text-xs text-muted-foreground">{t('users.details.club')}</span>*/}
-        {/*    <span className="flex items-center gap-2 text-sm font-semibold text-secondary">*/}
-        {/*      <Building size={14} className="text-primary" /> {selected.managedClub}*/}
-        {/*    </span>*/}
-        {/*  </div>*/}
-        {/*)}*/}
+        {selected.clubId && (
+          <div className="col-span-2 flex flex-col gap-1 rounded-lg border border-border p-3">
+            <span className="text-xs text-muted-foreground">{t('users.details.club')}</span>
+            <span className="flex items-center gap-2 text-sm font-semibold text-secondary">
+              <Building size={14} className="text-primary" /> {selected.clubName}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -217,7 +217,7 @@ export default function UsersPage() {
             </div>
             <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setFormOpen(true)}>
               <Plus size={16} />
-              <span className="hidden sm:inline">{t('users.addUser')}</span>
+              <span className="hidden sm:inline">{t('user.addUser')}</span>
             </Button>
           </div>
 

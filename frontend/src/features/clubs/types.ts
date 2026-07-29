@@ -50,7 +50,7 @@ export interface CreateClub {
   city: string;
   ddNSNumber: number;
   ddEWNumber: number;
-  ownerId: string
+  ownerId: string | undefined
 }
 
 export interface UpdateClub {

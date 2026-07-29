@@ -17,6 +17,9 @@ public record UserDataManagementResponse(
     EUGender gender,
     String avatarURL,
     LocalDate birthDate,
-    String role
+    String role,
+    LocalDate registerAt,
+    UUID clubId,
+    String clubName
 ) {
 }

@@ -7,9 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import type {CreateClub} from "@/features/clubs/types.ts";
 import {useDataManagers} from "@/features/admin/hooks/useDataManagers.ts";
 import {useCreateClub} from "@/features/admin/hooks/useCreateClub.ts";
+import type {ManagerListProps} from "@/features/manager/types.ts";
 
 interface ClubFormDialogProps {
   open: boolean;
@@ -18,7 +18,7 @@ interface ClubFormDialogProps {
 
 export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogProps) {
   const { t } = useTranslation('app');
-  const { data, isLoading, error} = useDataManagers();
+  const { data } = useDataManagers();
   const createClub = useCreateClub();
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
@@ -29,7 +29,7 @@ export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogPro
   const [ddEWNumber, setDdEWNumber] = useState(34432522);
   const [ownerId, setOwnerId] = useState('');
 
-  const managers = data || [];
+  const managers : ManagerListProps[] = data || [];
 
   useEffect(() => {
     if (open) {
@@ -88,7 +88,7 @@ export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogPro
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">{t('clubsManagement.form.noOwner')}</SelectItem>
-            {managers.map((m: any) => (
+            {managers.map((m: ManagerListProps) => (
               <SelectItem key={m.id} value={m.id}>{m.firstName} {m.lastName}</SelectItem>
             ))}
           </SelectContent>

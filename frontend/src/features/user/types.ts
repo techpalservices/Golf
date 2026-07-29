@@ -9,4 +9,7 @@ export interface User {
     avatarURL: string,
     birthDate: Date,
     role: string,
+    registerAt: string,
+    clubId: string,
+    clubName: string,
 }

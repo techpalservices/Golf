@@ -28,6 +28,7 @@ export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialo
   const [phoneNumber, setPhoneNumber] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
     if (open) {
@@ -38,6 +39,7 @@ export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialo
       setPhoneNumber('');
       setUsername('');
       setPassword('');
+      setConfirmPassword('');
     }
   }, [open]);
 
@@ -55,89 +57,101 @@ export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialo
   const formFields = (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('users.createForm.fullName')}</Label>
+        <Label className="text-sm text-secondary">{t('user.createForm.firstName')}</Label>
         <Input
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
-          placeholder={t('users.createForm.fullNamePlaceholder')}
+          placeholder={t('user.createForm.firstNamePlaceholder')}
           className="border-border"
           required
         />
-        <Input
+          <Label className="text-sm text-secondary">{t('user.createForm.lastName')}</Label>
+          <Input
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            placeholder={t('users.createForm.fullNamePlaceholder')}
+            placeholder={t('user.createForm.lastNamePlaceholder')}
             className="border-border"
             required
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('users.createForm.role')}</Label>
+        <Label className="text-sm text-secondary">{t('user.createForm.role')}</Label>
         <Select value={gender} onValueChange={(v) => setGender(v as 'male' | 'female' | 'other')}>
           <SelectTrigger className="w-full border-border">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="MALE">{t('users.gender.male')}</SelectItem>
-            <SelectItem value="FEMALE">{t('users.gender.female')}</SelectItem>
+            <SelectItem value="MALE">{t('user.gender.male')}</SelectItem>
+            <SelectItem value="FEMALE">{t('user.gender.female')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('users.createForm.email')}</Label>
+        <Label className="text-sm text-secondary">{t('user.createForm.email')}</Label>
         <Input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder={t('users.createForm.emailPlaceholder')}
+          placeholder={t('user.createForm.emailPlaceholder')}
           className="border-border"
           required
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('users.createForm.phone')}</Label>
+        <Label className="text-sm text-secondary">{t('user.createForm.phone')}</Label>
         <Input
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
-          placeholder={t('users.createForm.phonePlaceholder')}
+          placeholder={t('user.createForm.phonePlaceholder')}
           className="border-border"
           required
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('users.createForm.password')}</Label>
+        <Label className="text-sm text-secondary">{t('user.createForm.username')}</Label>
         <Input
             type="email"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder={t('users.createForm.usernamePlaceholder')}
+            placeholder={t('user.createForm.usernamePlaceholder')}
             className="border-border"
             required
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('users.createForm.password')}</Label>
+        <Label className="text-sm text-secondary">{t('user.createForm.password')}</Label>
         <Input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder={t('users.createForm.passwordPlaceholder')}
+          placeholder={t('user.createForm.passwordPlaceholder')}
           className="border-border"
           required
         />
       </div>
+        <div className="flex flex-col gap-1.5">
+            <Label className="text-sm text-secondary">{t('user.createForm.confirmPassword')}</Label>
+            <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder={t('user.createForm.confirmPasswordPlaceholder')}
+                className="border-border"
+                required
+            />
+        </div>
 
       <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" className="flex-1 border-border" onClick={() => onOpenChange(false)}>
-          {t('users.createForm.cancel')}
+          {t('user.createForm.cancel')}
         </Button>
         <Button type="submit" disabled={createManager.isPending} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
-          {createManager.isPending ? 'Saving...' : t('users.createForm.save')}
+          {createManager.isPending ? 'Saving...' : t('user.createForm.save')}
         </Button>
       </div>
     </form>
@@ -149,7 +163,7 @@ export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialo
         <DialogContent className="sm:max-w-md bg-surface max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif text-lg font-bold text-secondary">
-              {t('users.createForm.title')}
+              {t('user.createForm.title')}
             </DialogTitle>
           </DialogHeader>
           {formFields}
@@ -163,7 +177,7 @@ export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialo
       <DrawerContent className="max-h-[90vh] bg-surface">
         <DrawerHeader>
           <DrawerTitle className="font-serif text-lg font-bold text-secondary">
-            {t('users.createForm.title')}
+            {t('user.createForm.title')}
           </DrawerTitle>
         </DrawerHeader>
         <div className="overflow-y-auto px-4 pb-6 max-h-[75vh]">{formFields}</div>

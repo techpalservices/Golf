@@ -713,7 +713,12 @@
       "updated": "Club updated",
       "deleted": "Club deleted",
       "managerAssigned": "Manager assigned",
-      "managerReassigned": "Manager reassigned"
+      "managerReassigned": "Manager reassigned",
+      "changeStatus": "Change status",
+      "assignOwner": "Assign owner",
+      "notProvided": "Not yet provided",
+      "suspend": "Suspend",
+      "activate": "Activate"
     },
     "form": {
       "createTitle": "New club",
@@ -738,7 +743,8 @@
       "noManager": "No manager",
       "save": "Save",
       "cancel": "Cancel",
-      "created": "Club created successfully"
+      "created": "Club created successfully",
+      "owner": "Owner"
     }
   }
 }

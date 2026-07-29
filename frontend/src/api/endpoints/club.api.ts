@@ -12,6 +12,6 @@ export const clubApi = {
     updateClub: (data: UpdateClub) =>
         api.patch('/clubs/update', data),
 
-    changeClubStatus: (clubId: string, status: string) =>
+    changeClubStatus: ({ clubId, status }: { clubId: string; status: string }) =>
         api.patch(`/clubs/change-status`, null, { params: { clubId, status } }),
 }

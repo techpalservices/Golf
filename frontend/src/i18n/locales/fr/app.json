@@ -714,7 +714,12 @@
       "updated": "Club mis à jour",
       "deleted": "Club supprimé",
       "managerAssigned": "Gestionnaire assigné",
-      "managerReassigned": "Gestionnaire réassigné"
+      "managerReassigned": "Gestionnaire réassigné",
+      "changeStatus": "modifier le Statut",
+      "assignOwner": "Assigner un propriétaire",
+      "notProvided": "Pas encore fourni",
+      "suspend": "Suspendre",
+      "activate": "Activer"
     },
     "form": {
       "createTitle": "Nouveau club",
@@ -739,7 +744,8 @@
       "noManager": "Aucun gestionnaire",
       "save": "Enregistrer",
       "cancel": "Annuler",
-      "created": "Club créé avec succès"
+      "created": "Club créé avec succès",
+      "owner": "Propriétaire"
     }
   }
 }

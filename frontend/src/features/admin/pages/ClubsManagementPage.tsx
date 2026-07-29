@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Plus, MapPin, Building, Users, Flag, Phone, Mail, Calendar, Pencil, UserCog, Trash2 } from 'lucide-react';
+import { Search, Plus, MapPin, Building, Users, Flag, Phone, Mail, Calendar, UserCog, MonitorX, MonitorCheck } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,8 +13,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import ClubFormDialog from '../components/ClubFormDialog';
-import type { Club, ClubStatus } from '../../clubs/types.ts'
+import type { Club } from '../../clubs/types.ts'
+import { ClubStatus } from "../../clubs/types.ts";
+
 import {useDataClubs} from "@/features/admin/hooks/useDataClubs.ts";
+import {useChangeClubStatus} from "@/features/admin/hooks/useChangeClubStatus.ts";
 
 function status(status: string){
   switch (status){
@@ -34,6 +37,7 @@ const statusColors: Record<ClubStatus, string> = {
 export default function ClubsManagementPage() {
   const { t } = useTranslation('app');
   const { data, isLoading, error } = useDataClubs();
+  const changeClubStatus = useChangeClubStatus();
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const [search, setSearch] = useState('');
@@ -53,7 +57,7 @@ export default function ClubsManagementPage() {
     return clubs.filter((c) => {
       if (search) {
         const q = search.toLowerCase();
-        if (!c.name.toLowerCase().includes(q) && !c.city.toLowerCase().includes(q) && !(c.managerName?.toLowerCase().includes(q))) return false;
+        if (!c.name.toLowerCase().includes(q) && !c.city.toLowerCase().includes(q) && !(c.ownerName?.toLowerCase().includes(q))) return false;
       }
       if (statusFilter !== 'all' && c.status !== statusFilter) return false;
       if (cityFilter !== 'all' && c.city !== cityFilter) return false;
@@ -69,17 +73,19 @@ export default function ClubsManagementPage() {
     setOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    //later
-  };
-
-  const handleCreate = (data: Omit<Club, 'id' | 'membersCount' | 'coursesCount' | 'createdAt' | 'managerId' | 'managerName'> & { managerId?: string | null }) => {
-   //later
-  };
-
-  const handleUpdate = (data: Omit<Club, 'id' | 'membersCount' | 'coursesCount' | 'createdAt' | 'managerId' | 'managerName'> & { managerId?: string | null }) => {
-    //later
-  };
+  const handleChange = (club: Club) => {
+    const status = club.status == ClubStatus.ACTIVE ? ClubStatus.SUSPENDED : ClubStatus.ACTIVE;
+    changeClubStatus.mutate(
+        {
+          clubId: club.id,
+          status
+        },
+        {
+          onSuccess: () => {
+            //something should be changed on success
+          },
+        });
+  }
 
   const handleAssignManager = () => {
     //later
@@ -87,7 +93,7 @@ export default function ClubsManagementPage() {
 
   const openAssignDialog = (club: Club) => {
     setAssignClubId(club.id);
-    setSelectedManagerId(club.managerId ?? 'none');
+    setSelectedManagerId(club.ownerId ?? 'none');
     setAssignOpen(true);
   };
 
@@ -131,13 +137,13 @@ export default function ClubsManagementPage() {
         <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
           <span className="text-xs text-muted-foreground">{t('clubsManagement.details.members')}</span>
           <span className="flex items-center gap-2 text-sm font-semibold text-secondary">
-            <Users size={14} className="text-primary" /> {selected.membersCount}
+            <Users size={14} className="text-primary" /> {selected.memberCount}
           </span>
         </div>
         <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
           <span className="text-xs text-muted-foreground">{t('clubsManagement.details.courses')}</span>
           <span className="flex items-center gap-2 text-sm font-semibold text-secondary">
-            <Flag size={14} className="text-primary" /> {selected.coursesCount}
+            <Flag size={14} className="text-primary" /> {selected.courseCount}
           </span>
         </div>
         <div className="col-span-2 flex flex-col gap-1 rounded-lg border border-border p-3">
@@ -149,25 +155,25 @@ export default function ClubsManagementPage() {
         <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
           <span className="text-xs text-muted-foreground">{t('clubsManagement.details.phone')}</span>
           <span className="flex items-center gap-2 text-sm font-semibold text-secondary">
-            <Phone size={14} className="text-primary" /> {selected.phone}
+            <Phone size={14} className="text-primary" /> {selected.phone == null ? t('clubsManagement.details.notProvided') : selected.phone}
           </span>
         </div>
         <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
           <span className="text-xs text-muted-foreground">{t('clubsManagement.details.email')}</span>
           <span className="flex items-center gap-2 text-sm font-semibold text-secondary">
-            <Mail size={14} className="text-primary" /> {selected.email}
+            <Mail size={14} className="text-primary" /> {selected.email == null ? t('clubsManagement.details.notProvided') : selected.email}
           </span>
         </div>
         <div className="col-span-2 flex flex-col gap-1 rounded-lg border border-border p-3">
-          <span className="text-xs text-muted-foreground">{t('clubsManagement.details.manager')}</span>
-          {selected.managerName ? (
+          <span className="text-xs text-muted-foreground">{t('clubsManagement.details.owner')}</span>
+          {selected.ownerName ? (
             <div className="flex items-center gap-2">
               <Avatar size="sm">
                 <AvatarFallback className="bg-secondary/15 text-xs text-secondary">
-                  {selected.managerName.split(' ').map((n) => n[0]).join('')}
+                  {selected.ownerName.split(' ').map((n) => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm font-semibold text-secondary">{selected.managerName}</span>
+              <span className="text-sm font-semibold text-secondary">{selected.ownerName}</span>
             </div>
           ) : (
             <span className="text-sm font-semibold text-red-500">{t('clubsManagement.details.unassigned')}</span>
@@ -177,29 +183,42 @@ export default function ClubsManagementPage() {
     </div>
   );
 
+  console.log("selected club: " + selected?.ownerName);
+
+  const isActive = selected?.status === ClubStatus.ACTIVE;
+
+  const colorsDetails = isActive
+      ? 'border-red-500 text-red-600 hover:bg-red-500/10 hover:text-red-700'
+      : 'border-secondary text-secondary hover:bg-secondary/10';
+
+  const iconDetails = isActive ? (
+      <>
+        <MonitorX size={16} />
+      </>
+  ) : (
+      <MonitorCheck size={16} />
+  );
+
   const detailsFooter = selected && (
     <div className="flex flex-wrap gap-2">
       <Button
         variant="outline"
-        className="flex-1 gap-2 border-primary text-primary hover:bg-primary/10"
-        onClick={() => { setEditing(selected); setOpen(false); setFormOpen(true); }}
+        className={`flex-1 gap-2 ${colorsDetails} `}
+        onClick={() => handleChange(selected)}
       >
-        <Pencil size={16} /> {t('clubsManagement.details.edit')}
+        {iconDetails} {selected.status == ClubStatus.ACTIVE ? t('clubsManagement.details.suspend') : t('clubsManagement.details.activate')}
+
       </Button>
-      <Button
-        variant="outline"
-        className="flex-1 gap-2 border-secondary text-secondary hover:bg-secondary/10"
-        onClick={() => openAssignDialog(selected)}
-      >
-        <UserCog size={16} /> {selected.managerName ? t('clubsManagement.details.reassignManager') : t('clubsManagement.details.assignManager')}
-      </Button>
-      <Button
-        variant="outline"
-        className="flex-1 gap-2 border-border text-muted-foreground hover:bg-muted"
-        onClick={() => handleDelete(selected.id)}
-      >
-        <Trash2 size={16} /> {t('clubsManagement.details.delete')}
-      </Button>
+
+      {(selected.ownerId == null) && (
+          <Button
+              variant="outline"
+              className="flex-1 gap-2 border-secondary text-secondary hover:bg-secondary/10"
+              onClick={() => openAssignDialog(selected)}
+          >
+            <UserCog size={16} /> {selected.ownerName ? t('clubsManagement.details.reassignOwner') : t('clubsManagement.details.assignOwner')}
+          </Button>
+      )}
     </div>
   );
 
@@ -279,9 +298,9 @@ export default function ClubsManagementPage() {
                 <span className="font-medium text-secondary">{c.name}</span>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1"><MapPin size={12} className="text-primary" /> {c.city}</span>
-                  <span className="flex items-center gap-1"><Users size={12} className="text-primary" /> {c.membersCount}</span>
+                  <span className="flex items-center gap-1"><Users size={12} className="text-primary" /> {c.memberCount}</span>
                   <span>
-                    {c.ownerId ? c.managerName : <span className="text-red-500">{t('clubsManagement.item.unassigned')}</span>}
+                    {c.ownerId ? c.ownerName : <span className="text-red-500">{t('clubsManagement.item.unassigned')}</span>}
                   </span>
                 </div>
               </div>
@@ -324,8 +343,6 @@ export default function ClubsManagementPage() {
       <ClubFormDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        onSubmit={editing ? handleUpdate : handleCreate}
-        initialData={editing ?? undefined}
       />
 
       {/* Assign manager dialog */}

@@ -23,14 +23,18 @@ export interface Club {
   ddNSNumber: string;
   ddEWNumber: string;
   status: ClubStatus;
-  managerId: string | null;
-  managerName: string | null;
-  membersCount: number;
-  coursesCount: number;
+  ownerId: string | null;
+  ownerName: string | null;
+  memberCount: number;
+  courseCount: number;
   createdAt: string;
 }
 
-export type ClubStatus = 'active' | 'suspended' | 'archived';
+export enum ClubStatus {
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  ARCHIVED = 'ARCHIVED'
+}
 
 export interface SearchFilters {
   city: string;

@@ -89,10 +89,14 @@ public class ClubMapper {
                 club.getEmail(),
                 club.getLogoURL(),
                 club.getCoverURL(),
+                (long) club.getCourses().size(),
+                (long) club.getMemberships().size(),
+                club.getCreatedAt().toLocalDate(),
                 club.getDdNSNumber(),
                 club.getDdEWNumber(),
                 club.getStatus(),
-                club.getOwner() != null ? club.getOwner().getId() : null
+                club.getOwner() != null ? club.getOwner().getId() : null,
+                club.getOwner() != null ? club.getOwner().getFirstName() + " " + club.getOwner().getLastName() : null
         );
     }
 }

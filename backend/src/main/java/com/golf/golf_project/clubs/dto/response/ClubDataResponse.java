@@ -1,8 +1,8 @@
 package com.golf.golf_project.clubs.dto.response;
 
 import com.golf.golf_project.clubs.enums.ECStatus;
-import jakarta.persistence.Column;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record ClubDataResponse(
@@ -14,9 +14,13 @@ public record ClubDataResponse(
         String email,
         String logoURL,
         String coverURL,
+        Number courseCount,
+        Number memberCount,
+        LocalDate createdAt,
         Number ddNSNumber,
         Number ddEWNumber,
         ECStatus status,
-        UUID ownerId
+        UUID ownerId,
+        String ownerName
 ) {
 }

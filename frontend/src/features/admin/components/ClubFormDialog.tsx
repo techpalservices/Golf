@@ -14,11 +14,9 @@ import {useCreateClub} from "@/features/admin/hooks/useCreateClub.ts";
 interface ClubFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateClub) => void;
-  initialData?: CreateClub;
 }
 
-export default function ClubFormDialog({ open, onOpenChange, onSubmit, initialData }: ClubFormDialogProps) {
+export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogProps) {
   const { t } = useTranslation('app');
   const { data, isLoading, error} = useDataManagers();
   const createClub = useCreateClub();
@@ -35,14 +33,14 @@ export default function ClubFormDialog({ open, onOpenChange, onSubmit, initialDa
 
   useEffect(() => {
     if (open) {
-      setName(initialData?.name ?? '');
-      setCity(initialData?.city ?? '');
-      setAddress(initialData?.address ?? '');
-      setDdEWNumber(initialData?.ddEWNumber ?? 34432522);
-      setDdNSNumber(initialData?.ddNSNumber ?? 11111);
-      setOwnerId(initialData?.ownerId ?? '');
+      setName('');
+      setCity('');
+      setAddress('');
+      setDdEWNumber(34432522);
+      setDdNSNumber(11111);
+      setOwnerId('');
     }
-  }, [open, initialData]);
+  }, [open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,7 +112,7 @@ export default function ClubFormDialog({ open, onOpenChange, onSubmit, initialDa
         <DialogContent className="sm:max-w-lg bg-surface max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif text-lg font-bold text-secondary">
-              {initialData ? t('clubsManagement.form.editTitle') : t('clubsManagement.form.createTitle')}
+              {t('clubsManagement.form.createTitle')}
             </DialogTitle>
           </DialogHeader>
           {formFields}
@@ -128,7 +126,7 @@ export default function ClubFormDialog({ open, onOpenChange, onSubmit, initialDa
       <DrawerContent className="max-h-[90vh] bg-surface">
         <DrawerHeader>
           <DrawerTitle className="font-serif text-lg font-bold text-secondary">
-            {initialData ? t('clubsManagement.form.editTitle') : t('clubsManagement.form.createTitle')}
+            {t('clubsManagement.form.createTitle')}
           </DrawerTitle>
         </DrawerHeader>
         <div className="overflow-y-auto px-4 pb-6 max-h-[75vh]">{formFields}</div>

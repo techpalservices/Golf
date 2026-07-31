@@ -4,12 +4,18 @@ import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
+import com.golf.golf_project.users.dto.requests.SearchPagableRequest;
+import com.golf.golf_project.users.dto.requests.SearchUserRequest;
 import com.golf.golf_project.users.dto.responce.ManagerDataResponse;
 import com.golf.golf_project.users.dto.responce.UserDataManagementResponse;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.mappers.UserMapper;
 import com.golf.golf_project.users.repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,25 +51,31 @@ public class UserService {
         return true;
     }
 
-    public List<UserDataManagementResponse> getUsers() {
-        Role playerRole = roleRepository.findByName("ROLE_PLAYER");
-        Role managerRole = roleRepository.findByName("ROLE_MANAGER");
+    public List<UserDataManagementResponse> getUsers(SearchUserRequest request) {
+        Pageable pageable = PageRequest.of(request.request().page(), request.request().size(), Sort.by("createdAt").descending());
 
-        List<User> players = new ArrayList<>(userRepository.findUserByRole(playerRole));
-        List<User> managers = new ArrayList<>(userRepository.findUserByRole(managerRole));
+        Page<User> userPage = userRepository.searchUsers(
+                request.firstName(),
+                request.lastName(),
+                request.email(),
+                request.phoneNumber(),
+                request.gender(),
+                request.status(),
+                request.role(),
+                pageable
+        );
 
-        List<User> players_Managers = new ArrayList<>(players);
-        players_Managers.addAll(managers);
-
-        return players_Managers.stream()
+        return userPage.getContent().stream()
                 .map(userMapper::toUserDataManagementResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<ManagerDataResponse> getManagers() {
+    public List<ManagerDataResponse> getManagers(SearchPagableRequest request) {
+        Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
+
         Role managerRole = roleRepository.findByName("ROLE_MANAGER");
 
-        List<User> managers = new ArrayList<>(userRepository.findUserByRole(managerRole));
+        List<User> managers = new ArrayList<>(userRepository.findUserByRole(managerRole, pageable));
 
         return managers.stream()
                 .filter(user -> !clubRepository.existsByOwner(user))

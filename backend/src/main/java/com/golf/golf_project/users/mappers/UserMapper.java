@@ -4,6 +4,7 @@ import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.clubs.entities.Club;
 import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.role.repositories.RoleRepository;
+import com.golf.golf_project.users.dto.requests.SearchUserRequest;
 import com.golf.golf_project.users.dto.responce.ManagerDataResponse;
 import com.golf.golf_project.users.dto.responce.UserDataManagementResponse;
 import com.golf.golf_project.users.entities.User;
@@ -21,7 +22,7 @@ public class UserMapper {
     private final RoleRepository roleRepository;
     private final ClubRepository clubRepository;
 
-    public User toUser (SignUpDTORequest request) {
+    public User toUser(SignUpDTORequest request) {
         User user = new User();
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());

@@ -1,6 +1,7 @@
 package com.golf.golf_project.clubs.services;
 
 import com.golf.golf_project.clubs.dto.requests.CreateClubRequest;
+import com.golf.golf_project.clubs.dto.requests.SearchClubRequest;
 import com.golf.golf_project.clubs.dto.requests.UpdateClubRequest;
 import com.golf.golf_project.clubs.dto.response.ClubDataResponse;
 import com.golf.golf_project.clubs.dto.response.CreateClubResponse;
@@ -11,6 +12,10 @@ import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -54,9 +59,19 @@ public class ClubService {
         return clubMapper.toClubDataResponse(clubRepository.save(club));
     }
 
-    public List<ClubDataResponse> getAllClubs() {
-        List<Club> clubs = clubRepository.findAll();
-        return clubs.stream()
+    public List<ClubDataResponse> getAllClubs(SearchClubRequest request) {
+        Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
+        Page<Club> clubs = clubRepository.searchClubs(
+                request.name(),
+                request.city(),
+                request.phone(),
+                request.email(),
+                request.status(),
+                request.ownerFirstName(),
+                request.ownerLastName(),
+                pageable
+        );
+        return clubs.getContent().stream()
                 .map(clubMapper::toClubDataResponse)
                 .toList();
     }

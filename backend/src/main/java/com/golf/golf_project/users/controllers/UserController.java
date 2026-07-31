@@ -2,6 +2,8 @@ package com.golf.golf_project.users.controllers;
 
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
+import com.golf.golf_project.users.dto.requests.SearchPagableRequest;
+import com.golf.golf_project.users.dto.requests.SearchUserRequest;
 import com.golf.golf_project.users.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -17,22 +19,26 @@ public class UserController {
     private UserService userService;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/all")
-    public ResponseEntity<?> getAllUsers() {
+    @PostMapping("/all")
+    public ResponseEntity<?> getAllUsers(
+            @Valid @RequestBody SearchUserRequest request
+            ) {
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        userService.getUsers(),
+                        userService.getUsers(request),
                         "Users retrieved successfully"
                 )
         );
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/managers")
-    public ResponseEntity<?> getManagers() {
+    @PostMapping("/managers")
+    public ResponseEntity<?> getManagers(
+            @Valid @RequestBody SearchPagableRequest request
+    ) {
         return ResponseEntity.ok(
                 ApiResponse.success(
-                        userService.getManagers(),
+                        userService.getManagers(request),
                         "Managers retrieved successfully"
                 )
         );

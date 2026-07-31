@@ -1,6 +1,7 @@
 package com.golf.golf_project.clubs.controllers;
 
 import com.golf.golf_project.clubs.dto.requests.CreateClubRequest;
+import com.golf.golf_project.clubs.dto.requests.SearchClubRequest;
 import com.golf.golf_project.clubs.dto.requests.UpdateClubRequest;
 import com.golf.golf_project.clubs.enums.ECStatus;
 import com.golf.golf_project.clubs.services.ClubService;
@@ -29,9 +30,11 @@ public class ClubController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/all")
-    public ResponseEntity<?> getAllClubs() {
-        return ResponseEntity.ok(ApiResponse.success(clubService.getAllClubs()));
+    @PostMapping("/all")
+    public ResponseEntity<?> getAllClubs(
+            @Valid @RequestBody SearchClubRequest request
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(clubService.getAllClubs(request)));
     }
 
     @PreAuthorize("hasRole('MANAGER')")

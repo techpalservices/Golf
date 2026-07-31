@@ -84,7 +84,7 @@ export default function ClubsManagementPage() {
         },
         {
           onSuccess: () => {
-            //something should be changed on success
+            setOpen(false);
           },
         });
   }

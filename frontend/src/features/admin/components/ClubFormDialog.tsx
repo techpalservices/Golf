@@ -10,6 +10,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import {useDataManagers} from "@/features/admin/hooks/useDataManagers.ts";
 import {useCreateClub} from "@/features/admin/hooks/useCreateClub.ts";
 import type {ManagerListProps} from "@/features/manager/types.ts";
+import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
 
 interface ClubFormDialogProps {
   open: boolean;
@@ -18,9 +19,10 @@ interface ClubFormDialogProps {
 
 export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogProps) {
   const { t } = useTranslation('app');
-  const { data } = useDataManagers();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useDataManagers();
   const createClub = useCreateClub();
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const loadMoreRef = useInfiniteScroll(() => fetchNextPage(), hasNextPage);
 
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
@@ -29,7 +31,7 @@ export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogPro
   const [ddEWNumber, setDdEWNumber] = useState(34432522);
   const [ownerId, setOwnerId] = useState('');
 
-  const managers : ManagerListProps[] = data || [];
+  const managers : ManagerListProps[] = data?.pages.flatMap(p => p) ?? [];
 
   useEffect(() => {
     if (open) {

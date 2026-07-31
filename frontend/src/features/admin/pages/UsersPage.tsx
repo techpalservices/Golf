@@ -15,6 +15,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import CreateUserDialog from '../components/CreateUserDialog';
 import {useDataUsers} from "@/features/admin/hooks/useDataUsers.ts";
 import type {User} from "@/features/user/types.ts";
+import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
 
 type Role = 'player' | 'manager' | 'admin';
 type UserStatus = 'active' | 'suspended' | 'pending';
@@ -51,8 +52,9 @@ const statusColors: Record<UserStatus, string> = {
 
 export default function UsersPage() {
   const { t } = useTranslation('app');
-  const { data, isLoading, error } = useDataUsers();
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useDataUsers();
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const loadMoreRef = useInfiniteScroll(() => fetchNextPage(), hasNextPage);
 
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -61,7 +63,7 @@ export default function UsersPage() {
   const [open, setOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
 
-  const users = data?.data?? [];
+  const users = data?.pages.flatMap(p => p) ?? [];
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
@@ -290,6 +292,12 @@ export default function UsersPage() {
               </div>
             </div>
           ))
+        )}
+      </div>
+
+      <div ref={loadMoreRef} className="py-4">
+        {isFetchingNextPage && (
+            <p className="text-center text-sm text-muted-foreground">Loading more...</p>
         )}
       </div>
 

@@ -52,7 +52,7 @@ public class UserService {
     }
 
     public List<UserDataManagementResponse> getUsers(SearchUserRequest request) {
-        Pageable pageable = PageRequest.of(request.request().page(), request.request().size(), Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
 
         Page<User> userPage = userRepository.searchUsers(
                 request.firstName(),

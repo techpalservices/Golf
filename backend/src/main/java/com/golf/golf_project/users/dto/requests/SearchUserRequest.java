@@ -13,6 +13,7 @@ public record SearchUserRequest(
         EUGender gender,
         EUStatus status,
         Role role,
-        SearchPagableRequest request
+        int page,
+        int size
 ) {
 }

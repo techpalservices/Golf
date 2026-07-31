@@ -4,11 +4,11 @@ import type {CreateManager, ManagerListProps} from "@/features/manager/types.ts"
 import type {User} from "@/features/user/types.ts";
 
 export const userApi = {
-    getAllUsers: () =>
-        api.get<ApiResponse<User[]>>('/users/all'),
+    getAllUsers: ({ page = 0, size = 10 }) =>
+        api.post<ApiResponse<User[]>>('/users/all', { page, size }),
 
-    getAllManagers: () =>
-        api.get<ApiResponse<ManagerListProps[]>>('/users/managers'),
+    getAllManagers: ({ page = 0, size = 10 }) =>
+        api.post<ApiResponse<ManagerListProps[]>>('/users/managers', { page, size }),
 
     addManager: (data: CreateManager) =>
         api.post('/users/add-manager', data),

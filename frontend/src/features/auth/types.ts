@@ -11,6 +11,7 @@ export function toUser(raw: any): User {
 }
 
 export interface ApiResponse<T> {
+  length: number;
   success?: boolean;
   availableMethods?: string[];
   message: string;

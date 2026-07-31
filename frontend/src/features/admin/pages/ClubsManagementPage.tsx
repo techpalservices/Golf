@@ -18,6 +18,7 @@ import { ClubStatus } from "../../clubs/types.ts";
 
 import {useDataClubs} from "@/features/admin/hooks/useDataClubs.ts";
 import {useChangeClubStatus} from "@/features/admin/hooks/useChangeClubStatus.ts";
+import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
 
 function status(status: string){
   switch (status){
@@ -36,9 +37,10 @@ const statusColors: Record<ClubStatus, string> = {
 
 export default function ClubsManagementPage() {
   const { t } = useTranslation('app');
-  const { data, isLoading, error } = useDataClubs();
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useDataClubs();
   const changeClubStatus = useChangeClubStatus();
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const loadMoreRef = useInfiniteScroll(() => fetchNextPage(), hasNextPage);
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -51,7 +53,7 @@ export default function ClubsManagementPage() {
   const [assignClubId, setAssignClubId] = useState<string | null>(null);
   const [selectedManagerId, setSelectedManagerId] = useState<string>('none');
 
-  const clubs = data?.data?? [];
+  const clubs = data?.pages.flatMap(p => p) ?? [];
 
   const filtered = useMemo(() => {
     return clubs.filter((c) => {
@@ -309,6 +311,12 @@ export default function ClubsManagementPage() {
               </Badge>
             </div>
           ))
+        )}
+      </div>
+
+      <div ref={loadMoreRef} className="py-4">
+        {isFetchingNextPage && (
+            <p className="text-center text-sm text-muted-foreground">Loading more...</p>
         )}
       </div>
 

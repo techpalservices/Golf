@@ -4,11 +4,13 @@ import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
+import com.golf.golf_project.users.dto.requests.ChangeUserStatusRequest;
 import com.golf.golf_project.users.dto.requests.SearchPagableRequest;
 import com.golf.golf_project.users.dto.requests.SearchUserRequest;
 import com.golf.golf_project.users.dto.responce.ManagerDataResponse;
 import com.golf.golf_project.users.dto.responce.UserDataManagementResponse;
 import com.golf.golf_project.users.entities.User;
+import com.golf.golf_project.users.enums.EUStatus;
 import com.golf.golf_project.users.mappers.UserMapper;
 import com.golf.golf_project.users.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -81,5 +83,11 @@ public class UserService {
                 .filter(user -> !clubRepository.existsByOwner(user))
                 .map(userMapper::toManagerDataResponse)
                 .collect(Collectors.toList());
+    }
+
+    public void changeUserStatus(ChangeUserStatusRequest request) {
+        User user = userRepository.findById(request.userId()).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setStatus(request.status());
+        userRepository.save(user);
     }
 }

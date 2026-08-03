@@ -2,6 +2,7 @@ package com.golf.golf_project.users.controllers;
 
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
+import com.golf.golf_project.users.dto.requests.ChangeUserStatusRequest;
 import com.golf.golf_project.users.dto.requests.SearchPagableRequest;
 import com.golf.golf_project.users.dto.requests.SearchUserRequest;
 import com.golf.golf_project.users.services.UserService;
@@ -53,6 +54,19 @@ public class UserController {
                 ApiResponse.success(
                         userService.AddManager(signUpDTORequest),
                         "Manager added successfully"
+                )
+        );
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/change-status")
+    public ResponseEntity<?> changeStatus(
+            @RequestBody @Valid ChangeUserStatusRequest request
+    ) {
+        userService.changeUserStatus(request);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "User status updated successfully"
                 )
         );
     }

@@ -7,6 +7,9 @@ export const userApi = {
     getAllUsers: ({ page = 0, size = 10 }) =>
         api.post<ApiResponse<User[]>>('/users/all', { page, size }),
 
+    searchUsers: ({ page = 0, size = 10 }) =>
+        api.post<ApiResponse<User[]>>('/users/search', { page, size }),
+
     getAllManagers: ({ page = 0, size = 10 }) =>
         api.post<ApiResponse<ManagerListProps[]>>('/users/managers', { page, size }),
 

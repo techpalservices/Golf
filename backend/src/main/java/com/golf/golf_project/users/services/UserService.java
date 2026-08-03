@@ -57,16 +57,15 @@ public class UserService {
         Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
 
         Page<User> userPage = userRepository.searchUsers(
-                request.firstName(),
-                request.lastName(),
-                request.email(),
-                request.phoneNumber(),
+                wrapLike(request.firstName()),   // "jhon" → "%jhon%", null → null
+                wrapLike(request.lastName()),
+                wrapLike(request.email()),
+                wrapLike(request.phoneNumber()),
                 request.gender(),
                 request.status(),
                 request.role(),
                 pageable
         );
-
         return userPage.getContent().stream()
                 .map(userMapper::toUserDataManagementResponse)
                 .collect(Collectors.toList());
@@ -89,5 +88,9 @@ public class UserService {
         User user = userRepository.findById(request.userId()).orElseThrow(() -> new RuntimeException("User not found"));
         user.setStatus(request.status());
         userRepository.save(user);
+    }
+
+    private String wrapLike(String value) {
+        return value == null ? null : "%" + value.toLowerCase() + "%";
     }
 }

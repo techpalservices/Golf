@@ -80,18 +80,22 @@ public class ClubService {
     public List<ClubDataResponse> getAllClubs(SearchClubRequest request) {
         Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
         Page<Club> clubs = clubRepository.searchClubs(
-                request.name(),
-                request.city(),
-                request.phone(),
-                request.email(),
+                wrapLike(request.name()),          // "club " → "%club %"
+                wrapLike(request.city()),
+                wrapLike(request.phone()),
+                wrapLike(request.email()),
                 request.status(),
-                request.ownerFirstName(),
-                request.ownerLastName(),
+                wrapLike(request.ownerFirstName()),
+                wrapLike(request.ownerLastName()),
                 pageable
         );
         return clubs.getContent().stream()
                 .map(clubMapper::toClubDataResponse)
                 .toList();
+    }
+
+    private String wrapLike(String value) {
+        return value == null ? null : "%" + value.toLowerCase() + "%";
     }
 
     public void changeClubStatus(UUID clubId, ECStatus status) {

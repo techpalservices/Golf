@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface ClubRepository extends JpaRepository<Club, UUID> {
     boolean existsByOwner(User owner);
 
-    @Query("SELECT c FROM Club c JOIN User u ON c.owner = u " +
+    @Query("SELECT c FROM Club c JOIN c.owner u " +   // ← JOIN c.owner u
             "WHERE (:name IS NULL OR LOWER(c.name) LIKE :name) " +
             "AND (:city IS NULL OR LOWER(c.city) LIKE :city) " +
             "AND (:phone IS NULL OR LOWER(c.phone) LIKE :phone) " +

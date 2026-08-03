@@ -16,8 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -79,12 +77,15 @@ public class ClubService {
 
     public List<ClubDataResponse> getAllClubs(SearchClubRequest request) {
         Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
+
+        ECStatus status = parseEnum(request.status(), ECStatus.class);
+
         Page<Club> clubs = clubRepository.searchClubs(
                 wrapLike(request.name()),          // "club " → "%club %"
                 wrapLike(request.city()),
                 wrapLike(request.phone()),
                 wrapLike(request.email()),
-                request.status(),
+                status,
                 wrapLike(request.ownerFirstName()),
                 wrapLike(request.ownerLastName()),
                 pageable
@@ -102,5 +103,14 @@ public class ClubService {
         Club club = clubRepository.findById(clubId).orElseThrow(() -> new IllegalArgumentException("Club not found"));
         club.setStatus(status);
         clubRepository.save(club);
+    }
+
+    private <T extends Enum<T>> T parseEnum(String value, Class<T> enumClass) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return Enum.valueOf(enumClass, value.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

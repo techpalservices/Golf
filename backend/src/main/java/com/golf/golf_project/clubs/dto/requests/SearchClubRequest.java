@@ -7,7 +7,7 @@ public record SearchClubRequest(
     String city,
     String phone,
     String email,
-    ECStatus status,
+    String status,
     String ownerFirstName,
     String ownerLastName,
     int size,

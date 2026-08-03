@@ -16,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,22 @@ public class ClubService {
             throw new IllegalArgumentException("Owner should be MANAGER");
         }
         return clubMapper.toCreateClubResponse(clubRepository.save(club));
+    }
+
+    public ClubDataResponse getMyClub() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            throw new IllegalArgumentException("Not authenticated");
+        }
+
+        String username = auth.getName();
+        User user = userRepository.findUserByUsername(username);
+        Club club = clubRepository.findByOwner(user);
+        if (club == null) {
+            throw new IllegalArgumentException("No club found for the authenticated user");
+        }
+        return clubMapper.toClubDataResponse(club);
     }
 
     public ClubDataResponse updateClub(UpdateClubRequest request) {

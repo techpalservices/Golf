@@ -34,4 +34,6 @@ public interface ClubRepository extends JpaRepository<Club, UUID> {
     );
 
     Club findByOwnerId(UUID ownerId);
+
+    Club findByOwner(User owner);
 }

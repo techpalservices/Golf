@@ -38,6 +38,12 @@ public class ClubController {
     }
 
     @PreAuthorize("hasRole('MANAGER')")
+    @GetMapping("/my-club")
+    public ResponseEntity<?> getMyClub() {
+        return ResponseEntity.ok(ApiResponse.success(clubService.getMyClub()));
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
     @PatchMapping("/update")
     public ResponseEntity<?> firstModification(
             @Valid @RequestBody UpdateClubRequest request

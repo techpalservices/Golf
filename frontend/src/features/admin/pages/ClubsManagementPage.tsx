@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import {useState, useMemo, useEffect} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, Plus, MapPin, Building, Users, Flag, Phone, Mail, Calendar, UserCog, MonitorX, MonitorCheck } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -16,9 +16,10 @@ import ClubFormDialog from '../components/ClubFormDialog';
 import type { Club } from '../../clubs/types.ts'
 import { ClubStatus } from "../../clubs/types.ts";
 
-import {useDataClubs} from "@/features/admin/hooks/useDataClubs.ts";
 import {useChangeClubStatus} from "@/features/admin/hooks/useChangeClubStatus.ts";
 import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
+import type {SearchClubs} from "@/api/types.ts";
+import {useSearchDataClubs} from "@/features/admin/hooks/useSearchDataClubs.ts";
 
 function status(status: string){
   switch (status){
@@ -37,10 +38,9 @@ const statusColors: Record<ClubStatus, string> = {
 
 export default function ClubsManagementPage() {
   const { t } = useTranslation('app');
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useDataClubs();
+
   const changeClubStatus = useChangeClubStatus();
   const isDesktop = useMediaQuery('(min-width: 768px)');
-  const loadMoreRef = useInfiniteScroll(() => fetchNextPage(), hasNextPage);
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -52,6 +52,26 @@ export default function ClubsManagementPage() {
   const [assignOpen, setAssignOpen] = useState(false);
   const [assignClubId, setAssignClubId] = useState<string | null>(null);
   const [selectedManagerId, setSelectedManagerId] = useState<string>('none');
+  const [searchClub, setSearchClub] = useState<SearchClubs>({
+    name: "",
+    city: "",
+    phone: "",
+    email: "",
+    status: "",
+    ownerFirstName: "",
+    ownerLastName: "",
+    size: 10,
+    page: 0
+  });
+  const [debounced, setDebounced] = useState(searchClub);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(searchClub), 200);
+    return () => clearTimeout(t);
+  }, [searchClub]);
+
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useSearchDataClubs(debounced);
+  const loadMoreRef = useInfiniteScroll(() => fetchNextPage(), hasNextPage);
 
   const clubs = data?.pages.flatMap(p => p) ?? [];
 
@@ -66,9 +86,6 @@ export default function ClubsManagementPage() {
       return true;
     });
   }, [clubs, search, statusFilter, cityFilter]);
-
-  if (isLoading) return <div>Loading managers...</div>;
-  if (error) return <div>Failed to load managers</div>;
 
   const handleClick = (club: Club) => {
     setSelected(club);
@@ -226,7 +243,14 @@ export default function ClubsManagementPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-serif text-2xl font-bold text-secondary">{t('clubsManagement.title')}</h1>
+      <div className={"flex flex-row items-center justify-between"}>
+        <h1 className="font-serif text-2xl font-bold text-secondary">{t('clubsManagement.title')}</h1>
+        <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => { setEditing(null); setFormOpen(true); }}>
+          <Plus size={16} />
+          <span className="hidden sm:inline">{t('clubsManagement.add')}</span>
+        </Button>
+      </div>
+
 
       {/* Filter bar + Add button */}
       <Card className="p-4">
@@ -234,41 +258,68 @@ export default function ClubsManagementPage() {
           <div className="flex items-center justify-between gap-3">
             <div className="relative flex-1">
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary" />
+              <Input
+                  value={searchClub.name}
+                  onChange={(e) => setSearchClub({ ...searchClub, name: e.target.value })}
+                  placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
+              />
             </div>
-            <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => { setEditing(null); setFormOpen(true); }}>
-              <Plus size={16} />
-              <span className="hidden sm:inline">{t('clubsManagement.add')}</span>
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+              <Input
+                  value={searchClub.phone}
+                  onChange={(e) => setSearchClub({ ...searchClub, phone: e.target.value })}
+                  placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
+              />
+            </div>
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+              <Input
+                  value={searchClub.email}
+                  onChange={(e) => setSearchClub({ ...searchClub, email: e.target.value })}
+                  placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
+              />
+            </div>
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+              <Input
+                  value={searchClub.ownerFirstName}
+                  onChange={(e) => setSearchClub({ ...searchClub, ownerFirstName: e.target.value })}
+                  placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
+              />
+            </div>
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+              <Input
+                  value={searchClub.ownerLastName}
+                  onChange={(e) => setSearchClub({ ...searchClub, ownerLastName: e.target.value })}
+                  placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
+              />
+            </div>
             <div className="flex flex-col gap-1">
-              <Label className="text-xs text-muted-foreground">{t('clubsManagement.filterStatus')}</Label>
               <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
                 <SelectTrigger size="sm" className="w-full border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t('clubsManagement.all')}</SelectItem>
+                  <SelectItem value="">{t('clubsManagement.all')}</SelectItem>
+                  <SelectItem value="ACTIVE">{t('clubsManagement.status.active')}</SelectItem>
+                  <SelectItem value="SUSPENDED">{t('clubsManagement.status.suspended')}</SelectItem>
+                  <SelectItem value="ARCHIVED">{t('clubsManagement.status.archived')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Select value={searchClub.city} onValueChange={(v) => setSearchClub({ ...searchClub, city: v ?? 'all' })}>
+                <SelectTrigger size="sm" className="w-full border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">{t('clubsManagement.all')}</SelectItem>
                   <SelectItem value="active">{t('clubsManagement.status.active')}</SelectItem>
                   <SelectItem value="suspended">{t('clubsManagement.status.suspended')}</SelectItem>
                   <SelectItem value="archived">{t('clubsManagement.status.archived')}</SelectItem>
                 </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <Label className="text-xs text-muted-foreground">{t('clubsManagement.filterCity')}</Label>
-              <Select value={cityFilter} onValueChange={(v) => setCityFilter(v ?? 'all')}>
-                <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue />
-                </SelectTrigger>
-                {/*<SelectContent>*/}
-                {/*  {cities.map((c) => (*/}
-                {/*    <SelectItem key={c} value={c}>{c === 'all' ? t('clubsManagement.allCities') : c}</SelectItem>*/}
-                {/*  ))}*/}
-                {/*</SelectContent>*/}
               </Select>
             </div>
           </div>
@@ -276,43 +327,50 @@ export default function ClubsManagementPage() {
       </Card>
 
       {/* Clubs list */}
-      <div className="flex flex-col gap-2">
-        {filtered.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">{t('clubsManagement.empty')}</p>
-        ) : (
-          filtered.map((c) => (
-            <div
-              key={c.id}
-              onClick={() => handleClick(c)}
-              className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-shadow hover:shadow-md"
-            >
-              <Avatar size="lg" className="border border-border">
-                {
-                  c.logoURL == null
-                      ? <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">
-                        {c.name.charAt(0).toLocaleUpperCase()}
-                      </AvatarFallback>
-                      : <AvatarImage src={c.logoURL} />
-                }
-              </Avatar>
-              <Separator orientation="vertical" className="h-14" />
-              <div className="flex flex-1 flex-col gap-1">
-                <span className="font-medium text-secondary">{c.name}</span>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><MapPin size={12} className="text-primary" /> {c.city}</span>
-                  <span className="flex items-center gap-1"><Users size={12} className="text-primary" /> {c.memberCount}</span>
-                  <span>
+      {isLoading ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">Loading...</p>
+      ) : error ? (
+          <p className="py-8 text-center text-sm text-red-500">Failed to load users</p>
+      ) : (
+          <div className="flex flex-col gap-2">
+            {clubs.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">{t('clubsManagement.empty')}</p>
+            ) : (
+                clubs.map((c) => (
+                    <div
+                        key={c.id}
+                        onClick={() => handleClick(c)}
+                        className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-shadow hover:shadow-md"
+                    >
+                      <Avatar size="lg" className="border border-border">
+                        {
+                          c.logoURL == null
+                              ? <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">
+                                {c.name.charAt(0).toLocaleUpperCase()}
+                              </AvatarFallback>
+                              : <AvatarImage src={c.logoURL} />
+                        }
+                      </Avatar>
+                      <Separator orientation="vertical" className="h-14" />
+                      <div className="flex flex-1 flex-col gap-1">
+                        <span className="font-medium text-secondary">{c.name}</span>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1"><MapPin size={12} className="text-primary" /> {c.city}</span>
+                          <span className="flex items-center gap-1"><Users size={12} className="text-primary" /> {c.memberCount}</span>
+                          <span>
                     {c.ownerId ? c.ownerName : <span className="text-red-500">{t('clubsManagement.item.unassigned')}</span>}
                   </span>
-                </div>
-              </div>
-              <Badge className={`shrink-0 border text-xs ${statusColors[status(c.status)]}`}>
-                {t(`clubsManagement.status.${status(c.status)}`)}
-              </Badge>
-            </div>
-          ))
-        )}
-      </div>
+                        </div>
+                      </div>
+                      <Badge className={`shrink-0 border text-xs ${statusColors[status(c.status)]}`}>
+                        {t(`clubsManagement.status.${status(c.status)}`)}
+                      </Badge>
+                    </div>
+                ))
+            )}
+          </div>
+      )}
+
 
       <div ref={loadMoreRef} className="py-4">
         {isFetchingNextPage && (

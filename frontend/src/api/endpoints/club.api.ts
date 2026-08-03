@@ -1,10 +1,14 @@
 import {api} from "@/api/apiConfig.ts";
 import type {ApiResponse} from "@/features/auth/types.ts";
 import type {Club, CreateClub, UpdateClub} from "@/features/clubs/types.ts";
+import type {SearchClubs} from "@/api/types.ts";
 
 export const clubApi = {
     getAllClubs: ({ page = 0, size = 10}) =>
         api.post<ApiResponse<Club[]>>('/clubs/all', { page, size }),
+
+    searchClubs: ( searchClub: SearchClubs) =>
+        api.post<ApiResponse<Club[]>>('/clubs/all', searchClub),
 
     addClub: (data: CreateClub) =>
         api.post('/clubs/add', data),

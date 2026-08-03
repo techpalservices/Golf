@@ -16,6 +16,18 @@ export interface SearchUsers {
     size: number;
 }
 
+export interface SearchClubs {
+    name: string;
+    city: string;
+    phone: string;
+    email: string;
+    status: ECStatus;
+    ownerFirstName: string;
+    ownerLastName: string;
+    size: number;
+    page: number;
+}
+
 export const EUGender = {
     MALE: "MALE",
     FEMALE: "FEMALE",
@@ -31,3 +43,11 @@ export const EUStatus = {
 } as const;
 
 export type EUStatus = (typeof EUStatus)[keyof typeof EUStatus];
+
+export const ECStatus = {
+    ACTIVE: "ACTIVE",
+    SUSPENDED: "SUSPENDED",
+    ALL: ""
+} as const;
+
+export type ECStatus = (typeof ECStatus)[keyof typeof ECStatus];

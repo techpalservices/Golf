@@ -1,9 +1,8 @@
-import { useState, useMemo } from 'react';
+import {useState, useEffect} from 'react';
 import { useTranslation } from 'react-i18next';
-import {Search, Mail, Phone, Check, X, UserCog, UserMinus, Trash2, Plus, Building, Calendar} from 'lucide-react';
+import {Search, Mail, Phone, Trash2, Plus, Building, Calendar} from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,11 +12,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import CreateUserDialog from '../components/CreateUserDialog';
-import {useDataUsers} from "@/features/admin/hooks/useDataUsers.ts";
 import type {User} from "@/features/user/types.ts";
 import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
+import type {SearchUsers} from "@/api/types.ts";
+import type {Role, SearchRole} from "@/types/user.types.ts";
+import {useSearchDataUsers} from "@/features/admin/hooks/useSearchDataUsers.ts";
 
-type Role = 'player' | 'manager' | 'admin';
 type UserStatus = 'active' | 'suspended' | 'pending';
 
 function role(role: string) {
@@ -29,7 +29,7 @@ function role(role: string) {
   }
 }
 
-const roleColors: Record<Role, string> = {
+const roleColors: Record<SearchRole, string> = {
   player: 'border-primary bg-primary/15 text-primary',
   manager: 'border-secondary bg-secondary/15 text-secondary',
   admin: 'border-blue-500 bg-blue-500/15 text-blue-600',
@@ -52,49 +52,36 @@ const statusColors: Record<UserStatus, string> = {
 
 export default function UsersPage() {
   const { t } = useTranslation('app');
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useDataUsers();
   const isDesktop = useMediaQuery('(min-width: 768px)');
-  const loadMoreRef = useInfiniteScroll(() => fetchNextPage(), hasNextPage);
-
-  const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [selected, setSelected] = useState<User | null>(null);
   const [open, setOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
+  const [searchUser, setSearchUser] = useState<SearchUsers>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    gender: "",
+    status: "",
+    role: "",
+    page: 0,
+    size: 10
+  })
+  const [debounced, setDebounced] = useState(searchUser);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(searchUser), 200);
+    return () => clearTimeout(t);
+  }, [searchUser]);
+
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useSearchDataUsers(debounced);
+  const loadMoreRef = useInfiniteScroll(() => fetchNextPage(), hasNextPage);
 
   const users = data?.pages.flatMap(p => p) ?? [];
-
-  const filtered = useMemo(() => {
-    return users.filter((u) => {
-      if (search) {
-        const q = search.toLowerCase();
-        if (!u.firstName.toLowerCase().includes(q) && !u.lastName.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
-      }
-      if (roleFilter !== 'all' && u.role !== roleFilter) return false;
-      if (statusFilter !== 'all' && u.status !== statusFilter) return false;
-      return true;
-    });
-  }, [users, search, roleFilter, statusFilter]);
-
-  if (isLoading) return <div>Loading managers...</div>;
-  if (error) return <div>Failed to load managers</div>;
 
   const handleClick = (user: User) => {
     setSelected(user);
     setOpen(true);
-  };
-
-  const handleSuspend = (id: string, status: UserStatus) => {
-    // later
-  };
-
-  const handleRoleChange = (id: string, role: Role) => {
-    //later
-  };
-
-  const handleDelete = (id: string) => {
-    //later
   };
 
   const handleCreate = (data: { fullName: string; email: string; phone: string; role: Role; password: string }) => {
@@ -170,31 +157,9 @@ export default function UsersPage() {
 
   const detailsFooter = selected && (
     <div className="flex flex-wrap gap-2">
-      {/* Suspend / Reinstate */}
-      {selected.status === 'active' ? (
-        <Button className="flex-1 gap-2 bg-red-500 text-white hover:bg-red-500/80" onClick={() => handleSuspend(selected.id, 'suspended')}>
-          <X size={16} /> {t('users.details.suspend')}
-        </Button>
-      ) : (
-        <Button className="flex-1 gap-2 bg-secondary text-white hover:bg-secondary/80" onClick={() => handleSuspend(selected.id, 'active')}>
-          <Check size={16} /> {t('users.details.reinstate')}
-        </Button>
-      )}
-
-      {/* Assign / Remove manager — only for players */}
-      {selected.role === 'player' && (
-        <Button variant="outline" className="flex-1 gap-2 border-secondary text-secondary hover:bg-secondary/10" onClick={() => handleRoleChange(selected.id, 'manager')}>
-          <UserCog size={16} /> {t('users.details.assignManager')}
-        </Button>
-      )}
-      {selected.role === 'manager' && (
-        <Button variant="outline" className="flex-1 gap-2 border-primary text-primary hover:bg-primary/10" onClick={() => handleRoleChange(selected.id, 'player')}>
-          <UserMinus size={16} /> {t('users.details.removeManager')}
-        </Button>
-      )}
 
       {/* Delete */}
-      <Button variant="outline" className="flex-1 gap-2 border-border text-muted-foreground hover:bg-muted" onClick={() => handleDelete(selected.id)}>
+      <Button variant="outline" className="flex-1 gap-2 border-border text-muted-foreground hover:bg-muted">
         <Trash2 size={16} /> {t('users.details.delete')}
       </Button>
     </div>
@@ -202,7 +167,14 @@ export default function UsersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-serif text-2xl font-bold text-secondary">{t('users.title')}</h1>
+      <div className="flex flex-row items-center justify-between">
+        <h1 className="font-serif text-2xl font-bold text-secondary">{t('users.title')}</h1>
+        <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setFormOpen(true)}>
+          <Plus size={16} />
+          <span className="hidden sm:inline">{t('user.addUser')}</span>
+        </Button>
+      </div>
+
 
       {/* Filter bar + Add button */}
       <Card className="p-4">
@@ -211,45 +183,73 @@ export default function UsersPage() {
             <div className="relative flex-1">
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
               <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={t('users.searchPlaceholder')}
+                value={searchUser.firstName}
+                onChange={(e) => setSearchUser({...searchUser, firstName: e.target.value})}
+                placeholder={t('users.firstNamePlaceholder')}
                 className="pl-10 border-primary placeholder:text-secondary"
               />
             </div>
-            <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setFormOpen(true)}>
-              <Plus size={16} />
-              <span className="hidden sm:inline">{t('user.addUser')}</span>
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+              <Input
+                  value={searchUser.lastName}
+                  onChange={(e) => setSearchUser({...searchUser, lastName: e.target.value})}
+                  placeholder={t('users.lastNamePlaceholder')}
+                  className="pl-10 border-primary placeholder:text-secondary"
+              />
+            </div>
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+              <Input
+                  value={searchUser.email}
+                  onChange={(e) => setSearchUser({...searchUser, email: e.target.value})}
+                  placeholder={t('users.emailPlaceholder')}
+                  className="pl-10 border-primary placeholder:text-secondary"
+              />
+            </div>
+            <div className="relative flex-1">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+              <Input
+                  type={"tel"}
+                  value={searchUser.phoneNumber}
+                  onChange={(e) => setSearchUser({...searchUser, phoneNumber: e.target.value})}
+                  placeholder={t('users.phonePlaceholder')}
+                  className="pl-10 border-primary placeholder:text-secondary"
+              />
+            </div>
             <div className="flex flex-col gap-1">
-              <Label className="text-xs text-muted-foreground">{t('users.filterRole')}</Label>
-              <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? 'all')}>
+              <Select value={searchUser.role} onValueChange={(v) => setSearchUser({...searchUser, role: v ?? ''})}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue />
+                  <SelectValue placeholder={t('users.role.all')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t('users.all')}</SelectItem>
-                  <SelectItem value="player">{t('users.role.player')}</SelectItem>
-                  <SelectItem value="manager">{t('users.role.manager')}</SelectItem>
-                  <SelectItem value="admin">{t('users.role.admin')}</SelectItem>
+                  <SelectItem value="">{t('users.role.all')}</SelectItem>
+                  <SelectItem value="ROLE_PLAYER">{t('users.role.player')}</SelectItem>
+                  <SelectItem value="ROLE_MANAGER">{t('users.role.manager')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
             <div className="flex flex-col gap-1">
-              <Label className="text-xs text-muted-foreground">{t('users.filterStatus')}</Label>
-              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
+              <Select value={searchUser.status} onValueChange={(v) => setSearchUser({...searchUser, status: v ?? ''})}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue />
+                  <SelectValue placeholder={t('users.status.all')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{t('users.all')}</SelectItem>
-                  <SelectItem value="active">{t('users.status.active')}</SelectItem>
-                  <SelectItem value="suspended">{t('users.status.suspended')}</SelectItem>
-                  <SelectItem value="pending">{t('users.status.pending')}</SelectItem>
+                  <SelectItem value="">{t('users.status.all')}</SelectItem>
+                  <SelectItem value="ACTIVE">{t('users.status.active')}</SelectItem>
+                  <SelectItem value="SUSPENDED">{t('users.status.suspended')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Select value={searchUser.gender} onValueChange={(v) => setSearchUser({...searchUser, gender: v ?? ''})}>
+                <SelectTrigger size="sm" className="w-full border-border">
+                  <SelectValue placeholder={t('users.gender.all')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">{t('users.gender.all')}</SelectItem>
+                  <SelectItem value="MALE">{t('users.gender.male')}</SelectItem>
+                  <SelectItem value="FEMALE">{t('users.gender.female')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -258,42 +258,50 @@ export default function UsersPage() {
       </Card>
 
       {/* Users list */}
-      <div className="flex flex-col gap-2">
-        {filtered.length === 0 ? (
+      {isLoading ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">Loading...</p>
+      ) : error ? (
+          <p className="py-8 text-center text-sm text-red-500">Failed to load users</p>
+      ) : users.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">{t('users.empty')}</p>
-        ) : (
-          filtered.map((u) => (
-            <div
-              key={u.id}
-              onClick={() => handleClick(u)}
-              className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-shadow hover:shadow-md"
-            >
-              <Avatar size="lg" className="border border-border">
-                {
-                  u.avatarURL == null
-                    ? <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">
-                        {u.firstName.charAt(0).toLocaleUpperCase()}{u.lastName.charAt(0).toLocaleUpperCase()}
-                      </AvatarFallback>
-                    : <AvatarImage src={u.avatarURL} />
-                }
-              </Avatar>
-              <Separator orientation="vertical" className="h-12" />
-              <div className="flex flex-1 flex-col gap-1">
-                <span className="font-medium text-secondary">{u.firstName} {u.lastName}</span>
-                <span className="text-xs text-muted-foreground">{u.email}</span>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <Badge className={`border text-xs ${roleColors[role(u.role)]}`}>
-                  {t(`users.role.${role(u.role)}`)}
-                </Badge>
-                <Badge className={`border text-xs ${statusColors[status(u.status)]}`}>
-                  {t(`users.status.${status(u.status)}`)}
-                </Badge>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+      ) : (
+          <div className="flex flex-col gap-2">
+            {users.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">{t('users.empty')}</p>
+            ) : (
+                users.map((u) => (
+                    <div
+                        key={u.id}
+                        onClick={() => handleClick(u)}
+                        className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-shadow hover:shadow-md"
+                    >
+                      <Avatar size="lg" className="border border-border">
+                        {
+                          u.avatarURL == null
+                              ? <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">
+                                {u.firstName.charAt(0).toLocaleUpperCase()}{u.lastName.charAt(0).toLocaleUpperCase()}
+                              </AvatarFallback>
+                              : <AvatarImage src={u.avatarURL} />
+                        }
+                      </Avatar>
+                      <Separator orientation="vertical" className="h-12" />
+                      <div className="flex flex-1 flex-col gap-1">
+                        <span className="font-medium text-secondary">{u.firstName} {u.lastName}</span>
+                        <span className="text-xs text-muted-foreground">{u.email}</span>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge className={`border text-xs ${roleColors[role(u.role)]}`}>
+                          {t(`users.role.${role(u.role)}`)}
+                        </Badge>
+                        <Badge className={`border text-xs ${statusColors[status(u.status)]}`}>
+                          {t(`users.status.${status(u.status)}`)}
+                        </Badge>
+                      </div>
+                    </div>
+                ))
+            )}
+          </div>
+      )}
 
       <div ref={loadMoreRef} className="py-4">
         {isFetchingNextPage && (

@@ -640,14 +640,21 @@
       "registered": "Inscrit"
     },
     "role": {
+      "all": "Selectionner un rôle",
       "player": "Joueur",
       "manager": "Gestionnaire",
       "admin": "Administrateur"
     },
     "status": {
+      "all": "Sélectionner un statut",
       "active": "Actif",
       "suspended": "Suspendu",
       "pending": "En attente"
+    },
+    "gender": {
+      "all": "Sélectionner un genre",
+      "male": "Masculin",
+      "female": "Féminin"
     },
     "details": {
       "title": "Détails de l'utilisateur",

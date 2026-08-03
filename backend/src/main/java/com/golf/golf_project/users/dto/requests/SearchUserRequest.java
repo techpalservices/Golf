@@ -10,9 +10,9 @@ public record SearchUserRequest(
         String lastName,
         String email,
         String phoneNumber,
-        EUGender gender,
-        EUStatus status,
-        Role role,
+        String gender,
+        String status,
+        String role,
         int page,
         int size
 ) {

@@ -4,7 +4,6 @@ import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.clubs.entities.Club;
 import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.role.repositories.RoleRepository;
-import com.golf.golf_project.users.dto.requests.SearchUserRequest;
 import com.golf.golf_project.users.dto.responce.ManagerDataResponse;
 import com.golf.golf_project.users.dto.responce.UserDataManagementResponse;
 import com.golf.golf_project.users.entities.User;
@@ -12,7 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 
 @Component
 @AllArgsConstructor

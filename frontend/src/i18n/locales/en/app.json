@@ -629,9 +629,12 @@
     "title": "User management",
     "search": "Search",
     "searchPlaceholder": "Ex: Ahmed, player...",
+    "firstNamePlaceholder": "First name",
+    "lastNamePlaceholder": "Last name",
+    "emailPlaceholder": "Email",
+    "phonePlaceholder": "Phone",
     "filterRole": "Role",
     "filterStatus": "Status",
-    "all": "All",
     "empty": "No users",
     "item": {
       "role": "Role",
@@ -639,14 +642,21 @@
       "registered": "Registered"
     },
     "role": {
+      "all": "Select role",
       "player": "Player",
       "manager": "Manager",
       "admin": "Admin"
     },
     "status": {
+      "all": "Select status",
       "active": "Active",
       "suspended": "Suspended",
       "pending": "Pending"
+    },
+    "gender": {
+        "all": "Select gender",
+        "male": "Male",
+        "female": "Female"
     },
     "details": {
       "title": "User details",

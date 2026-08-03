@@ -10,6 +10,7 @@ import com.golf.golf_project.users.dto.requests.SearchUserRequest;
 import com.golf.golf_project.users.dto.responce.ManagerDataResponse;
 import com.golf.golf_project.users.dto.responce.UserDataManagementResponse;
 import com.golf.golf_project.users.entities.User;
+import com.golf.golf_project.users.enums.EUGender;
 import com.golf.golf_project.users.enums.EUStatus;
 import com.golf.golf_project.users.mappers.UserMapper;
 import com.golf.golf_project.users.repositories.UserRepository;
@@ -56,14 +57,20 @@ public class UserService {
     public List<UserDataManagementResponse> getUsers(SearchUserRequest request) {
         Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
 
+        EUGender gender = parseEnum(request.gender(), EUGender.class);
+        EUStatus status = parseEnum(request.status(), EUStatus.class);
+        Role role = (request.role() == null || request.role().isBlank())
+                ? null
+                : roleRepository.findByName(request.role());
+
         Page<User> userPage = userRepository.searchUsers(
                 wrapLike(request.firstName()),   // "jhon" → "%jhon%", null → null
                 wrapLike(request.lastName()),
                 wrapLike(request.email()),
                 wrapLike(request.phoneNumber()),
-                request.gender(),
-                request.status(),
-                request.role(),
+                gender,
+                status,
+                role,
                 pageable
         );
         return userPage.getContent().stream()
@@ -92,5 +99,14 @@ public class UserService {
 
     private String wrapLike(String value) {
         return value == null ? null : "%" + value.toLowerCase() + "%";
+    }
+
+    private <T extends Enum<T>> T parseEnum(String value, Class<T> enumClass) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return Enum.valueOf(enumClass, value.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

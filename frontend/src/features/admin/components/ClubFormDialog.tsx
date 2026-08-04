@@ -11,6 +11,7 @@ import {useDataManagers} from "@/features/admin/hooks/useDataManagers.ts";
 import {useCreateClub} from "@/features/admin/hooks/useCreateClub.ts";
 import type {ManagerListProps} from "@/features/manager/types.ts";
 import type {CreateClub} from "@/features/clubs/types.ts";
+import cities from "@/data/cities.json";
 
 interface ClubFormDialogProps {
   open: boolean;
@@ -68,12 +69,21 @@ export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogPro
         <Input value={newClub.name} onChange={(e) => setNewClub({...newClub, name: e.target.value})} placeholder={t('clubsManagement.form.namePlaceholder')} className="border-border" required />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-sm text-secondary">{t('clubsManagement.form.city')}</Label>
-          <Input value={newClub.city} onChange={(e) => setNewClub({...newClub, city: e.target.value})} placeholder={t('clubsManagement.form.cityPlaceholder')} className="border-border" required />
+        <div className="flex flex-col gap-1">
+            <Label className="text-sm text-secondary">{t('clubsManagement.form.city')}</Label>
+            <Select value={newClub.city} onValueChange={(v) => setNewClub({ ...newClub, city: v ?? 'all' })}>
+                <SelectTrigger size="sm" className="w-full border-border">
+                    <SelectItem>{t('clubsManagement.city')}</SelectItem>
+                </SelectTrigger>
+                <SelectContent>
+                    {cities.map((city) => (
+                        <SelectItem key={city.id} value={city.ville}>
+                            {city.ville}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
         </div>
-      </div>
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('clubsManagement.form.address')}</Label>

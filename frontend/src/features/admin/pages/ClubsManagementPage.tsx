@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
-import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
+import {Select, SelectTrigger, SelectContent, SelectItem, SelectValue} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
@@ -274,9 +274,12 @@ export default function ClubsManagementPage() {
             <div className="flex flex-col gap-1">
               <Select value={searchClub.status} onValueChange={(v) => setSearchClub({ ...searchClub, status: v ?? 'all' })}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectItem>{t('clubsManagement.status.all')}</SelectItem>
+                  <SelectValue>
+                    {searchClub.status ? t(`clubsManagement.status.${searchClub.status.toLocaleLowerCase()}`) : t('clubsManagement.status.all')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="">{t('clubsManagement.status.all')}</SelectItem>
                   <SelectItem value="ACTIVE">{t('clubsManagement.status.active')}</SelectItem>
                   <SelectItem value="SUSPENDED">{t('clubsManagement.status.suspended')}</SelectItem>
                   <SelectItem value="ARCHIVED">{t('clubsManagement.status.archived')}</SelectItem>
@@ -286,9 +289,12 @@ export default function ClubsManagementPage() {
             <div className="flex flex-col gap-1">
               <Select value={searchClub.city} onValueChange={(v) => setSearchClub({ ...searchClub, city: v ?? 'all' })}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectItem>{t('clubsManagement.city')}</SelectItem>
+                  <SelectValue>
+                    {searchClub.city ? searchClub.city : t('clubsManagement.city')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="">{t('clubsManagement.city')}</SelectItem>
                   {cities.map((city) => (
                       <SelectItem key={city.id} value={city.ville}>
                         {city.ville}

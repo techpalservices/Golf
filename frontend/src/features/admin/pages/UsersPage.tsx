@@ -204,7 +204,9 @@ export default function UsersPage() {
             <div className="flex flex-col gap-1">
               <Select value={searchUser.role} onValueChange={(v) => setSearchUser({...searchUser, role: v ?? ''})}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue placeholder={t('users.role.all')} />
+                  <SelectValue>
+                    {searchUser.role ? t(`users.role.${searchUser.role}`) : t('users.role.all')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">{t('users.role.all')}</SelectItem>
@@ -216,7 +218,9 @@ export default function UsersPage() {
             <div className="flex flex-col gap-1">
               <Select value={searchUser.status} onValueChange={(v) => setSearchUser({...searchUser, status: v ?? ''})}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue placeholder={t('users.status.all')} />
+                  <SelectValue>
+                    {searchUser.status ? t(`users.status.${searchUser.status}`) : t('users.status.all')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">{t('users.status.all')}</SelectItem>
@@ -228,7 +232,9 @@ export default function UsersPage() {
             <div className="flex flex-col gap-1">
               <Select value={searchUser.gender} onValueChange={(v) => setSearchUser({...searchUser, gender: v ?? ''})}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue placeholder={t('users.gender.all')} />
+                  <SelectValue>
+                    {searchUser.gender ? t(`users.gender.${searchUser.gender.toLocaleLowerCase()}`) : t('users.gender.all')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">{t('users.gender.all')}</SelectItem>

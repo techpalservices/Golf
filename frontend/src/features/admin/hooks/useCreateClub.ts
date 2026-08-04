@@ -9,7 +9,7 @@ export const useCreateClub = () => {
         mutationFn: clubApi.addClub,
         onSuccess: () => {
             //reset the store cache with the new data
-            queryClient.invalidateQueries({ queryKey: ['getAllClubs'] });
+            queryClient.invalidateQueries({ queryKey: ['searchClubs'] });
             toast.success('Club created');
         },
         onError: (err: any) => {

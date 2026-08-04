@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
@@ -10,7 +10,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import {useDataManagers} from "@/features/admin/hooks/useDataManagers.ts";
 import {useCreateClub} from "@/features/admin/hooks/useCreateClub.ts";
 import type {ManagerListProps} from "@/features/manager/types.ts";
-import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
+import type {CreateClub} from "@/features/clubs/types.ts";
 
 interface ClubFormDialogProps {
   open: boolean;
@@ -19,41 +19,39 @@ interface ClubFormDialogProps {
 
 export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogProps) {
   const { t } = useTranslation('app');
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useDataManagers();
+  const { data } = useDataManagers();
   const createClub = useCreateClub();
   const isDesktop = useMediaQuery('(min-width: 768px)');
-  const loadMoreRef = useInfiniteScroll(() => fetchNextPage(), hasNextPage);
 
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [ddNSNumber, setDdNSNumber] = useState(11111);
-  const [ddEWNumber, setDdEWNumber] = useState(34432522);
-  const [ownerId, setOwnerId] = useState('');
+  const [newClub, setNewClub] = useState<CreateClub>({
+      name: '',
+      city: '',
+      address: '',
+      ownerId: null,
+  });
 
   const managers : ManagerListProps[] = data?.pages.flatMap(p => p) ?? [];
 
-  useEffect(() => {
-    if (open) {
-      setName('');
-      setCity('');
-      setAddress('');
-      setDdEWNumber(34432522);
-      setDdNSNumber(11111);
-      setOwnerId('');
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setNewClub({
+        name: '',
+        city: '',
+        address: '',
+        ownerId: null,
+      });
     }
-  }, [open]);
+    onOpenChange(isOpen);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createClub.mutate(
         {
-          name,
-          city,
-          address,
-          ddEWNumber,
-          ddNSNumber,
-          ownerId: ownerId && ownerId !== 'none' ? ownerId : undefined,
+          name: newClub.name,
+          city: newClub.city,
+          address: newClub.address,
+          ownerId: newClub.ownerId,
         },
         {
           onSuccess: () => {
@@ -67,29 +65,29 @@ export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogPro
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('clubsManagement.form.name')}</Label>
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('clubsManagement.form.namePlaceholder')} className="border-border" required />
+        <Input value={newClub.name} onChange={(e) => setNewClub({...newClub, name: e.target.value})} placeholder={t('clubsManagement.form.namePlaceholder')} className="border-border" required />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label className="text-sm text-secondary">{t('clubsManagement.form.city')}</Label>
-          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={t('clubsManagement.form.cityPlaceholder')} className="border-border" required />
+          <Input value={newClub.city} onChange={(e) => setNewClub({...newClub, city: e.target.value})} placeholder={t('clubsManagement.form.cityPlaceholder')} className="border-border" required />
         </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('clubsManagement.form.address')}</Label>
-        <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t('clubsManagement.form.addressPlaceholder')} className="border-border" required />
+        <Input value={newClub.address} onChange={(e) => setNewClub({...newClub, address: e.target.value})} placeholder={t('clubsManagement.form.addressPlaceholder')} className="border-border" required />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('clubsManagement.form.owner')}</Label>
-        <Select value={ownerId} onValueChange={(v) => setOwnerId(v ?? 'none')}>
+        <Select value={newClub.ownerId} onValueChange={(v) => setNewClub({...newClub, ownerId: v ?? null})}>
           <SelectTrigger className="w-full border-border">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">{t('clubsManagement.form.noOwner')}</SelectItem>
+            <SelectItem value={null}>{t('clubsManagement.form.noOwner')}</SelectItem>
             {managers.map((m: ManagerListProps) => (
               <SelectItem key={m.id} value={m.id}>{m.firstName} {m.lastName}</SelectItem>
             ))}
@@ -110,7 +108,7 @@ export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogPro
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-lg bg-surface max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif text-lg font-bold text-secondary">
@@ -124,7 +122,7 @@ export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogPro
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer open={open} onOpenChange={handleOpenChange}>
       <DrawerContent className="max-h-[90vh] bg-surface">
         <DrawerHeader>
           <DrawerTitle className="font-serif text-lg font-bold text-secondary">

@@ -47,10 +47,10 @@ public class Club extends AuditableEntity {
 
     private String galleryURL;
 
-    @Column(nullable = false)
+    @Column
     private Number ddNSNumber;
 
-    @Column(nullable = false)
+    @Column
     private Number ddEWNumber;
 
     @Column(nullable = false)
@@ -58,7 +58,7 @@ public class Club extends AuditableEntity {
     private ECStatus status;
 
     @OneToOne
-    @JoinColumn(name = "owner_id", nullable = false)
+    @JoinColumn(name = "owner_id")
     private User owner;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "club", orphanRemoval = true)

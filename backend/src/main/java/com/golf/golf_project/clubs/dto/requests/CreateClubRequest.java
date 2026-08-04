@@ -6,8 +6,6 @@ public record CreateClubRequest(
         String name,
         String address,
         String city,
-        Number ddNSNumber,
-        Number ddEWNumber,
         UUID ownerId
 ) {
 }

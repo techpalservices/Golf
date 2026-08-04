@@ -37,10 +37,13 @@ public class ClubService {
         Club club = clubMapper.toClub(request);
         club.setStatus(ECStatus.ACTIVE);
 
-        if (!club.getOwner().getRole().getName().equals("ROLE_MANAGER")) {
-            System.out.println(club.getOwner().getRole().getName());
-            throw new IllegalArgumentException("Owner should be MANAGER");
+        if (club.getOwner() != null) {
+            if (!club.getOwner().getRole().getName().equals("ROLE_MANAGER")) {
+                System.out.println(club.getOwner().getRole().getName());
+                throw new IllegalArgumentException("Owner should be MANAGER");
+            }
         }
+
         return clubMapper.toCreateClubResponse(clubRepository.save(club));
     }
 
@@ -96,7 +99,11 @@ public class ClubService {
     }
 
     private String wrapLike(String value) {
-        return value == null ? null : "%" + value.toLowerCase() + "%";
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return "%" + value.trim().toLowerCase() + "%";
     }
 
     public void changeClubStatus(UUID clubId, ECStatus status) {

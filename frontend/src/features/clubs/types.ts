@@ -30,27 +30,17 @@ export interface Club {
   createdAt: string;
 }
 
+export interface CreateClub {
+  name: string;
+  city: string;
+  address: string;
+  ownerId: string | null;
+}
+
 export enum ClubStatus {
   ACTIVE = 'ACTIVE',
   SUSPENDED = 'SUSPENDED',
-  ARCHIVED = 'ARCHIVED'
-}
-
-export interface SearchFilters {
-  city: string;
-  date: string;
-  timeFrom: string;
-  timeTo: string;
-  players: number;
-}
-
-export interface CreateClub {
-  name: string;
-  address: string;
-  city: string;
-  ddNSNumber: number;
-  ddEWNumber: number;
-  ownerId: string | undefined
+  ARCHIVED = 'ARCHIVED',
 }
 
 export interface UpdateClub {

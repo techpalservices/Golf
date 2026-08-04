@@ -23,9 +23,9 @@ public class ClubMapper {
         club.setName(createClubRequests.name());
         club.setAddress(createClubRequests.address());
         club.setCity(createClubRequests.city());
-        club.setDdNSNumber(createClubRequests.ddNSNumber());
-        club.setDdEWNumber(createClubRequests.ddEWNumber());
-        club.setOwner(userRepository.findById(createClubRequests.ownerId()).orElse(null));
+        if (createClubRequests.ownerId() != null) {
+            club.setOwner(userRepository.findById(createClubRequests.ownerId()).orElse(null));
+        }
         club.setStatus(ECStatus.ACTIVE);
 
         return club;

@@ -1,6 +1,6 @@
 export type Role = 'PLAYER' | 'MANAGER' | 'ADMIN' | '';
 
-export type SearchRole = 'PLAYER' | 'MANAGER' | '';
+export type SearchRole = 'ROLE_PLAYER' | 'ROLE_MANAGER' | '';
 
 export interface User {
   id: string;

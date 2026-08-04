@@ -56,20 +56,15 @@ public class AuthService {
         user.setRole(role);
         User savedUser = userRepository.save(user);
 
-        String jwtAccessToken = jwtTokenProvider.generateAccessToken(
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtTokenProvider.generateAccessToken(
                 user.getUsername(),
                 user.getRole().getName(),
                 null
-        );
+        )).httpOnly(true).secure(false).path("/").sameSite("Lax").maxAge(86400).build();
 
-        String jwtRefreshToken = jwtTokenProvider.generateRefreshToken(
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", jwtTokenProvider.generateRefreshToken(
                 savedUser
-        );
-
-        ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtAccessToken)
-                .httpOnly(true).secure(false).path("/").sameSite("Lax").maxAge(86400).build();
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", jwtRefreshToken)
-                .httpOnly(true).secure(false).path("/").sameSite("Lax").maxAge(604800).build();
+        )).httpOnly(true).secure(false).path("/").sameSite("Lax").maxAge(604800).build();
 
         res.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         res.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());

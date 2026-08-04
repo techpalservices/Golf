@@ -643,15 +643,15 @@
     },
     "role": {
       "all": "Select role",
-      "player": "Player",
-      "manager": "Manager",
-      "admin": "Admin"
+      "ROLE_PLAYER": "Player",
+      "ROLE_MANAGER": "Manager",
+      "ROLE_ADMIN": "Admin"
     },
     "status": {
       "all": "Select status",
-      "active": "Active",
-      "suspended": "Suspended",
-      "pending": "Pending"
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "PENDING": "Pending"
     },
     "gender": {
         "all": "Select gender",
@@ -683,7 +683,12 @@
   "clubsManagement": {
     "title": "Clubs management",
     "search": "Search",
-    "searchPlaceholder": "Ex: Royal Golf, Marrakech...",
+    "namePlaceholder": "Name",
+    "phonePlaceholder": "Phone",
+    "emailPlaceholder": "Email",
+    "ownerFirstNamePlaceholder": "Owner First Name",
+    "ownerLastNamePlaceholder": "Owner Last Name",
+    "city": "City",
     "filterStatus": "Status",
     "filterCity": "City",
     "all": "All",
@@ -691,12 +696,13 @@
     "empty": "No clubs",
     "add": "Add club",
     "status": {
+      "all": "select Status",
       "active": "Active",
       "suspended": "Suspended",
       "archived": "Archived"
     },
     "item": {
-      "city": "City",
+      "city": "select City",
       "manager": "Manager",
       "unassigned": "Unassigned",
       "members": "Members"

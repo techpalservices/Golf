@@ -18,36 +18,20 @@ import type {SearchUsers} from "@/api/types.ts";
 import type {Role, SearchRole} from "@/types/user.types.ts";
 import {useSearchDataUsers} from "@/features/admin/hooks/useSearchDataUsers.ts";
 
-type UserStatus = 'active' | 'suspended' | 'pending';
+type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'PENDING';
 
-function role(role: string) {
-  switch(role) {
-    case 'ROLE_PLAYER': return 'player';
-    case 'ROLE_MANAGER': return 'manager';
-    case 'ROLE_ADMIN': return 'admin';
-    default: return 'Unknown';
-  }
-}
+
 
 const roleColors: Record<SearchRole, string> = {
-  player: 'border-primary bg-primary/15 text-primary',
-  manager: 'border-secondary bg-secondary/15 text-secondary',
-  admin: 'border-blue-500 bg-blue-500/15 text-blue-600',
+  "": 'border-muted bg-muted text-muted-foreground',
+  ROLE_PLAYER: 'border-primary bg-primary/15 text-primary',
+  ROLE_MANAGER: 'border-secondary bg-secondary/15 text-secondary',
 };
 
-function status(status: string) {
-  switch (status) {
-    case 'ACTIVE': return 'active';
-    case 'SUSPENDED': return 'suspended';
-    case 'PENDING': return 'pending';
-    default: return 'Unknown';
-  }
-}
-
 const statusColors: Record<UserStatus, string> = {
-  active: 'border-secondary bg-secondary/15 text-secondary',
-  suspended: 'border-red-500 bg-red-500/15 text-red-600',
-  pending: 'border-primary bg-primary/15 text-primary',
+  ACTIVE: 'border-secondary bg-secondary/15 text-secondary',
+  SUSPENDED: 'border-red-500 bg-red-500/15 text-red-600',
+  PENDING: 'border-primary bg-primary/15 text-primary',
 };
 
 export default function UsersPage() {
@@ -104,11 +88,11 @@ export default function UsersPage() {
         <div className="flex flex-col gap-1">
           <span className="font-serif text-lg font-bold text-secondary">{selected.firstName} {selected.lastName}</span>
           <div className="flex gap-2">
-            <Badge className={`border text-xs ${roleColors[role(selected.role)]}`}>
-              {t(`users.role.${role(selected.role)}`)}
+            <Badge className={`border text-xs ${roleColors[selected.role]}`}>
+              {t(`users.role.${selected.role}`)}
             </Badge>
-            <Badge className={`border text-xs ${statusColors[status(selected.status)]}`}>
-              {t(`users.status.${status(selected.status)}`)}
+            <Badge className={`border text-xs ${statusColors[selected.status]}`}>
+              {t(`users.status.${selected.status}`)}
             </Badge>
           </div>
         </div>
@@ -224,8 +208,8 @@ export default function UsersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">{t('users.role.all')}</SelectItem>
-                  <SelectItem value="ROLE_PLAYER">{t('users.role.player')}</SelectItem>
-                  <SelectItem value="ROLE_MANAGER">{t('users.role.manager')}</SelectItem>
+                  <SelectItem value="ROLE_PLAYER">{t('users.role.ROLE_PLAYER')}</SelectItem>
+                  <SelectItem value="ROLE_MANAGER">{t('users.role.ROLE_MANAGER')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -236,8 +220,8 @@ export default function UsersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">{t('users.status.all')}</SelectItem>
-                  <SelectItem value="ACTIVE">{t('users.status.active')}</SelectItem>
-                  <SelectItem value="SUSPENDED">{t('users.status.suspended')}</SelectItem>
+                  <SelectItem value="ACTIVE">{t('users.status.ACTIVE')}</SelectItem>
+                  <SelectItem value="SUSPENDED">{t('users.status.SUSPENDED')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -290,11 +274,11 @@ export default function UsersPage() {
                         <span className="text-xs text-muted-foreground">{u.email}</span>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <Badge className={`border text-xs ${roleColors[role(u.role)]}`}>
-                          {t(`users.role.${role(u.role)}`)}
+                        <Badge className={`border text-xs ${roleColors[u.role]}`}>
+                          {t(`users.role.${u.role}`)}
                         </Badge>
-                        <Badge className={`border text-xs ${statusColors[status(u.status)]}`}>
-                          {t(`users.status.${status(u.status)}`)}
+                        <Badge className={`border text-xs ${statusColors[u.status]}`}>
+                          {t(`users.status.${u.status}`)}
                         </Badge>
                       </div>
                     </div>

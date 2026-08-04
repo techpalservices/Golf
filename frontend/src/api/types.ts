@@ -47,6 +47,7 @@ export type EUStatus = (typeof EUStatus)[keyof typeof EUStatus];
 export const ECStatus = {
     ACTIVE: "ACTIVE",
     SUSPENDED: "SUSPENDED",
+    ARCHIVED: "ARCHIVED",
     ALL: ""
 } as const;
 

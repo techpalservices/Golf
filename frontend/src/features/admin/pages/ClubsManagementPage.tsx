@@ -1,39 +1,30 @@
-import {useState, useMemo, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, Plus, MapPin, Building, Users, Flag, Phone, Mail, Calendar, UserCog, MonitorX, MonitorCheck } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import ClubFormDialog from '../components/ClubFormDialog';
-import type { Club } from '../../clubs/types.ts'
+import type { Club } from '../../clubs/types.ts';
 import { ClubStatus } from "../../clubs/types.ts";
+import cities from '../../../data/cities.json' with {type: 'json'}
 
 import {useChangeClubStatus} from "@/features/admin/hooks/useChangeClubStatus.ts";
 import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
 import type {SearchClubs} from "@/api/types.ts";
 import {useSearchDataClubs} from "@/features/admin/hooks/useSearchDataClubs.ts";
 
-function status(status: string){
-  switch (status){
-    case 'ACTIVE': return 'active';
-    case 'SUSPENDED': return 'suspended';
-    case 'ARCHIVED': return 'archived';
-    default: return 'unknown';
-  }
-}
-
 const statusColors: Record<ClubStatus, string> = {
-  active:    'border-secondary bg-secondary/15 text-secondary', // green
-  suspended: 'border-red-500 bg-red-500/15 text-red-600',       // red
-  archived:  'border-border bg-muted text-muted-foreground',    // gray (for archived)
+  ACTIVE:    'border-secondary bg-secondary/15 text-secondary', // green
+  SUSPENDED: 'border-red-500 bg-red-500/15 text-red-600',       // red
+  ARCHIVED:  'border-border bg-muted text-muted-foreground',    // gray (for archived)
 };
 
 export default function ClubsManagementPage() {
@@ -42,13 +33,9 @@ export default function ClubsManagementPage() {
   const changeClubStatus = useChangeClubStatus();
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [cityFilter, setCityFilter] = useState('all');
   const [selected, setSelected] = useState<Club | null>(null);
   const [open, setOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<Club | null>(null);
   const [assignOpen, setAssignOpen] = useState(false);
   const [assignClubId, setAssignClubId] = useState<string | null>(null);
   const [selectedManagerId, setSelectedManagerId] = useState<string>('none');
@@ -74,18 +61,6 @@ export default function ClubsManagementPage() {
   const loadMoreRef = useInfiniteScroll(() => fetchNextPage(), hasNextPage);
 
   const clubs = data?.pages.flatMap(p => p) ?? [];
-
-  const filtered = useMemo(() => {
-    return clubs.filter((c) => {
-      if (search) {
-        const q = search.toLowerCase();
-        if (!c.name.toLowerCase().includes(q) && !c.city.toLowerCase().includes(q) && !(c.ownerName?.toLowerCase().includes(q))) return false;
-      }
-      if (statusFilter !== 'all' && c.status !== statusFilter) return false;
-      if (cityFilter !== 'all' && c.city !== cityFilter) return false;
-      return true;
-    });
-  }, [clubs, search, statusFilter, cityFilter]);
 
   const handleClick = (club: Club) => {
     setSelected(club);
@@ -133,8 +108,8 @@ export default function ClubsManagementPage() {
         </Avatar>
         <div className="flex flex-col gap-1">
           <span className="font-serif text-lg font-bold text-secondary">{selected.name}</span>
-          <Badge className={`w-fit border text-xs ${statusColors[status(selected.status)]}`}>
-            {t(`clubsManagement.status.${status(selected.status)}`)}
+          <Badge className={`w-fit border text-xs ${statusColors[selected.status]}`}>
+            {t(`clubsManagement.status.${selected.status.toLowerCase()}`)}
           </Badge>
         </div>
       </div>
@@ -245,7 +220,7 @@ export default function ClubsManagementPage() {
     <div className="flex flex-col gap-6">
       <div className={"flex flex-row items-center justify-between"}>
         <h1 className="font-serif text-2xl font-bold text-secondary">{t('clubsManagement.title')}</h1>
-        <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => { setEditing(null); setFormOpen(true); }}>
+        <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => {setFormOpen(true); }}>
           <Plus size={16} />
           <span className="hidden sm:inline">{t('clubsManagement.add')}</span>
         </Button>
@@ -261,7 +236,7 @@ export default function ClubsManagementPage() {
               <Input
                   value={searchClub.name}
                   onChange={(e) => setSearchClub({ ...searchClub, name: e.target.value })}
-                  placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
+                  placeholder={t('clubsManagement.namePlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
               />
             </div>
             <div className="relative flex-1">
@@ -269,7 +244,7 @@ export default function ClubsManagementPage() {
               <Input
                   value={searchClub.phone}
                   onChange={(e) => setSearchClub({ ...searchClub, phone: e.target.value })}
-                  placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
+                  placeholder={t('clubsManagement.phonePlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
               />
             </div>
             <div className="relative flex-1">
@@ -277,7 +252,7 @@ export default function ClubsManagementPage() {
               <Input
                   value={searchClub.email}
                   onChange={(e) => setSearchClub({ ...searchClub, email: e.target.value })}
-                  placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
+                  placeholder={t('clubsManagement.emailPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
               />
             </div>
             <div className="relative flex-1">
@@ -285,7 +260,7 @@ export default function ClubsManagementPage() {
               <Input
                   value={searchClub.ownerFirstName}
                   onChange={(e) => setSearchClub({ ...searchClub, ownerFirstName: e.target.value })}
-                  placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
+                  placeholder={t('clubsManagement.ownerFirstNamePlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
               />
             </div>
             <div className="relative flex-1">
@@ -293,16 +268,15 @@ export default function ClubsManagementPage() {
               <Input
                   value={searchClub.ownerLastName}
                   onChange={(e) => setSearchClub({ ...searchClub, ownerLastName: e.target.value })}
-                  placeholder={t('clubsManagement.searchPlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
+                  placeholder={t('clubsManagement.ownerLastNamePlaceholder')} className="pl-10 border-primary placeholder:text-secondary"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
+              <Select value={searchClub.status} onValueChange={(v) => setSearchClub({ ...searchClub, status: v ?? 'all' })}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue />
+                  <SelectItem>{t('clubsManagement.status.all')}</SelectItem>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t('clubsManagement.all')}</SelectItem>
                   <SelectItem value="ACTIVE">{t('clubsManagement.status.active')}</SelectItem>
                   <SelectItem value="SUSPENDED">{t('clubsManagement.status.suspended')}</SelectItem>
                   <SelectItem value="ARCHIVED">{t('clubsManagement.status.archived')}</SelectItem>
@@ -312,13 +286,14 @@ export default function ClubsManagementPage() {
             <div className="flex flex-col gap-1">
               <Select value={searchClub.city} onValueChange={(v) => setSearchClub({ ...searchClub, city: v ?? 'all' })}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue />
+                  <SelectItem>{t('clubsManagement.city')}</SelectItem>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t('clubsManagement.all')}</SelectItem>
-                  <SelectItem value="active">{t('clubsManagement.status.active')}</SelectItem>
-                  <SelectItem value="suspended">{t('clubsManagement.status.suspended')}</SelectItem>
-                  <SelectItem value="archived">{t('clubsManagement.status.archived')}</SelectItem>
+                  {cities.map((city) => (
+                      <SelectItem key={city.id} value={city.ville}>
+                        {city.ville}
+                      </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -362,8 +337,8 @@ export default function ClubsManagementPage() {
                   </span>
                         </div>
                       </div>
-                      <Badge className={`shrink-0 border text-xs ${statusColors[status(c.status)]}`}>
-                        {t(`clubsManagement.status.${status(c.status)}`)}
+                      <Badge className={`shrink-0 border text-xs ${statusColors[c.status]}`}>
+                        {t(`clubsManagement.status.${c.status.toLowerCase()}`)}
                       </Badge>
                     </div>
                 ))

@@ -630,6 +630,10 @@
     "title": "Gestion des utilisateurs",
     "search": "Rechercher",
     "searchPlaceholder": "Ex : Ahmed, joueur...",
+    "firstNamePlaceholder": "Prénom",
+    "lastNamePlaceholder": "Nom",
+    "emailPlaceholder": "Email",
+    "phonePlaceholder": "Téléphone",
     "filterRole": "Rôle",
     "filterStatus": "Statut",
     "all": "Tous",
@@ -641,15 +645,15 @@
     },
     "role": {
       "all": "Selectionner un rôle",
-      "player": "Joueur",
-      "manager": "Gestionnaire",
-      "admin": "Administrateur"
+      "ROLE_PLAYER": "Joueur",
+      "ROLE_MANAGER": "Gestionnaire",
+      "ROLE_ADMIN": "Administrateur"
     },
     "status": {
       "all": "Sélectionner un statut",
-      "active": "Actif",
-      "suspended": "Suspendu",
-      "pending": "En attente"
+      "ACTIVE": "Actif",
+      "SUSPENDED": "Suspendu",
+      "PENDING": "En attente"
     },
     "gender": {
       "all": "Sélectionner un genre",
@@ -681,7 +685,12 @@
   "clubsManagement": {
     "title": "Gestion des clubs",
     "search": "Rechercher",
-    "searchPlaceholder": "Ex : Royal Golf, Marrakech...",
+    "namePlaceholder": "Nom du club",
+    "phonePlaceholder": "Numéro de téléphone",
+    "emailPlaceholder": "Email",
+    "ownerFirstNamePlaceholder": "Prénom du propriétaire",
+    "ownerLastNamePlaceholder": "Nom du propriétaire",
+    "city": "Sélectionner une Ville",
     "filterStatus": "Statut",
     "filterCity": "Ville",
     "all": "Tous",
@@ -689,12 +698,13 @@
     "empty": "Aucun club",
     "add": "Ajouter un club",
     "status": {
+      "all": "Sélectionner un Statut",
       "active": "Actif",
       "suspended": "Suspendu",
       "archived": "Archivé"
     },
     "item": {
-      "city": "Ville",
+      "city": "Sélectionner une Ville",
       "manager": "Gestionnaire",
       "unassigned": "Non assigné",
       "members": "Membres"

@@ -1,6 +1,7 @@
 package com.golf.golf_project.clubs.services;
 
 import com.golf.golf_project.clubs.dto.requests.CreateClubRequest;
+import com.golf.golf_project.clubs.dto.requests.ReassignManagerRequest;
 import com.golf.golf_project.clubs.dto.requests.SearchClubRequest;
 import com.golf.golf_project.clubs.dto.requests.UpdateClubRequest;
 import com.golf.golf_project.clubs.dto.response.ClubDataResponse;
@@ -98,18 +99,30 @@ public class ClubService {
                 .toList();
     }
 
+    public void changeClubStatus(UUID clubId, ECStatus status) {
+        Club club = clubRepository.findById(clubId).orElseThrow(() -> new IllegalArgumentException("Club not found"));
+        club.setStatus(status);
+        clubRepository.save(club);
+    }
+
+    public void reassignManager(ReassignManagerRequest reassignManagerRequest) {
+        Club club = clubRepository.findById(reassignManagerRequest.clubId()).orElseThrow(() -> new IllegalArgumentException("Club not found"));
+        User manager = userRepository.findById(reassignManagerRequest.managerId()).orElseThrow(() -> new IllegalArgumentException("Manager not found"));
+
+        if (!manager.getRole().getName().equals("ROLE_MANAGER")) {
+            throw new IllegalArgumentException("User is not a manager");
+        }
+
+        club.setOwner(manager);
+        clubRepository.save(club);
+    }
+
     private String wrapLike(String value) {
         if (value == null || value.isBlank()) {
             return null;
         }
 
         return "%" + value.trim().toLowerCase() + "%";
-    }
-
-    public void changeClubStatus(UUID clubId, ECStatus status) {
-        Club club = clubRepository.findById(clubId).orElseThrow(() -> new IllegalArgumentException("Club not found"));
-        club.setStatus(status);
-        clubRepository.save(club);
     }
 
     private <T extends Enum<T>> T parseEnum(String value, Class<T> enumClass) {

@@ -7,19 +7,34 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import type {ManagerListProps} from "@/features/manager/types.ts";
 import {useDataManagers} from "@/features/admin/hooks/useDataManagers.ts";
 import type {Club} from "@/features/clubs/types.ts";
+import {useReassignManager} from "@/features/admin/hooks/useReassignManager.ts";
 
 export default function AssignManagerDialog({isDesktop, assignOpen, setAssignOpen, selectedClub}: {isDesktop?: boolean, assignOpen: boolean, setAssignOpen: (open: boolean) => void, selectedClub: Club | null}) {
     const { t } = useTranslation('app');
     const { data } = useDataManagers();
 
+    const reassignManager = useReassignManager()
+
     const managers : ManagerListProps[] = data?.pages.flatMap(p => p) ?? [];
 
     const [selectedManagerId, setSelectedManagerId] = useState<string | null>(selectedClub?.ownerId || null);
 
-    const handleAssignManager = ()=> {
-        console.log(selectedManagerId);
-        console.log(selectedClub?.id);
-    }
+    const handleAssignManager = (e: React.FormEvent) => {
+        e.preventDefault();
+        reassignManager.mutate(
+            {
+                clubId: selectedClub?.id,
+                managerId: selectedManagerId,
+            },
+            {
+                onSuccess: () => {
+                    setAssignOpen(false); // close dialog
+                },
+            }
+        )
+    };
+
+    const selectedManager = managers.find((m) => m.id === selectedManagerId);
 
     return isDesktop ? (
         <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
@@ -31,7 +46,11 @@ export default function AssignManagerDialog({isDesktop, assignOpen, setAssignOpe
                 </DialogHeader>
                     <Select value={selectedManagerId} onValueChange={(v) => setSelectedManagerId(v)}>
                         <SelectTrigger className="w-full border-border">
-                            <SelectValue placeholder={t('clubsManagement.form.selectManager')}/>
+                            <SelectValue >
+                                {selectedManager
+                                    ? `${selectedManager.firstName} ${selectedManager.lastName}`
+                                    : t('clubsManagement.form.noOwner')}
+                            </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value={null}>{t('clubsManagement.form.noOwner')}</SelectItem>

@@ -1,6 +1,5 @@
 package com.golf.golf_project.clubs.dto.requests;
 
-import com.golf.golf_project.clubs.enums.ECStatus;
 import jakarta.validation.constraints.NotNull;
 
 public record SearchClubRequest(

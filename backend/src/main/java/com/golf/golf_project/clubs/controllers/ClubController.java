@@ -1,6 +1,7 @@
 package com.golf.golf_project.clubs.controllers;
 
 import com.golf.golf_project.clubs.dto.requests.CreateClubRequest;
+import com.golf.golf_project.clubs.dto.requests.ReassignManagerRequest;
 import com.golf.golf_project.clubs.dto.requests.SearchClubRequest;
 import com.golf.golf_project.clubs.dto.requests.UpdateClubRequest;
 import com.golf.golf_project.clubs.enums.ECStatus;
@@ -49,6 +50,15 @@ public class ClubController {
             @Valid @RequestBody UpdateClubRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(clubService.updateClub(request)));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/reassign")
+    public ResponseEntity<?> reassignClub(
+            @Valid @RequestBody ReassignManagerRequest request
+    ) {
+        clubService.reassignManager(request);
+        return ResponseEntity.ok(ApiResponse.success("Manager reassigned successfully"));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

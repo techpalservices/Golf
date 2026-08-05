@@ -724,7 +724,7 @@
       "actions": "Actions",
       "edit": "Edit",
       "assignManager": "Assign manager",
-      "reassignManager": "Reassign manager",
+      "reassignManager": "Reassign a manager",
       "delete": "Delete",
       "updated": "Club updated",
       "deleted": "Club deleted",
@@ -760,7 +760,8 @@
       "save": "Save",
       "cancel": "Cancel",
       "created": "Club created successfully",
-      "owner": "Owner"
+      "owner": "Owner",
+      "noOwner": "Select a manager"
     }
   },
   "user" : {

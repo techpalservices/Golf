@@ -52,3 +52,8 @@ export const ECStatus = {
 } as const;
 
 export type ECStatus = (typeof ECStatus)[keyof typeof ECStatus];
+
+export interface ReassignClub {
+    clubId: string | undefined;
+    managerId: string | null;
+}

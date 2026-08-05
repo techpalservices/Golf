@@ -726,7 +726,7 @@
       "actions": "Actions",
       "edit": "Modifier",
       "assignManager": "Assigner un gestionnaire",
-      "reassignManager": "Réassigner le gestionnaire",
+      "reassignManager": "Réassigner un gestionnaire",
       "delete": "Supprimer",
       "updated": "Club mis à jour",
       "deleted": "Club supprimé",
@@ -762,7 +762,8 @@
       "save": "Enregistrer",
       "cancel": "Annuler",
       "created": "Club créé avec succès",
-      "owner": "Propriétaire"
+      "owner": "Propriétaire",
+      "noOwner": "Sélectionner un gestionnaire"
     }
   },
   "user" : {

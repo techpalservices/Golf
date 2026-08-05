@@ -34,7 +34,7 @@ export default function ClubsManagementPage() {
   const changeClubStatus = useChangeClubStatus();
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  const [selected, setSelected] = useState<Club | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
@@ -61,8 +61,10 @@ export default function ClubsManagementPage() {
 
   const clubs = data?.pages.flatMap(p => p) ?? [];
 
+  const selected = clubs.find((c) => c.id === selectedId);
+
   const handleClick = (club: Club) => {
-    setSelected(club);
+    setSelectedId(club.id);
     setOpen(true);
   };
 
@@ -196,16 +198,13 @@ export default function ClubsManagementPage() {
         {iconDetails} {selected.status == ClubStatus.ACTIVE ? t('clubsManagement.details.suspend') : t('clubsManagement.details.activate')}
 
       </Button>
-
-      {(selected.ownerId == null) && (
-          <Button
+      <Button
               variant="outline"
               className="flex-1 gap-2 border-secondary text-secondary hover:bg-secondary/10"
               onClick={() => openAssignDialog()}
-          >
-            <UserCog size={16} /> {selected.ownerName ? t('clubsManagement.details.reassignOwner') : t('clubsManagement.details.assignOwner')}
-          </Button>
-      )}
+      >
+            <UserCog size={16} /> {selected.ownerName ? t('clubsManagement.details.reassignManager') : t('clubsManagement.details.assignOwner')}
+      </Button>
     </div>
   );
 

@@ -15,20 +15,15 @@ import CreateUserDialog from '../components/CreateUserDialog';
 import type {User} from "@/features/user/types.ts";
 import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
 import type {SearchUsers} from "@/api/types.ts";
-import type {Role, SearchRole} from "@/types/user.types.ts";
 import {useSearchDataUsers} from "@/features/admin/hooks/useSearchDataUsers.ts";
 
-type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'PENDING';
-
-
-
-const roleColors: Record<SearchRole, string> = {
+const roleColors: Record<string, string> = {
   "": 'border-muted bg-muted text-muted-foreground',
   ROLE_PLAYER: 'border-primary bg-primary/15 text-primary',
   ROLE_MANAGER: 'border-secondary bg-secondary/15 text-secondary',
 };
 
-const statusColors: Record<UserStatus, string> = {
+const statusColors: Record<string, string> = {
   ACTIVE: 'border-secondary bg-secondary/15 text-secondary',
   SUSPENDED: 'border-red-500 bg-red-500/15 text-red-600',
   PENDING: 'border-primary bg-primary/15 text-primary',
@@ -66,10 +61,6 @@ export default function UsersPage() {
   const handleClick = (user: User) => {
     setSelected(user);
     setOpen(true);
-  };
-
-  const handleCreate = (data: { fullName: string; email: string; phone: string; role: Role; password: string }) => {
-    // later
   };
 
   const detailsContent = selected && (
@@ -330,7 +321,6 @@ export default function UsersPage() {
       <CreateUserDialog
         open={formOpen}
         onOpenChange={setFormOpen}
-        onSubmit={handleCreate}
       />
     </div>
   );

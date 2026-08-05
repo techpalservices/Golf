@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
@@ -7,13 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import type {CreateManager} from "@/features/manager/types.ts";
 import {useCreateManager} from "@/features/admin/hooks/useCreateManager.ts";
 
 interface CreateUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: CreateManager) => void;
 }
 
 export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) {
@@ -30,18 +28,21 @@ export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialo
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  useEffect(() => {
-    if (open) {
-      setFirstName('');
-      setLastName('');
-      setGender('');
-      setEmail('');
-      setPhoneNumber('');
-      setUsername('');
-      setPassword('');
-      setConfirmPassword('');
-    }
-  }, [open]);
+  const [prevOpen, setPrevOpen] = useState(open);
+
+  if (open !== prevOpen) {
+      setPrevOpen(open);
+      if (open) {
+          setFirstName('');
+          setLastName('');
+          setGender('');
+          setEmail('');
+          setPhoneNumber('');
+          setUsername('');
+          setPassword('');
+          setConfirmPassword('');
+      }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

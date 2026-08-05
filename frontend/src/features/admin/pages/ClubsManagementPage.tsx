@@ -272,7 +272,7 @@ export default function ClubsManagementPage() {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <Select value={searchClub.status} onValueChange={(v) => setSearchClub({ ...searchClub, status: v ?? 'all' })}>
+              <Select value={searchClub.status} onValueChange={(v) => setSearchClub({ ...searchClub, status: v ?? '' })}>
                 <SelectTrigger size="sm" className="w-full border-border">
                   <SelectValue>
                     {searchClub.status ? t(`clubsManagement.status.${searchClub.status.toLocaleLowerCase()}`) : t('clubsManagement.status.all')}
@@ -287,7 +287,7 @@ export default function ClubsManagementPage() {
               </Select>
             </div>
             <div className="flex flex-col gap-1">
-              <Select value={searchClub.city} onValueChange={(v) => setSearchClub({ ...searchClub, city: v ?? 'all' })}>
+              <Select value={searchClub.city} onValueChange={(v) => setSearchClub({ ...searchClub, city: v ?? '' })}>
                 <SelectTrigger size="sm" className="w-full border-border">
                   <SelectValue>
                     {searchClub.city ? searchClub.city : t('clubsManagement.city')}

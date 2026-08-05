@@ -20,6 +20,7 @@ import {useChangeClubStatus} from "@/features/admin/hooks/useChangeClubStatus.ts
 import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
 import type {SearchClubs} from "@/api/types.ts";
 import {useSearchDataClubs} from "@/features/admin/hooks/useSearchDataClubs.ts";
+import AssignManagerDialog from "@/features/admin/components/AssignManagerDialog.tsx";
 
 const statusColors: Record<ClubStatus, string> = {
   ACTIVE:    'border-secondary bg-secondary/15 text-secondary', // green
@@ -37,8 +38,6 @@ export default function ClubsManagementPage() {
   const [open, setOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
-  const [assignClubId, setAssignClubId] = useState<string | null>(null);
-  const [selectedManagerId, setSelectedManagerId] = useState<string>('none');
   const [searchClub, setSearchClub] = useState<SearchClubs>({
     name: "",
     city: "",
@@ -81,13 +80,7 @@ export default function ClubsManagementPage() {
         });
   }
 
-  const handleAssignManager = () => {
-    //later
-  };
-
-  const openAssignDialog = (club: Club) => {
-    setAssignClubId(club.id);
-    setSelectedManagerId(club.ownerId ?? 'none');
+  const openAssignDialog = () => {
     setAssignOpen(true);
   };
 
@@ -208,7 +201,7 @@ export default function ClubsManagementPage() {
           <Button
               variant="outline"
               className="flex-1 gap-2 border-secondary text-secondary hover:bg-secondary/10"
-              onClick={() => openAssignDialog(selected)}
+              onClick={() => openAssignDialog()}
           >
             <UserCog size={16} /> {selected.ownerName ? t('clubsManagement.details.reassignOwner') : t('clubsManagement.details.assignOwner')}
           </Button>
@@ -393,35 +386,7 @@ export default function ClubsManagementPage() {
       />
 
       {/* Assign manager dialog */}
-      {isDesktop ? (
-        <Dialog open={assignOpen} onOpenChange={setAssignOpen}>
-          <DialogContent className="sm:max-w-sm bg-surface">
-            <DialogHeader>
-              <DialogTitle className="font-serif text-lg font-bold text-secondary">
-                {t('clubsManagement.details.assignManager')}
-              </DialogTitle>
-            </DialogHeader>
-            <DialogFooter className="gap-2">
-              <Button variant="outline" className="flex-1 border-border" onClick={() => setAssignOpen(false)}>
-                {t('clubsManagement.form.cancel')}
-              </Button>
-              <Button className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleAssignManager}>
-                {t('clubsManagement.form.save')}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      ) : (
-        <Drawer open={assignOpen} onOpenChange={setAssignOpen}>
-          <DrawerContent className="max-h-[60vh] bg-surface">
-            <DrawerHeader>
-              <DrawerTitle className="font-serif text-lg font-bold text-secondary">
-                {t('clubsManagement.details.assignManager')}
-              </DrawerTitle>
-            </DrawerHeader>
-          </DrawerContent>
-        </Drawer>
-      )}
+      <AssignManagerDialog isDesktop={isDesktop} assignOpen={assignOpen} setAssignOpen={setAssignOpen} selectedClub={selected || null} />
     </div>
   );
 }

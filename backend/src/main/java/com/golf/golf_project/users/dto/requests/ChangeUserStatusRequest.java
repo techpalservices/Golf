@@ -7,11 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record ChangeUserStatusRequest(
-        @NotBlank(message = "User ID is required")
         @NotNull(message = "User ID cannot be null")
         UUID userId,
 
-        @NotBlank(message = "Status is required")
         @NotNull(message = "Status cannot be null")
         EUStatus status
 ) {

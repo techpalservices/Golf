@@ -2,7 +2,7 @@ import {api} from "@/api/apiConfig.ts";
 import type {ApiResponse} from "@/features/auth/types.ts";
 import type {CreateManager, ManagerListProps} from "@/features/manager/types.ts";
 import type {User} from "@/features/user/types.ts";
-import type {SearchUsers} from "@/api/types.ts";
+import type {EUStatus, SearchUsers} from "@/api/types.ts";
 
 export const userApi = {
     getAllUsers: ({ page = 0, size = 10 }) =>
@@ -16,4 +16,7 @@ export const userApi = {
 
     addManager: (data: CreateManager) =>
         api.post('/users/add-manager', data),
+
+    changeUserStatus: ({ userId, status }: { userId: string; status: EUStatus }) =>
+        api.patch('/users/change-status', { userId, status })
 }

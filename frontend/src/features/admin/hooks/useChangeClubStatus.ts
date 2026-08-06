@@ -8,7 +8,7 @@ export const useChangeClubStatus = () => {
     return useMutation({
         mutationFn: clubApi.changeClubStatus,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['getAllClubs'] });
+            queryClient.invalidateQueries({ queryKey: ['searchClubs'] });
             toast.success('Club status updated');
         },
         onError: (err: any) => {

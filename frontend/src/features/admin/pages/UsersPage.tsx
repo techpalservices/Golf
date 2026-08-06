@@ -16,6 +16,7 @@ import type {User} from "@/features/user/types.ts";
 import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
 import type {SearchUsers} from "@/api/types.ts";
 import {useSearchDataUsers} from "@/features/admin/hooks/useSearchDataUsers.ts";
+import {useChangeUserStatus} from "@/features/admin/hooks/useChangeUserStatus.ts";
 
 const roleColors: Record<string, string> = {
   "": 'border-muted bg-muted text-muted-foreground',
@@ -32,7 +33,7 @@ const statusColors: Record<string, string> = {
 export default function UsersPage() {
   const { t } = useTranslation('app');
   const isDesktop = useMediaQuery('(min-width: 768px)');
-  const [selected, setSelected] = useState<User | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [searchUser, setSearchUser] = useState<SearchUsers>({
@@ -54,13 +55,25 @@ export default function UsersPage() {
   }, [searchUser]);
 
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useSearchDataUsers(debounced);
+  const changeUserStatus = useChangeUserStatus();
   const loadMoreRef = useInfiniteScroll(() => fetchNextPage(), hasNextPage);
 
   const users = data?.pages.flatMap(p => p) ?? [];
+  const selected = users.find((u) => u.id === selectedId);
 
   const handleClick = (user: User) => {
-    setSelected(user);
+    setSelectedId(user.id);
     setOpen(true);
+  };
+
+  const handleChangeStatus = (status: string) => {
+    changeUserStatus.mutate({userId: selected?.id, status: status},
+          {
+            onSuccess: () => {
+              console.log("status changed with success to: ", status);
+            }
+          }
+        );
   };
 
   const detailsContent = selected && (
@@ -133,10 +146,29 @@ export default function UsersPage() {
   const detailsFooter = selected && (
     <div className="flex flex-wrap gap-2">
 
-      {/* Delete */}
-      <Button variant="outline" className="flex-1 gap-2 border-border text-muted-foreground hover:bg-muted">
-        <Trash2 size={16} /> {t('users.details.delete')}
-      </Button>
+      {/* Update user status */}
+
+        {(selected.status == "ACTIVE")
+            ? (
+                <Button
+                    variant="outline"
+                    className="flex-1 gap-2 border-primary text-red-700 hover:bg-red-500 hover:text-white"
+                    onClick={() => handleChangeStatus("SUSPENDED")}
+                >
+                  <Trash2 size={16} /> {t('users.details.suspend')}
+                </Button>
+            )
+            : (
+                <Button
+                    variant="outline"
+                    className="flex-1 gap-2 border-primary text-green-700 hover:bg-green-500 hover:text-white"
+                    onClick={() => handleChangeStatus("ACTIVE")}
+                >
+                  <Trash2 size={16} /> {t('users.details.activate')}
+                </Button>
+            )
+        }
+
     </div>
   );
 

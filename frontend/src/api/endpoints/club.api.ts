@@ -4,9 +4,6 @@ import type {Club, CreateClub, UpdateClub} from "@/features/clubs/types.ts";
 import type {ReassignClub, SearchClubs} from "@/api/types.ts";
 
 export const clubApi = {
-    getAllClubs: ({ page = 0, size = 10}) =>
-        api.post<ApiResponse<Club[]>>('/clubs/all', { page, size }),
-
     searchClubs: ( searchClub: SearchClubs) =>
         api.post<ApiResponse<Club[]>>('/clubs/all', searchClub),
 

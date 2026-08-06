@@ -14,7 +14,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import CreateUserDialog from '../components/CreateUserDialog';
 import type {User} from "@/features/user/types.ts";
 import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
-import type {SearchUsers} from "@/api/types.ts";
+import type {EUStatus, SearchUsers} from "@/api/types.ts";
 import {useSearchDataUsers} from "@/features/admin/hooks/useSearchDataUsers.ts";
 import {useChangeUserStatus} from "@/features/admin/hooks/useChangeUserStatus.ts";
 
@@ -66,14 +66,16 @@ export default function UsersPage() {
     setOpen(true);
   };
 
-  const handleChangeStatus = (status: string) => {
-    changeUserStatus.mutate({userId: selected?.id, status: status},
-          {
-            onSuccess: () => {
-              console.log("status changed with success to: ", status);
-            }
-          }
-        );
+  const handleChangeStatus = (status: EUStatus) => {
+    if (!selected) return;
+    changeUserStatus.mutate(
+      { userId: selected.id, status },
+      {
+        onSuccess: () => {
+          console.log("status changed with success to: ", status);
+        }
+      }
+    );
   };
 
   const detailsContent = selected && (

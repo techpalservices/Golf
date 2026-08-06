@@ -679,7 +679,8 @@
       "reinstated": "Utilisateur réintégré",
       "assignedManager": "Rôle gestionnaire assigné",
       "removedManager": "Rôle gestionnaire retiré",
-      "deleted": "Utilisateur supprimé"
+      "deleted": "Utilisateur supprimé",
+      "activate": "Activer"
     }
   },
   "clubsManagement": {

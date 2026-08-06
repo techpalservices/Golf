@@ -677,7 +677,8 @@
       "reinstated": "User reinstated",
       "assignedManager": "Manager role assigned",
       "removedManager": "Manager role removed",
-      "deleted": "User deleted"
+      "deleted": "User deleted",
+      "activate": "Activate"
     }
   },
   "clubsManagement": {

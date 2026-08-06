@@ -13,16 +13,17 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import ClubFormDialog from '../components/ClubFormDialog';
 import type { Club } from '../../clubs/types.ts';
-import { ClubStatus } from "../../clubs/types.ts";
+import { ECStatus } from '../../clubs/types.ts';
 import cities from '../../../data/cities.json' with {type: 'json'}
 
 import {useChangeClubStatus} from "@/features/admin/hooks/useChangeClubStatus.ts";
 import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
-import type {SearchClubs} from "@/api/types.ts";
+import type { SearchClubs } from "@/api/types.ts";
 import {useSearchDataClubs} from "@/features/admin/hooks/useSearchDataClubs.ts";
 import AssignManagerDialog from "@/features/admin/components/AssignManagerDialog.tsx";
 
-const statusColors: Record<ClubStatus, string> = {
+const statusColors: Record<string, string> = {
+  "":        'border-border bg-muted text-muted-foreground',
   ACTIVE:    'border-secondary bg-secondary/15 text-secondary', // green
   SUSPENDED: 'border-red-500 bg-red-500/15 text-red-600',       // red
   ARCHIVED:  'border-border bg-muted text-muted-foreground',    // gray (for archived)
@@ -69,7 +70,7 @@ export default function ClubsManagementPage() {
   };
 
   const handleChange = (club: Club) => {
-    const status = club.status == ClubStatus.ACTIVE ? ClubStatus.SUSPENDED : ClubStatus.ACTIVE;
+    const status = club.status == ECStatus.ACTIVE ? ECStatus.SUSPENDED : ECStatus.ACTIVE;
     changeClubStatus.mutate(
         {
           clubId: club.id,
@@ -77,7 +78,7 @@ export default function ClubsManagementPage() {
         },
         {
           onSuccess: () => {
-            setOpen(false);
+            // later
           },
         });
   }
@@ -174,7 +175,7 @@ export default function ClubsManagementPage() {
 
   console.log("selected club: " + selected?.ownerName);
 
-  const isActive = selected?.status === ClubStatus.ACTIVE;
+  const isActive = selected?.status === ECStatus.ACTIVE;
 
   const colorsDetails = isActive
       ? 'border-red-500 text-red-600 hover:bg-red-500/10 hover:text-red-700'
@@ -195,7 +196,7 @@ export default function ClubsManagementPage() {
         className={`flex-1 gap-2 ${colorsDetails} `}
         onClick={() => handleChange(selected)}
       >
-        {iconDetails} {selected.status == ClubStatus.ACTIVE ? t('clubsManagement.details.suspend') : t('clubsManagement.details.activate')}
+        {iconDetails} {selected.status == ECStatus.ACTIVE ? t('clubsManagement.details.suspend') : t('clubsManagement.details.activate')}
 
       </Button>
       <Button

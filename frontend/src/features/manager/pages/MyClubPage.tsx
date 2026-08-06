@@ -8,74 +8,37 @@ import { Separator } from '@/components/ui/separator';
 import CourseCard from '@/features/clubs/components/CourseCard';
 import CourseDialog from '@/features/clubs/components/CourseDialog';
 import CreateCourseDialog from '../components/CreateCourseDialog';
-import type { Course } from '@/features/clubs/types';
+import type {Club, ClubFormData, Course} from '@/features/clubs/types';
 import { Pencil } from 'lucide-react';
-import EditClubDialog, { type ClubFormData } from '../components/EditClubDialog';
-
-interface ClubData {
-  id: string;
-  name: string;
-  location: string;
-  description: string;
-  logo: string;
-  coverImage: string;
-  status: 'published' | 'draft';
-  createdAt: string;
-  phone: string;
-  email: string;
-  address: string;
-  mapsUrl: string;
-  courses: Course[];
-}
-
-const mockClub: ClubData = {
-  id: '1',
-  name: 'Royal Golf de Marrakech',
-  location: 'Marrakech, Maroc',
-  description: 'Un club légendaire au cœur de la palmeraie, fondé en 1920.',
-  logo: '/teetime-logo.png',
-  coverImage: '/club 1.png',
-  status: 'published',
-  createdAt: '15/03/2020',
-  phone: '+212 5 24 32 50 50',
-  email: 'contact@royalgolf.ma',
-  address: 'Route de l\'Ourika, Marrakech 40000',
-  mapsUrl: 'https://maps.google.com/?q=Royal+Golf+de+Marrakech',
-  courses: [
-    {
-      id: '1-1',
-      name: 'Parcours Massy',
-      description: 'Le parcours historique 18 trous conçu par Arnaud Massy.',
-      courseNumber: 1,
-      holesCount: 18,
-      date: '15/07/2026',
-      price: 500,
-      image: '/section1.png',
-      availableTimes: ['07:00', '08:00', '09:00'],
-    },
-    {
-      id: '1-2',
-      name: 'Parcours Palmeraie',
-      description: 'Un parcours moderne traversant la palmeraie.',
-      courseNumber: 2,
-      holesCount: 9,
-      date: '15/07/2026',
-      price: 300,
-      image: '/section2.png',
-      availableTimes: ['07:00', '08:00'],
-    },
-  ],
-};
+import EditClubDialog from '../components/EditClubDialog';
+import {useDataMyClub} from "@/features/manager/hooks/useDataMyClub.ts";
 
 export default function MyClubPage() {
   const { t } = useTranslation('app');
-  const [courses, setCourses] = useState<Course[]>(mockClub.courses);
+  const { data, isLoading, error } = useDataMyClub();
+
+  console.log("data from the fetching: " + data);
+
+  const myClubData: Club | undefined = data;
+
+  const [courses, setCourses] = useState<Course[]>(myClubData?.courses || []);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
 
   const [editOpen, setEditOpen] = useState(false);
-  const [club, setClub] = useState(mockClub);
+
+  const [clubFormData, setClubFormData] = useState<ClubFormData | null>({
+    name: myClubData?.name || '',
+    city: myClubData?.city || '',
+    description: myClubData?.description || '',
+    logoUrl: myClubData?.logoURL || '',
+    coverUrl: myClubData?.coverURL || '',
+    status: myClubData?.status || 'ACTIVE',
+    phone: myClubData?.phone || '',
+    email: myClubData?.email || '',
+    address: myClubData?.address || '',
+  });
 
   const handleCourseClick = (course: Course) => {
     setSelectedCourse(course);
@@ -88,27 +51,33 @@ export default function MyClubPage() {
   };
 
   const handleEditSave = (data: ClubFormData) => {
-    setClub((prev) => ({ ...prev, ...data }));
+    setClubFormData((prev) => ({ ...prev, ...data }));
   };
 
-  return (
+  if (isLoading) {
+    return <p className="py-8 text-center text-sm text-muted-foreground">Loading...</p>;
+  } else if(error) {
+    return <p className="py-8 text-center text-sm text-red-500">Failed to load users</p>;
+  }
+
+  return(
     <div className="flex flex-col gap-6">
       {/* Header — cover + logo */}
       <div className="overflow-hidden rounded-lg border border-border bg-surface">
         <div className="relative h-32 w-full md:h-48">
-          <img src={mockClub.coverImage} alt={mockClub.name} className="h-full w-full object-cover" />
+          <img src={myClubData?.coverURL} alt={myClubData?.name} className="h-full w-full object-cover" />
         </div>
         <div className="flex flex-col items-center gap-2 px-6 pb-6 md:items-start">
           <img
-            src={mockClub.logo}
-            alt={mockClub.name}
+            src={myClubData?.logoURL}
+            alt={myClubData?.name}
             className="h-24 w-24 -translate-y-12 rounded-full border-4 border-background object-cover bg-background md:h-32 md:w-32"
           />
           <div className="-mt-8 flex flex-col items-center gap-2 text-center md:items-start">
-            <h1 className="font-serif text-2xl font-bold text-secondary md:text-3xl">{mockClub.name}</h1>
+            <h1 className="font-serif text-2xl font-bold text-secondary md:text-3xl">{myClubData?.name}</h1>
             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <MapPin size={14} className="text-primary" />
-              <span>{mockClub.location}</span>
+              <span>{myClubData?.city}</span>
             </div>
           </div>
         </div>
@@ -130,6 +99,11 @@ export default function MyClubPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {(courses.length == 0) && (
+              <p className="text-sm text-muted-foreground">
+                {t('myClub.noCourses')}
+              </p>
+            )}
             {courses.map((course) => (
               <CourseCard key={course.id} course={course} onClick={() => handleCourseClick(course)} />
             ))}
@@ -157,13 +131,13 @@ export default function MyClubPage() {
               <span className="text-sm text-muted-foreground">{t('myClub.status')}</span>
               <Badge
                 className={
-                  mockClub.status === 'published'
+                  myClubData?.status === 'ACTIVE'
                     ? 'border border-secondary bg-secondary/15 text-xs text-secondary'
                     : 'border border-border bg-muted text-xs text-muted-foreground'
                 }
               >
                 <BadgeCheck size={12} className="mr-1" />
-                {t(`myClub.${mockClub.status}`)}
+                {t(`myClub.${myClubData?.status}`)}
               </Badge>
             </div>
 
@@ -174,7 +148,7 @@ export default function MyClubPage() {
               <Calendar size={16} className="text-primary" />
               <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground">{t('myClub.createdAt')}</span>
-                <span className="text-sm font-medium text-secondary">{mockClub.createdAt}</span>
+                <span className="text-sm font-medium text-secondary">{myClubData?.createdAt}</span>
               </div>
             </div>
 
@@ -186,12 +160,12 @@ export default function MyClubPage() {
 
               <div className="flex items-center gap-3">
                 <Phone size={16} className="text-primary" />
-                <span className="text-sm text-secondary">{mockClub.phone}</span>
+                <span className="text-sm text-secondary">{myClubData?.phone}</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <Mail size={16} className="text-primary" />
-                <span className="text-sm text-secondary break-all">{mockClub.email}</span>
+                <span className="text-sm text-secondary break-all">{myClubData?.email}</span>
               </div>
             </div>
 
@@ -202,17 +176,8 @@ export default function MyClubPage() {
               <span className="text-xs font-medium tracking-widest text-primary">{t('myClub.address')}</span>
               <div className="flex items-start gap-3">
                 <MapPinned size={16} className="mt-0.5 text-primary" />
-                <span className="text-sm text-secondary">{mockClub.address}</span>
+                <span className="text-sm text-secondary">{myClubData?.address}</span>
               </div>
-              <a
-                href={mockClub.mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 flex items-center justify-center gap-2 rounded-lg border border-primary px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
-              >
-                <MapPinned size={14} />
-                {t('myClub.viewMap')}
-              </a>
             </div>
           </Card>
         </div>
@@ -239,16 +204,15 @@ export default function MyClubPage() {
         open={editOpen}
         onOpenChange={setEditOpen}
         initialData={{
-          name: club.name,
-          location: club.location,
-          description: club.description,
-          logo: club.logo,
-          coverImage: club.coverImage,
-          status: club.status,
-          phone: club.phone,
-          email: club.email,
-          address: club.address,
-          mapsUrl: club.mapsUrl,
+          name: myClubData?.name,
+          city: myClubData?.city,
+          description: myClubData?.description,
+          logoUrl: myClubData?.logoURL,
+          coverUrl: myClubData?.coverURL,
+          status: myClubData?.status,
+          phone: myClubData?.phone,
+          email: myClubData?.email,
+          address: myClubData?.address,
         }}
         onSave={handleEditSave}
       />

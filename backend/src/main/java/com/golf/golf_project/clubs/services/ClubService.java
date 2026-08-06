@@ -6,6 +6,7 @@ import com.golf.golf_project.clubs.dto.requests.SearchClubRequest;
 import com.golf.golf_project.clubs.dto.requests.UpdateClubRequest;
 import com.golf.golf_project.clubs.dto.response.ClubDataResponse;
 import com.golf.golf_project.clubs.dto.response.CreateClubResponse;
+import com.golf.golf_project.clubs.dto.response.MyClubDataResponse;
 import com.golf.golf_project.clubs.entities.Club;
 import com.golf.golf_project.clubs.enums.ECStatus;
 import com.golf.golf_project.clubs.mappers.ClubMapper;
@@ -48,7 +49,7 @@ public class ClubService {
         return clubMapper.toCreateClubResponse(clubRepository.save(club));
     }
 
-    public ClubDataResponse getMyClub() {
+    public MyClubDataResponse getMyClub() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
@@ -61,7 +62,7 @@ public class ClubService {
         if (club == null) {
             throw new IllegalArgumentException("No club found for the authenticated user");
         }
-        return clubMapper.toClubDataResponse(club);
+        return clubMapper.toMyClubDataResponse(club);
     }
 
     public ClubDataResponse updateClub(UpdateClubRequest request) {

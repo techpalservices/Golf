@@ -1,6 +1,5 @@
 package com.golf.golf_project.clubs.dto.requests;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;

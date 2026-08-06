@@ -4,9 +4,11 @@ import com.golf.golf_project.clubs.dto.requests.CreateClubRequest;
 import com.golf.golf_project.clubs.dto.requests.UpdateClubRequest;
 import com.golf.golf_project.clubs.dto.response.ClubDataResponse;
 import com.golf.golf_project.clubs.dto.response.CreateClubResponse;
+import com.golf.golf_project.clubs.dto.response.MyClubDataResponse;
 import com.golf.golf_project.clubs.entities.Club;
 import com.golf.golf_project.clubs.enums.ECStatus;
 import com.golf.golf_project.clubs.repositories.ClubRepository;
+import com.golf.golf_project.courses.dto.response.CoursesDataResponse;
 import com.golf.golf_project.users.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -97,6 +99,36 @@ public class ClubMapper {
                 club.getStatus(),
                 club.getOwner() != null ? club.getOwner().getId() : null,
                 club.getOwner() != null ? club.getOwner().getFirstName() + " " + club.getOwner().getLastName() : null
+        );
+    }
+
+    public MyClubDataResponse toMyClubDataResponse(Club club) {
+        return new MyClubDataResponse(
+                club.getId(),
+                club.getName(),
+                club.getAddress(),
+                club.getCity(),
+                club.getPhone(),
+                club.getEmail(),
+                club.getLogoURL(),
+                club.getCoverURL(),
+                (long) club.getCourses().size(),
+                (long) club.getMemberships().size(),
+                club.getCreatedAt().toLocalDate(),
+                club.getDdNSNumber(),
+                club.getDdEWNumber(),
+                club.getStatus(),
+                club.getCourses().stream()
+                        .map(course -> new CoursesDataResponse(
+                                course.getId(),
+                                course.getName(),
+                                course.getHoleCount(),
+                                course.getGreenFee(),
+                                course.getDescription(),
+                                course.getStatus(),
+                                course.getCreatedAt()
+                        ))
+                        .toList()
         );
     }
 }

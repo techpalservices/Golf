@@ -10,6 +10,9 @@ export const clubApi = {
     searchClubs: ( searchClub: SearchClubs) =>
         api.post<ApiResponse<Club[]>>('/clubs/all', searchClub),
 
+    getMyClub: () =>
+        api.get<ApiResponse<Club>>('/clubs/my-club'),
+
     addClub: (data: CreateClub) =>
         api.post('/clubs/add', data),
 

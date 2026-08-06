@@ -8,19 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-
-export interface ClubFormData {
-  name: string;
-  location: string;
-  description: string;
-  logo: string;
-  coverImage: string;
-  status: 'published' | 'draft';
-  phone: string;
-  email: string;
-  address: string;
-  mapsUrl: string;
-}
+import type {ClubFormData} from "@/features/clubs/types.ts";
 
 interface EditClubDialogProps {
   open: boolean;

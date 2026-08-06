@@ -22,12 +22,13 @@ export interface Club {
   coverURL: string;
   ddNSNumber: string;
   ddEWNumber: string;
-  status: ClubStatus;
+  status: EUStatus;
   ownerId: string | null;
   ownerName: string | null;
   memberCount: number;
   courseCount: number;
   createdAt: string;
+  courses: Array<Course>;
 }
 
 export interface CreateClub {
@@ -37,11 +38,25 @@ export interface CreateClub {
   ownerId: string | null;
 }
 
-export enum ClubStatus {
-  ACTIVE = 'ACTIVE',
-  SUSPENDED = 'SUSPENDED',
-  ARCHIVED = 'ARCHIVED',
+export interface ClubFormData {
+  name: string | undefined;
+  city: string | undefined;
+  description: string | undefined;
+  logoUrl: string | undefined;
+  coverUrl: string | undefined;
+  status: EUStatus | undefined;
+  phone: string | undefined;
+  email: string | undefined;
+  address: string | undefined;
 }
+
+export const ECStatus = {
+  ACTIVE: "ACTIVE",
+  SUSPENDED: "SUSPENDED",
+  ARCHIVED: "ARCHIVED",
+  ALL: ""
+}
+export type EUStatus = (typeof ECStatus)[keyof typeof ECStatus];
 
 export interface UpdateClub {
   id: string;

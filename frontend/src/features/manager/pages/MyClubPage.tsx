@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MapPin, Phone, Mail, MapPinned, Calendar, BadgeCheck, Plus } from 'lucide-react';
+import {MapPin, Phone, Mail, MapPinned, Calendar, BadgeCheck, Plus, Building2} from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -65,14 +65,33 @@ export default function MyClubPage() {
       {/* Header — cover + logo */}
       <div className="overflow-hidden rounded-lg border border-border bg-surface">
         <div className="relative h-32 w-full md:h-48">
-          <img src={myClubData?.coverURL} alt={myClubData?.name} className="h-full w-full object-cover" />
+          {myClubData?.logoURL == null ? (
+                  <div className="bg-primary h-full w-full object-cover md:h-full md:w-full">
+                  </div>
+              )
+              : (
+                  <img src={myClubData?.coverURL} alt={myClubData?.name} className="h-full w-full object-cover" />
+              )
+          }
         </div>
         <div className="flex flex-col items-center gap-2 px-6 pb-6 md:items-start">
-          <img
-            src={myClubData?.logoURL}
-            alt={myClubData?.name}
-            className="h-24 w-24 -translate-y-12 rounded-full border-4 border-background object-cover bg-background md:h-32 md:w-32"
-          />
+
+          {myClubData?.logoURL == null ? (
+            <div
+                className="flex items-center justify-center bg-primary h-24 w-24 -translate-y-12 rounded-full border-4 border-background object-cover md:h-32 md:w-32"
+            >
+              <Building2 className="h-24 w-24 text-background" />
+            </div>
+          )
+          : (
+                  <img
+                      src={myClubData?.logoURL}
+                      alt={myClubData?.name}
+                      className="h-24 w-24 -translate-y-12 rounded-full border-4 border-background object-cover bg-background md:h-32 md:w-32"
+                  />
+              )
+          }
+
           <div className="-mt-8 flex flex-col items-center gap-2 text-center md:items-start">
             <h1 className="font-serif text-2xl font-bold text-secondary md:text-3xl">{myClubData?.name}</h1>
             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -152,22 +171,31 @@ export default function MyClubPage() {
               </div>
             </div>
 
-            <Separator />
-
             {/* Contact */}
-            <div className="flex flex-col gap-3">
-              <span className="text-xs font-medium tracking-widest text-primary">{t('myClub.contact')}</span>
+            {(myClubData?.phone != null || myClubData?.email != null) && (
+              <>
+                <Separator />
+                <div className="flex flex-col gap-3">
+                  <span className="text-xs font-medium tracking-widest text-primary">{t('myClub.contact')}</span>
+                  {(myClubData?.phone != null) && (
+                      <div className="flex items-center gap-3">
+                        <Phone size={16} className="text-primary" />
+                        <span className="text-sm text-secondary">{myClubData?.phone}</span>
+                      </div>
+                    )
+                  }
 
-              <div className="flex items-center gap-3">
-                <Phone size={16} className="text-primary" />
-                <span className="text-sm text-secondary">{myClubData?.phone}</span>
-              </div>
+                  {(myClubData?.email != null) && (
+                      <div className="flex items-center gap-3">
+                        <Mail size={16} className="text-primary" />
+                        <span className="text-sm text-secondary break-all">{myClubData?.email}</span>
+                      </div>
+                  )}
+                </div>
+              </>
+             )
+            }
 
-              <div className="flex items-center gap-3">
-                <Mail size={16} className="text-primary" />
-                <span className="text-sm text-secondary break-all">{myClubData?.email}</span>
-              </div>
-            </div>
 
             <Separator />
 

@@ -33,6 +33,8 @@
     "viewMap": "View on Google Maps",
     "published": "Published",
     "draft": "Draft",
+    "noCourses": "No courses available",
+    "ACTIVE": "Active",
     "form": {
       "title": "New course",
       "name": "Course name",

@@ -33,6 +33,8 @@
     "viewMap": "Voir sur Google Maps",
     "published": "Publié",
     "draft": "Brouillon",
+    "noCourses": "Aucun parcours disponible",
+    "ACTIVE": "Actif",
     "form": {
       "title": "Nouveau parcours",
       "name": "Nom du parcours",

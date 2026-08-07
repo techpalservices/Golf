@@ -13,7 +13,8 @@ import com.golf.golf_project.clubs.mappers.ClubMapper;
 import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,18 +23,27 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @Transactional
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ClubService {
 
     private final ClubMapper clubMapper;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
+
+    @Value("${SERVER_URL}")
+    private String serverUrl;
 
     public CreateClubResponse createClub(CreateClubRequest request) {
         Club club = clubMapper.toClub(request);
@@ -66,7 +76,11 @@ public class ClubService {
     }
 
     public ClubDataResponse updateClub(UpdateClubRequest request) {
+
         Club club = clubMapper.toClub(request);
+        if (request.logoURL() != null) club.setLogoURL(this.uploadFile(request.logoURL()));
+        if (request.coverURL() != null) club.setCoverURL(this.uploadFile(request.coverURL()));
+
         Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         User manager = userRepository.findUserByUsername(username);
@@ -132,6 +146,25 @@ public class ClubService {
             return Enum.valueOf(enumClass, value.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
             return null;
+        }
+    }
+
+    private String uploadFile(MultipartFile file) {
+        try {
+            Path uploadPath = Paths.get("uploads");
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+            String filename = UUID.randomUUID().toString() + extension;
+
+            Path filePath = uploadPath.resolve(filename);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return serverUrl + "/uploads/" + filename;
+        } catch (IOException e) {
+            throw new RuntimeException("Could not store file: " + e.getMessage(), e);
         }
     }
 }

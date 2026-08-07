@@ -53,18 +53,6 @@ public class ClubMapper {
         if (request.description() != null) {
             club.setDescription(request.description());
         }
-        if (request.logoURL() != null) {
-            club.setLogoURL(request.logoURL());
-        }
-        if (request.coverURL() != null) {
-            club.setCoverURL(request.coverURL());
-        }
-        if (request.ddNSNumber() != null) {
-            club.setDdNSNumber(request.ddNSNumber());
-        }
-        if (request.ddEWNumber() != null) {
-            club.setDdEWNumber(request.ddEWNumber());
-        }
 
         return club;
     }

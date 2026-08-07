@@ -47,7 +47,7 @@ public class ClubController {
     @PreAuthorize("hasRole('MANAGER')")
     @PatchMapping("/update")
     public ResponseEntity<?> firstModification(
-            @Valid @RequestBody UpdateClubRequest request
+            @Valid @ModelAttribute UpdateClubRequest request
     ) {
         return ResponseEntity.ok(ApiResponse.success(clubService.updateClub(request)));
     }

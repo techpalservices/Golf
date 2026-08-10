@@ -20,8 +20,6 @@ export interface Club {
   email: string;
   logoURL: string;
   coverURL: string;
-  ddNSNumber: string;
-  ddEWNumber: string;
   status: EUStatus;
   ownerId: string | null;
   ownerName: string | null;
@@ -39,15 +37,18 @@ export interface CreateClub {
 }
 
 export interface ClubFormData {
+  id: string | undefined;
   name: string | undefined;
   city: string | undefined;
   description: string | undefined;
   logoUrl: string | undefined;
   coverUrl: string | undefined;
-  status: EUStatus | undefined;
+  status: ECStatus | undefined;
   phone: string | undefined;
   email: string | undefined;
   address: string | undefined;
+  logo?: File | null;
+  cover?: File | null;
 }
 
 export const ECStatus = {
@@ -56,7 +57,7 @@ export const ECStatus = {
   ARCHIVED: "ARCHIVED",
   ALL: ""
 }
-export type EUStatus = (typeof ECStatus)[keyof typeof ECStatus];
+export type ECStatus = (typeof ECStatus)[keyof typeof ECStatus];
 
 export interface UpdateClub {
   id: string;

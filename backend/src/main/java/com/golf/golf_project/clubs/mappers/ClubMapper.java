@@ -95,6 +95,7 @@ public class ClubMapper {
                 club.getId(),
                 club.getName(),
                 club.getAddress(),
+                club.getDescription(),
                 club.getCity(),
                 club.getPhone(),
                 club.getEmail(),

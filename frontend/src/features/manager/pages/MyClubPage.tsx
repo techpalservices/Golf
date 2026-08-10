@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import CourseCard from '@/features/clubs/components/CourseCard';
 import CourseDialog from '@/features/clubs/components/CourseDialog';
 import CreateCourseDialog from '../components/CreateCourseDialog';
-import type {Club, ClubFormData, Course} from '@/features/clubs/types';
+import type {Club, Course} from '@/features/clubs/types';
 import { Pencil } from 'lucide-react';
 import EditClubDialog from '../components/EditClubDialog';
 import {useDataMyClub} from "@/features/manager/hooks/useDataMyClub.ts";
@@ -28,18 +28,6 @@ export default function MyClubPage() {
 
   const [editOpen, setEditOpen] = useState(false);
 
-  const [clubFormData, setClubFormData] = useState<ClubFormData | null>({
-    name: myClubData?.name || '',
-    city: myClubData?.city || '',
-    description: myClubData?.description || '',
-    logoUrl: myClubData?.logoURL || '',
-    coverUrl: myClubData?.coverURL || '',
-    status: myClubData?.status || 'ACTIVE',
-    phone: myClubData?.phone || '',
-    email: myClubData?.email || '',
-    address: myClubData?.address || '',
-  });
-
   const handleCourseClick = (course: Course) => {
     setSelectedCourse(course);
     setCourseDialogOpen(true);
@@ -48,10 +36,6 @@ export default function MyClubPage() {
   const handleCreate = (course: Course) => {
     setCourses((prev) => [...prev, course]);
     setCreateOpen(false);
-  };
-
-  const handleEditSave = (data: ClubFormData) => {
-    setClubFormData((prev) => ({ ...prev, ...data }));
   };
 
   if (isLoading) {
@@ -98,6 +82,9 @@ export default function MyClubPage() {
               <MapPin size={14} className="text-primary" />
               <span>{myClubData?.city}</span>
             </div>
+              <p>
+                  {myClubData?.description}
+              </p>
           </div>
         </div>
       </div>
@@ -232,17 +219,16 @@ export default function MyClubPage() {
         open={editOpen}
         onOpenChange={setEditOpen}
         initialData={{
+          id: myClubData?.id,
           name: myClubData?.name,
           city: myClubData?.city,
           description: myClubData?.description,
-          logoUrl: myClubData?.logoURL,
-          coverUrl: myClubData?.coverURL,
-          status: myClubData?.status,
           phone: myClubData?.phone,
           email: myClubData?.email,
           address: myClubData?.address,
+          logo: null,
+          cover: null,
         }}
-        onSave={handleEditSave}
       />
     </div>
   );

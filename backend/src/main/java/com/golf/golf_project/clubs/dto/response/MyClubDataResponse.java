@@ -11,6 +11,7 @@ public record MyClubDataResponse(
         UUID id,
         String name,
         String address,
+        String description,
         String city,
         String phone,
         String email,

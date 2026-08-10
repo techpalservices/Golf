@@ -1,39 +1,38 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type {ClubFormData} from "@/features/clubs/types.ts";
+import {useUpdateClubData} from "@/features/manager/hooks/useUpdateClubData.ts";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select.tsx";
+import cities from "@/data/cities.json";
 
 interface EditClubDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialData: ClubFormData;
-  onSave: (data: ClubFormData) => void;
 }
 
-export default function EditClubDialog({ open, onOpenChange, initialData, onSave }: EditClubDialogProps) {
+export default function EditClubDialog({ open, onOpenChange, initialData }: EditClubDialogProps) {
   const { t } = useTranslation('app');
+
+  const updateClub = useUpdateClubData();
+
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const [form, setForm] = useState<ClubFormData>(initialData);
-
-  useEffect(() => {
-    if (open) setForm(initialData);
-  }, [open, initialData]);
 
   const update = (key: keyof ClubFormData, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+      console.log(initialData);
     e.preventDefault();
-    onSave(form);
-    toast.success(t('myClub.editForm.saved'));
+    updateClub.mutate(form);
     onOpenChange(false);
   };
 
@@ -42,11 +41,6 @@ export default function EditClubDialog({ open, onOpenChange, initialData, onSave
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('myClub.editForm.name')}</Label>
         <Input value={form.name} onChange={(e) => update('name', e.target.value)} className="border-border" />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('myClub.editForm.location')}</Label>
-        <Input value={form.location} onChange={(e) => update('location', e.target.value)} className="border-border" />
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -62,25 +56,12 @@ export default function EditClubDialog({ open, onOpenChange, initialData, onSave
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label className="text-sm text-secondary">{t('myClub.editForm.logo')}</Label>
-          <Input value={form.logo} onChange={(e) => update('logo', e.target.value)} className="border-border" />
+          <Input type="file" onChange={(e) => e.target.files && setForm({ ...form, logo: e.target.files[0] })} className="border-border" />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label className="text-sm text-secondary">{t('myClub.editForm.coverImage')}</Label>
-          <Input value={form.coverImage} onChange={(e) => update('coverImage', e.target.value)} className="border-border" />
+          <Input type="file" onChange={(e) => e.target.files && setForm({ ...form, cover: e.target.files[0] })} className="border-border" />
         </div>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('myClub.editForm.status')}</Label>
-        <Select value={form.status} onValueChange={(v) => v && update('status', v)}>
-          <SelectTrigger className="w-full border-border">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="published">{t('myClub.published')}</SelectItem>
-            <SelectItem value="draft">{t('myClub.draft')}</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -94,14 +75,27 @@ export default function EditClubDialog({ open, onOpenChange, initialData, onSave
         </div>
       </div>
 
+        <div>
+            <Select value={form.city} onValueChange={(v) => update('city', v ?? '')}>
+                <SelectTrigger size="sm" className="w-full border-border">
+                    <SelectValue>
+                        {form.city ? form.city : t('clubsManagement.city')}
+                    </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="">{t('clubsManagement.city')}</SelectItem>
+                    {cities.map((city) => (
+                        <SelectItem key={city.id} value={city.ville}>
+                            {city.ville}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('myClub.editForm.address')}</Label>
         <Input value={form.address} onChange={(e) => update('address', e.target.value)} className="border-border" />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('myClub.editForm.mapsUrl')}</Label>
-        <Input value={form.mapsUrl} onChange={(e) => update('mapsUrl', e.target.value)} className="border-border" />
       </div>
 
       <div className="flex gap-2 pt-2">

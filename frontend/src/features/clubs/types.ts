@@ -20,7 +20,7 @@ export interface Club {
   email: string;
   logoURL: string;
   coverURL: string;
-  status: EUStatus;
+  status: ECStatus;
   ownerId: string | null;
   ownerName: string | null;
   memberCount: number;
@@ -41,9 +41,6 @@ export interface ClubFormData {
   name: string | undefined;
   city: string | undefined;
   description: string | undefined;
-  logoUrl: string | undefined;
-  coverUrl: string | undefined;
-  status: ECStatus | undefined;
   phone: string | undefined;
   email: string | undefined;
   address: string | undefined;

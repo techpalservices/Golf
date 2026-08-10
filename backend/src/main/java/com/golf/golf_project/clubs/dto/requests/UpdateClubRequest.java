@@ -14,7 +14,6 @@ public record UpdateClubRequest(
         String email,
         String description,
         MultipartFile logoURL,
-        MultipartFile coverURL,
-        ECStatus status
+        MultipartFile coverURL
 ) {
 }

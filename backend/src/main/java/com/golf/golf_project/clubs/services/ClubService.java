@@ -87,7 +87,7 @@ public class ClubService {
 
         if (!club.getOwner().getRole().getName().equals("ROLE_MANAGER")) {
             throw new IllegalArgumentException("Owner should be MANAGER");
-        } else if(manager.getId() != club.getOwner().getId()) {
+        } else if(!manager.getId().equals(club.getOwner().getId())) {
             throw new IllegalArgumentException("Can't make any modification, current manager is not the owner of the club");
         }
 

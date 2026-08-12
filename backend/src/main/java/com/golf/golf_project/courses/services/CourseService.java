@@ -6,6 +6,7 @@ import com.golf.golf_project.courses.entities.Course;
 import com.golf.golf_project.courses.enums.ECStatus;
 import com.golf.golf_project.courses.mappers.CourseMapper;
 import com.golf.golf_project.courses.repositories.CourseRepository;
+import com.golf.golf_project.shared.services.UploadService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +19,7 @@ public class CourseService {
     private final CourseMapper courseMapper;
     private final ClubRepository clubRepository;
     private final CourseRepository courseRepository;
+    private final UploadService uploadService;
 
     public void createCourse(CreateCourseRequest request) {
 
@@ -37,8 +39,8 @@ public class CourseService {
             throw new IllegalArgumentException("The requester must be the owner of the club");
         }
 
-        course.setStatus(ECStatus.ACTIVE)
-        ;
+        course.setStatus(ECStatus.ACTIVE);
+        course.setImagesUrls(request.imagesUrls().stream().map(uploadService::uploadFile).toList());
 
         // Save the course entity to the database (you would typically use a repository here)
         courseRepository.save(course);

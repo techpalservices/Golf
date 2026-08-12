@@ -13,7 +13,7 @@ interface CreateCourseDialogProps {
   nextNumber: number;
 }
 
-export default function CreateCourseDialog({ open, onOpenChange, nextNumber }: CreateCourseDialogProps) {
+export default function CreateCourseDialog({ open, onOpenChange }: CreateCourseDialogProps) {
   const { t } = useTranslation('app');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

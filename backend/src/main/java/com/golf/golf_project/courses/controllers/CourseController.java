@@ -7,10 +7,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/courses")
@@ -22,7 +19,7 @@ public class CourseController {
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/add")
     public ResponseEntity<?> createCourse(
-            @Valid @RequestBody CreateCourseRequest request
+            @Valid @ModelAttribute CreateCourseRequest request
     ) {
         courseService.createCourse(request);
         return ResponseEntity.ok(ApiResponse.success("Course created successfully"));

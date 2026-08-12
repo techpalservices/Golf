@@ -20,7 +20,6 @@ public class CourseMapper {
         course.setHoleCount(request.holeCount());
         course.setGreenFee(request.greenFee());
         course.setDescription(request.description());
-        course.setImagesUrls(request.imagesUrls());
         course.setClub(clubRepository.findById(request.clubId()).orElse(null));
         return course;
     }

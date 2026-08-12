@@ -2,6 +2,7 @@ package com.golf.golf_project.courses.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +18,7 @@ public record CreateCourseRequest(
         Number greenFee,
 
         String description,
-        List<String> imagesUrls,
+        List<MultipartFile> imagesUrls,
 
         @NotNull(message = "Club ID is required")
         UUID clubId

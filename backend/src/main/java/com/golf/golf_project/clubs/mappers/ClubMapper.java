@@ -115,7 +115,8 @@ public class ClubMapper {
                                 course.getGreenFee(),
                                 course.getDescription(),
                                 course.getStatus(),
-                                course.getCreatedAt()
+                                course.getCreatedAt(),
+                                course.getImagesUrls()
                         ))
                         .toList()
         );

@@ -5,37 +5,32 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import CourseCard from '@/features/clubs/components/CourseCard';
-import CourseDialog from '@/features/clubs/components/CourseDialog';
+import CourseCard from '@/features/courses/components/CourseCard.tsx';
+import CourseDialog from '@/features/courses/components/CourseDialog.tsx';
 import CreateCourseDialog from '../components/CreateCourseDialog';
-import type {Club, Course} from '@/features/clubs/types';
+import type { Course } from '@/features/courses/types';
 import { Pencil } from 'lucide-react';
 import EditClubDialog from '../components/EditClubDialog';
 import {useDataMyClub} from "@/features/manager/hooks/useDataMyClub.ts";
 
 export default function MyClubPage() {
   const { t } = useTranslation('app');
-  const { data, isLoading, error } = useDataMyClub();
+  const { data: myClubData, isLoading, error } = useDataMyClub();
 
-  console.log("data from the fetching: " + data);
+  console.log("data from the fetching: " + myClubData);
+  const courses = myClubData?.courses ?? [];
 
-  const myClubData: Club | undefined = data;
-
-  const [courses, setCourses] = useState<Course[]>(myClubData?.courses || []);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-
   const [editOpen, setEditOpen] = useState(false);
+
+  console.log("myClubData: ", myClubData);
+  console.log("courses: ", courses);
 
   const handleCourseClick = (course: Course) => {
     setSelectedCourse(course);
     setCourseDialogOpen(true);
-  };
-
-  const handleCreate = (course: Course) => {
-    setCourses((prev) => [...prev, course]);
-    setCreateOpen(false);
   };
 
   if (isLoading) {
@@ -211,7 +206,6 @@ export default function MyClubPage() {
       <CreateCourseDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
-        onCreate={handleCreate}
         nextNumber={courses.length + 1}
       />
 

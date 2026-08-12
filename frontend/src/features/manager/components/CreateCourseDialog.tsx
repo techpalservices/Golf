@@ -5,16 +5,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Course } from '@/features/clubs/types';
+import type {Course} from "@/features/courses/types.ts";
 
 interface CreateCourseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreate: (course: Course) => void;
   nextNumber: number;
 }
 
-export default function CreateCourseDialog({ open, onOpenChange, onCreate, nextNumber }: CreateCourseDialogProps) {
+export default function CreateCourseDialog({ open, onOpenChange, nextNumber }: CreateCourseDialogProps) {
   const { t } = useTranslation('app');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -28,14 +27,10 @@ export default function CreateCourseDialog({ open, onOpenChange, onCreate, nextN
       id: `new-${Date.now()}`,
       name,
       description,
-      courseNumber: nextNumber,
       holesCount: Number(holes),
-      date: new Date().toLocaleDateString('fr-FR'),
       price: Number(price) || 0,
-      image: image || '/section1.png',
-      availableTimes: [],
+      imagesUrls: new Array<string>(),
     };
-    onCreate(newCourse);
     toast.success(t('myClub.form.created'));
     setName('');
     setDescription('');

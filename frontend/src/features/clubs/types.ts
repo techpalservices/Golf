@@ -1,14 +1,4 @@
-export interface Course {
-  id: string;
-  name: string;
-  description: string;
-  courseNumber: number;
-  holesCount: number;
-  date: string;
-  price: number;
-  image: string;
-  availableTimes: string[];
-}
+import type {Course} from "@/features/courses/types.ts";
 
 export interface Club {
   id: string;

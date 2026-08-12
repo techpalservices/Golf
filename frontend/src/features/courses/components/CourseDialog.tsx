@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { Flag, Users } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Drawer, DrawerContent } from '@/components/ui/drawer';
-import { Button } from '@/components/ui/button';
-import type { Course } from '../types';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { Dialog, DialogContent } from '@/components/ui/dialog.tsx';
+import { Drawer, DrawerContent } from '@/components/ui/drawer.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import type { Course } from '../../clubs/types.ts';
+import { useMediaQuery } from '@/hooks/useMediaQuery.ts';
 import { useNavigate } from 'react-router-dom';
 
 interface CourseDialogProps {

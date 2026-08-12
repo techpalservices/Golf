@@ -10,3 +10,11 @@ export interface Course {
     createdAt: string;
     imagesUrls: Array<string>;
 }
+
+export interface CreateCourse {
+    name: string;
+    holeCount: number;
+    greenFee: number;
+    description: string;
+    imagesUrls: Array<File>;
+}

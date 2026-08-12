@@ -206,7 +206,7 @@ export default function MyClubPage() {
       <CreateCourseDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
-        nextNumber={courses.length + 1}
+        clubId={myClubData?.id ?? ''}
       />
 
       <EditClubDialog

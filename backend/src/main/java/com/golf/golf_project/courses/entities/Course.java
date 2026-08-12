@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -33,6 +34,14 @@ public class Course extends AuditableEntity {
     private Number greenFee;
 
     private String description;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "course_images",
+            joinColumns = @JoinColumn(name = "course_id")
+    )
+    @Column(name = "image_url")
+    private List<String> imagesUrls;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

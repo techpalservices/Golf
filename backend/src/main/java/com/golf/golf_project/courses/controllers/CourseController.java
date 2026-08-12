@@ -5,7 +5,6 @@ import com.golf.golf_project.courses.services.CourseService;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;

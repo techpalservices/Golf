@@ -16,13 +16,11 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
 
     List<Notification> findByUserUsernameAndIsReadFalse(String username);
 
-    List<Notification> findByUserUsernameOrderByCreatedAtDesc(String username);
-
     long countByUserUsernameAndIsReadFalse(String username);
 
     Optional<Notification> findByIdAndUserUsername(UUID id, String username);
 
     @Modifying
     @Query("UPDATE Notification n SET n.isRead = true WHERE n.user.username = :username AND n.isRead = false")
-    int markAllAsRead(@Param("username") String username);
+    void markAllAsRead(@Param("username") String username);
 }

@@ -1,6 +1,5 @@
 package com.golf.golf_project.notifications.services;
 
-import com.golf.golf_project.auth.utils.AuthUtils;
 import com.golf.golf_project.exeptions.entities.BusinessException;
 import com.golf.golf_project.notifications.dto.responses.NotificationResponse;
 import com.golf.golf_project.notifications.entities.Notification;
@@ -13,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

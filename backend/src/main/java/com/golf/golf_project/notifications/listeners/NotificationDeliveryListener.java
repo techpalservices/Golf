@@ -1,6 +1,5 @@
 package com.golf.golf_project.notifications.listeners;
 
-import com.golf.golf_project.notifications.dto.responses.NotificationResponse;
 import com.golf.golf_project.notifications.entities.Notification;
 import com.golf.golf_project.notifications.mappers.NotificationMapper;
 import com.golf.golf_project.notifications.repository.NotificationRepository;

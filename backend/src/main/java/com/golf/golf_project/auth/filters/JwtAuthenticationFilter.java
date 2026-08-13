@@ -94,11 +94,6 @@ public class JwtAuthenticationFilter
             res.setContentType("application/json");
             new ObjectMapper().writeValue(res.getOutputStream(), responseBody);
         } else {
-            SignUpDTOResponse token = authUtils.generateTokenResponse(
-                    userDetails,
-                    res
-            );
-
             notificationService.send(
                     user,
                     "Welcome back to Golf Project",

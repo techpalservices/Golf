@@ -7,6 +7,7 @@ import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import com.golf.golf_project.auth.services.CustomOAuth2UserService;
 import com.golf.golf_project.auth.services.MfaService;
 import com.golf.golf_project.auth.utils.AuthUtils;
+import com.golf.golf_project.notifications.services.NotificationService;
 import com.golf.golf_project.users.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -62,8 +63,8 @@ public class SecurityConfig {
             JwtTokenProvider jwtTokenProvider,
             MfaService mfaService,
             CustomOAuth2UserService customOAuth2UserService,
-            OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler
-            ) throws Exception {
+            OAuth2AuthenticationSuccessHandler oAuth2SuccessHandler,
+            NotificationService notificationService) throws Exception {
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
 
         http.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable)
@@ -93,7 +94,7 @@ public class SecurityConfig {
                 );
         http.sessionManagement(
                 s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.addFilter(new JwtAuthenticationFilter(authenticationManager, authUtils, userRepository, jwtTokenProvider, mfaService));
+        http.addFilter(new JwtAuthenticationFilter(authenticationManager, authUtils, notificationService, userRepository, jwtTokenProvider, mfaService));
         http.addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider),
                 UsernamePasswordAuthenticationFilter.class);
 

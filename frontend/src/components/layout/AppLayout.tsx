@@ -4,49 +4,12 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar, { type NavItem } from './Sidebar';
 import BottomNav from './BottomNav';
 import NotificationDropdown from '@/features/notifications/components/NotificationDropdown';
-import type { Notification } from '@/features/notifications/types';
 import { User } from 'lucide-react';
 import {
   LayoutDashboard, Calendar, Building2, ShoppingCart, GraduationCap,
   CalendarClock, ClipboardList, Users, Trophy, Package,
   UserCog, Building, Store,
 } from 'lucide-react';
-
-// Mock notifications — replace with useNotifications() hook later
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    title: 'Réservation confirmée',
-    description: 'Votre réservation au Royal Golf de Marrakech a été confirmée.',
-    createdAt: new Date(Date.now() - 10 * 60000).toISOString(), // 10 min ago
-    read: false,
-    link: '/my-reservations',
-  },
-  {
-    id: '2',
-    title: 'Nouveau tournoi',
-    description: 'Un nouveau tournoi est disponible : Open de Marrakech.',
-    createdAt: new Date(Date.now() - 2 * 3600000).toISOString(), // 2 hours ago
-    read: false,
-    link: '/tournaments',
-  },
-  {
-    id: '3',
-    title: 'Demande acceptée',
-    description: 'Votre demande d\'adhésion au Golf d\'Anfa a été acceptée.',
-    createdAt: new Date(Date.now() - 26 * 3600000).toISOString(), // yesterday
-    read: true,
-    link: '/my-clubs',
-  },
-  {
-    id: '4',
-    title: 'Offre spéciale',
-    description: 'Profitez de 20% sur le Pass Premium jusqu\'à la fin du mois.',
-    createdAt: new Date(Date.now() - 3 * 86400000).toISOString(), // 3 days ago
-    read: true,
-    link: '/memberships',
-  },
-];
 
 const roleNavItems: Record<string, NavItem[]> = {
   PLAYER: [
@@ -96,10 +59,7 @@ export default function AppLayout() {
 
           {/* Bell + Profile */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <NotificationDropdown
-              notifications={mockNotifications}
-              onMarkAllRead={() => {}}
-            />
+            <NotificationDropdown />
             <div className="flex items-center gap-2">
               <User size={16} className="text-primary" />
               <span className="hidden sm:inline">{user?.firstName}</span>

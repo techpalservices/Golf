@@ -4,6 +4,8 @@ import com.golf.golf_project.auth.dto.responses.SignUpDTOResponse;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import com.golf.golf_project.auth.services.MfaService;
 import com.golf.golf_project.auth.utils.AuthUtils;
+import com.golf.golf_project.notifications.enums.ENotificationType;
+import com.golf.golf_project.notifications.services.NotificationService;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
 import com.golf.golf_project.users.wrapper.UserDetailsImpl;
@@ -28,6 +30,7 @@ public class JwtAuthenticationFilter
 
     private final AuthenticationManager authenticationManager;
     private final AuthUtils authUtils;
+    private final NotificationService notificationService;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final MfaService mfaService;
@@ -94,6 +97,13 @@ public class JwtAuthenticationFilter
             SignUpDTOResponse token = authUtils.generateTokenResponse(
                     userDetails,
                     res
+            );
+
+            notificationService.send(
+                    user,
+                    "Welcome back to Golf Project",
+                    "Your login has been successfully verified!",
+                    ENotificationType.SYSTEM
             );
 
             String roleStr =

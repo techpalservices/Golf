@@ -18,8 +18,11 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
-    public ResponseEntity<?> getNotifications() {
-        return ResponseEntity.ok(ApiResponse.success(notificationService.getForCurrentUser()));
+    public ResponseEntity<?> getNotifications(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(notificationService.getForCurrentUser(page, size)));
     }
 
     @GetMapping("/unread-count")

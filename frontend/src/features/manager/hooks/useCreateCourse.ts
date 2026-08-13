@@ -8,12 +8,11 @@ export function useCreateCourse() {
     return useMutation({
         mutationFn: courseApi.addCourse,
         onSuccess: () => {
-            //reset the store cache with the new data
-            queryClient.invalidateQueries({ queryKey: ['searchClubs'] });
-            toast.success('Club created');
+            queryClient.invalidateQueries({ queryKey: ['getMyClub'] });
+            toast.success('Course created successfully', { duration: 5000 });
         },
         onError: (err: any) => {
-            toast.error('Failed to create club: ' + (err?.response?.data?.message ?? err.message));
+            toast.error('Failed to create course: ' + (err?.response?.data?.message ?? err.message));
         }
     })
 }

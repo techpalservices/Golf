@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useRef, useState} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import {useCreateCourse} from "@/features/manager/hooks/useCreateCourse.ts";
+import {toast} from "sonner";
 
 interface CreateCourseDialogProps {
   open: boolean;
@@ -22,13 +23,45 @@ export default function CreateCourseDialog({ open, onOpenChange, clubId }: Creat
   const [description, setDescription] = useState('');
   const [holeCount, setHoleCount] = useState(8);
   const [greenFee, setGreenFee] = useState(0);
-  const [images, setImages] = useState<Array<File>>([]);
   const [imageUrlCount, setImageUrlCount] = useState(0);
 
   const createCourse = useCreateCourse();
 
+  const fileInputsRef = useRef<Array<HTMLInputElement | null>>([]);
+
+  const MAX_IMAGES = 5;
+  const MAX_FILE_SIZE_MB = 50;
+  const MAX_TOTAL_SIZE_MB = 200;
+  const MB = 1024 * 1024;
+
+  const validateFiles = (): boolean => {
+      const allFiles = fileInputsRef.current.flatMap(
+          (input) => (input?.files ? Array.from(input.files) : [])
+      );
+
+      // New: reject anything that isn't an image
+      if (allFiles.some((f) => !f.type.startsWith('image/'))) {
+          toast.error('Only image files are allowed (JPG, PNG, WEBP, GIF)');
+          return false;
+      }
+      if (allFiles.length > MAX_IMAGES) { toast.error(`Maximum ${MAX_IMAGES} images allowed`); return false; }
+      if (allFiles.some((f) => f.size > MAX_FILE_SIZE_MB * MB)) { toast.error(`Each image must be under ${MAX_FILE_SIZE_MB}MB`); return false; }
+      const total = allFiles.reduce((sum, f) => sum + f.size, 0);
+      if (total > MAX_TOTAL_SIZE_MB * MB) { toast.error(`Total size must stay under ${MAX_TOTAL_SIZE_MB}MB`); return false; }
+      return true;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateFiles()) {
+        toast.error('File validation failed. Please check the file sizes and count.');
+        return;
+    }
+
+    const allFiles = fileInputsRef.current.flatMap(
+        (input) => (input?.files ? Array.from(input.files) : [])
+    );
 
     const formData = new FormData();
     formData.append('name', name);
@@ -37,7 +70,7 @@ export default function CreateCourseDialog({ open, onOpenChange, clubId }: Creat
     formData.append('description', description);
 
     // Append each file to FormData under 'imagesUrls' to match CreateCourseRequest.java
-    images.forEach((file) => {
+    allFiles.forEach((file) => {
       formData.append('imagesUrls', file);
     });
     formData.append('clubId', clubId);
@@ -50,6 +83,11 @@ export default function CreateCourseDialog({ open, onOpenChange, clubId }: Creat
           },
         }
     );
+
+    setName('');
+    setDescription('');
+    setHoleCount(8);
+    setGreenFee(0);
   };
 
   // Shared form body — used by both Dialog and Drawer
@@ -107,8 +145,9 @@ export default function CreateCourseDialog({ open, onOpenChange, clubId }: Creat
           <div className="flex flex-row gap-2">
             <Input
                 type="file"
+                accept="image/*"
                 multiple
-                onChange={(e) => setImages(Array.from(e.target.files ?? []))}
+                ref={(el) => { fileInputsRef.current[0] = el; }}
                 className="border-border"
             />
             {/* type="button" prevents form submission when clicking + */}
@@ -125,8 +164,9 @@ export default function CreateCourseDialog({ open, onOpenChange, clubId }: Creat
             <div key={i} className="flex flex-row gap-2">
               <Input
                   type="file"
+                  accept="image/*"
                   multiple
-                  onChange={(e) => setImages(Array.from(e.target.files ?? []))}
+                  ref={(el) => { fileInputsRef.current[i + 1] = el; }}
                   className="border-border"
               />
               <Button

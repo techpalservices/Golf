@@ -12,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class CourseService {
@@ -40,7 +42,12 @@ public class CourseService {
         }
 
         course.setStatus(ECStatus.ACTIVE);
-        course.setImagesUrls(request.imagesUrls().stream().map(uploadService::uploadFile).toList());
+        // CourseService.java — replace line 43 with:
+        course.setImagesUrls(
+                request.imagesUrls() == null
+                        ? List.of()
+                        : request.imagesUrls().stream().map(uploadService::uploadFile).toList()
+        );
 
         // Save the course entity to the database (you would typically use a repository here)
         courseRepository.save(course);

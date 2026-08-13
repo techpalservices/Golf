@@ -159,6 +159,12 @@ public class AuthService {
 
         User verifiedUser = mfaService.verifyCode(user.getId(), code);
 
+        String purpose = decoded.getClaim("purpose").asString();
+        if ("ENABLE".equals(purpose)) {
+            verifiedUser.setTotpEnabled(true);      // ← "if it's correct, activate the option"
+            userRepository.save(verifiedUser);
+        }
+
         String accessToken = jwtTokenProvider.generateAccessToken(
                 verifiedUser.getUsername(), verifiedUser.getRole().getName(), null);
         String refreshToken = jwtTokenProvider.generateRefreshToken(verifiedUser);

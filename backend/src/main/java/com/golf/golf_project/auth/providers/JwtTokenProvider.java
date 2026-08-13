@@ -34,6 +34,10 @@ public class JwtTokenProvider {
         this.algorithm = Algorithm.HMAC256(this.mySecret);
     }
 
+    public String generateMfaToken(String username) {
+        return generateMfaToken(username, "LOGIN");
+    }
+
     public String generateAccessToken(
             String username,
             String userRole,
@@ -71,11 +75,12 @@ public class JwtTokenProvider {
         return jwtRefreshToken;
     }
 
-    public String generateMfaToken(String username) {
+    public String generateMfaToken(String username, String purpose) {
         return JWT.create()
                 .withSubject(username)
                 .withExpiresAt(new Date(System.currentTimeMillis() + 5 * 60 * 1000))
                 .withClaim("roles", List.of("ROLE_PRE_AUTH"))
+                .withClaim("purpose", purpose)          // ← new
                 .sign(algorithm);
     }
 

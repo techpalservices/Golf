@@ -9,6 +9,7 @@ import com.golf.golf_project.auth.mappers.AuthMapper;
 import com.golf.golf_project.auth.providers.JwtTokenProvider;
 import com.golf.golf_project.auth.repositories.RefreshTokenRepository;
 import com.golf.golf_project.exeptions.entities.BusinessException;
+import com.golf.golf_project.notifications.enums.ENotificationType;
 import com.golf.golf_project.notifications.services.NotificationService;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
@@ -162,9 +163,11 @@ public class AuthService {
                 verifiedUser.getUsername(), verifiedUser.getRole().getName(), null);
         String refreshToken = jwtTokenProvider.generateRefreshToken(verifiedUser);
 
-        notificationService.sendNotification(
+        notificationService.send(
                 verifiedUser,
-                "Welcome to Golf Project! Your login has been successfully verified!."
+                "Welcome to Golf Project",
+                "Your login has been successfully verified!",
+                ENotificationType.SYSTEM
         );
 
         boolean production = false; // Set this based on your environment

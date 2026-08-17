@@ -2,10 +2,7 @@ package com.golf.golf_project.users.controllers;
 
 import com.golf.golf_project.auth.dto.requests.SignUpDTORequest;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
-import com.golf.golf_project.users.dto.requests.ChangeUserStatusRequest;
-import com.golf.golf_project.users.dto.requests.SearchPagableRequest;
-import com.golf.golf_project.users.dto.requests.SearchUserRequest;
-import com.golf.golf_project.users.dto.requests.UpdateUserDataRequest;
+import com.golf.golf_project.users.dto.requests.*;
 import com.golf.golf_project.users.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -95,6 +92,19 @@ public class UserController {
         return ResponseEntity.ok(
                 ApiResponse.success(
                         "User profile picture updated successfully"
+                )
+        );
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/updateMyPassword")
+    public ResponseEntity<?> updateMyPassword(
+            @RequestBody UpdateUserPasswordRequest request
+            ) {
+        userService.updatePassword(request);
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "User password updated successfully"
                 )
         );
     }

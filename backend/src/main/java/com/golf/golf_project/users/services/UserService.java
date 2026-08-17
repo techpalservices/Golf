@@ -5,10 +5,7 @@ import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.role.entities.Role;
 import com.golf.golf_project.role.repositories.RoleRepository;
 import com.golf.golf_project.shared.services.UploadService;
-import com.golf.golf_project.users.dto.requests.ChangeUserStatusRequest;
-import com.golf.golf_project.users.dto.requests.SearchPagableRequest;
-import com.golf.golf_project.users.dto.requests.SearchUserRequest;
-import com.golf.golf_project.users.dto.requests.UpdateUserDataRequest;
+import com.golf.golf_project.users.dto.requests.*;
 import com.golf.golf_project.users.dto.responce.ManagerDataResponse;
 import com.golf.golf_project.users.dto.responce.UserDataManagementResponse;
 import com.golf.golf_project.users.entities.User;
@@ -23,13 +20,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +39,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final ClubRepository clubRepository;
     private final UploadService uploadService;
+    private final PasswordEncoder passwordEncoder;
 
     public boolean AddManager(SignUpDTORequest signUpDTORequest) {
         if (userRepository.existsByUsername(signUpDTORequest.username())) {
@@ -153,6 +151,24 @@ public class UserService {
 
         if (profilePic != null) user.setAvatarURL(this.uploadService.uploadFile(profilePic));
 
+        userRepository.save(user);
+    }
+
+    public void updatePassword(UpdateUserPasswordRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            throw new IllegalArgumentException("Not authenticated");
+        }
+
+        String username = auth.getName();
+        User user = userRepository.findUserByUsername(username);
+
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new RuntimeException("Wrong password");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
     }
 

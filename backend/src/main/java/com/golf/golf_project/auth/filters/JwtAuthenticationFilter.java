@@ -94,6 +94,11 @@ public class JwtAuthenticationFilter
             res.setContentType("application/json");
             new ObjectMapper().writeValue(res.getOutputStream(), responseBody);
         } else {
+            SignUpDTOResponse token = authUtils.generateTokenResponse(
+                    userDetails,
+                    res
+            );
+
             notificationService.send(
                     user,
                     "Welcome back to Golf Project",
@@ -115,6 +120,7 @@ public class JwtAuthenticationFilter
             userInfo.put("phoneNumber", user.getPhoneNumber());
             userInfo.put("gender", user.getGender() != null ? user.getGender().name() : null);
             userInfo.put("role", roleStr);
+            userInfo.put("isTotpEnabled", user.isTotpEnabled());
 
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("success", true);

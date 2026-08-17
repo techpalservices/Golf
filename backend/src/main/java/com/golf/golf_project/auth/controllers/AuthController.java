@@ -55,6 +55,7 @@ public class AuthController {
         userInfo.put("username", user.getUsername());
         userInfo.put("email", user.getEmail());
         userInfo.put("role", user.getRole().getName());
+        userInfo.put("isTotpEnabled", user.isTotpEnabled());
 
         return ResponseEntity.ok(ApiResponse.success(userInfo));
     }

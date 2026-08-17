@@ -4,9 +4,9 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useAuthStore } from '@/features/auth/store';
+import {useActivateMfa} from "@/features/auth/hooks/useActivateMfa.ts";
 
 export default function SecurityTab() {
   const { t } = useTranslation('app');
@@ -17,7 +17,8 @@ export default function SecurityTab() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [mfaEnabled, setMfaEnabled] = useState(false);
+
+  const activateMfa = useActivateMfa();
 
   const handleChangeEmail = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,11 +37,6 @@ export default function SecurityTab() {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
-  };
-
-  const handleMfaToggle = (checked: boolean) => {
-    setMfaEnabled(checked);
-    toast.success(checked ? t('profile.securityTab.mfaEnabled') : t('profile.securityTab.mfaDisabled'));
   };
 
   return (
@@ -135,7 +131,15 @@ export default function SecurityTab() {
             {t('profile.securityTab.mfaDesc')}
           </span>
         </div>
-        <Switch checked={mfaEnabled} onCheckedChange={handleMfaToggle} />
+        <Button
+            onClick={() => activateMfa.mutate()}
+            disabled={activateMfa.isPending}
+            className="w-fit bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          {activateMfa.isPending
+              ? t('profile.securityTab.mfaActivating', 'Activation...')
+              : t('profile.securityTab.mfaActivate', 'Activate via email')}
+        </Button>
       </div>
     </div>
   );

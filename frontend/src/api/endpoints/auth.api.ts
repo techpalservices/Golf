@@ -15,7 +15,10 @@ export const authApi = {
     logout: () =>
         api.post('/auth/logout'),
 
+    activateMfa: () =>
+        api.post<ApiResponse<string>>('/mfa/activate'),
+
     mfaVerification: (code: mfaRequest) => {
         return api.post('/mfa/verify', code );
-    }
+    },
 };

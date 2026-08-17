@@ -212,7 +212,8 @@ public class AuthService {
                 user.getGender(),
                 user.getId(),
                 user.getEmail(),
-                user.getUsername()
+                user.getUsername(),
+                verifiedUser.isTotpEnabled()
         );
     }
 }

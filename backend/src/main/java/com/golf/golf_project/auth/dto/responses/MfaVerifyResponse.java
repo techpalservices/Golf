@@ -12,6 +12,7 @@ public record MfaVerifyResponse(
         EUGender gender,
         UUID id,
         String email,
-        String username
+        String username,
+        boolean isTotpEnabled
 ) {
 }

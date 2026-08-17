@@ -20,6 +20,8 @@ export default function SecurityTab() {
 
   const activateMfa = useActivateMfa();
 
+  console.log('activateMfa', user);
+
   const handleChangeEmail = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success(t('profile.securityTab.emailChanged'));
@@ -131,15 +133,25 @@ export default function SecurityTab() {
             {t('profile.securityTab.mfaDesc')}
           </span>
         </div>
-        <Button
-            onClick={() => activateMfa.mutate()}
-            disabled={activateMfa.isPending}
-            className="w-fit bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          {activateMfa.isPending
-              ? t('profile.securityTab.mfaActivating', 'Activation...')
-              : t('profile.securityTab.mfaActivate', 'Activate via email')}
-        </Button>
+        {!user?.isTotpEnabled
+        ? (<Button
+                onClick={() => activateMfa.mutate()}
+                disabled={activateMfa.isPending}
+                className="w-fit bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {activateMfa.isPending
+                  ? t('profile.securityTab.mfaActivating')
+                  : t('profile.securityTab.mfaActivate')}
+            </Button>)
+        : (<Button
+                onClick={() => activateMfa.mutate()}
+                disabled
+                className="w-fit bg-secondary text-primary-foreground"
+            >
+              {
+                   t('profile.securityTab.mfaEnabled')}
+            </Button>)}
+
       </div>
     </div>
   );

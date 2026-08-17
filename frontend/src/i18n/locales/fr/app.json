@@ -255,7 +255,9 @@
         "emailChanged": "Email mis à jour",
         "passwordChanged": "Mot de passe mis à jour",
         "mfaEnabled": "MFA activé",
-        "mfaDisabled": "MFA désactivé"
+        "mfaDisabled": "MFA désactivé",
+        "mfaActivating": "Activation...",
+        "mfaActivate": "Activer MFA"
     },
     "settingsTab": {
         "system": "Système",

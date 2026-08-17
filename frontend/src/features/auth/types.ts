@@ -1,12 +1,27 @@
 import type { User, Role } from '@/types/user.types';
+import type {EUGender} from "@/api/types.ts";
 
 export function toUser(raw: any): User {
+    const rawRole: string = raw.role ?? '';
+
     return {
         id: raw.id,
-        email: raw.email,
         firstName: raw.firstName,
         lastName: raw.lastName,
-        role: (raw.role?.replace('ROLE_', '') || 'PLAYER') as Role,
+        email: raw.email,
+        phoneNumber: raw.phoneNumber ?? '',
+
+        status: raw.status ?? '',
+        gender: (raw.gender || '') as EUGender,
+        avatarURL: raw.avatarURL ?? '',
+        birthDate: raw.birthDate ? new Date(raw.birthDate) : new Date(0),
+
+        role: (rawRole.replace(/^ROLE_/, '') || 'PLAYER') as Role,
+        registerAt: raw.registerAt ?? '',
+        clubId: raw.clubId ?? '',
+        clubName: raw.clubName ?? '',
+
+        isTotpEnabled: !!raw.isTotpEnabled,
     };
 }
 

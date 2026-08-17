@@ -20,8 +20,6 @@ export default function SecurityTab() {
 
   const activateMfa = useActivateMfa();
 
-  console.log('activateMfa', user);
-
   const handleChangeEmail = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success(t('profile.securityTab.emailChanged'));

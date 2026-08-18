@@ -192,7 +192,6 @@ export default function ProfileTab() {
               </span>
             </div>
           </div>
-          <span className="text-xs text-muted-foreground">Click to change profile picture</span>
         </div>
 
         {/* Fields */}

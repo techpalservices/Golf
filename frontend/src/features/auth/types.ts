@@ -14,6 +14,7 @@ export function toUser(raw: any): User {
         status: raw.status ?? '',
         gender: (raw.gender || '') as EUGender,
         avatarURL: raw.avatarURL ?? '',
+        bio: raw.bio ?? '',
         birthDate: raw.birthDate ? new Date(raw.birthDate) : new Date(0),
 
         role: (rawRole.replace(/^ROLE_/, '') || 'PLAYER') as Role,
@@ -41,6 +42,8 @@ export interface AuthUserDTO {
   email: string;
   phoneNumber: string;
   gender: string | null;
+  bio: string | null;
+  avatarURL: string | null;
   role: string;
 }
 

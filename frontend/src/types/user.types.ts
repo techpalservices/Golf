@@ -13,10 +13,25 @@ export interface User {
   status: string,
   gender: EUGender,
   avatarURL: string,
+  bio: string,
   birthDate: Date,
   role: Role,
   registerAt: string,
   clubId: string,
   clubName: string,
   isTotpEnabled: boolean,
+}
+
+export type updateUserDataRequest = {
+  firstName: string,
+  lastName: string,
+  gender: EUGender,
+  bio: string,
+  phoneNumber: string,
+  birthDate: Date
+}
+
+export type updateUserPasswordRequest = {
+  oldPassword: string,
+  newPassword: string
 }

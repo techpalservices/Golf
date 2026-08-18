@@ -32,6 +32,6 @@ export type updateUserDataRequest = {
 }
 
 export type updateUserPasswordRequest = {
-  oldPassword: string,
+  password: string,
   newPassword: string
 }

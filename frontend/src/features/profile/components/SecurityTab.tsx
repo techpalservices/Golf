@@ -7,25 +7,19 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useAuthStore } from '@/features/auth/store';
 import {useActivateMfa} from "@/features/auth/hooks/useActivateMfa.ts";
+import {useChangePassword} from "@/features/profile/hooks/useChangePassword.ts";
 
 export default function SecurityTab() {
   const { t } = useTranslation('app');
   const { user } = useAuthStore();
 
-  const [newEmail, setNewEmail] = useState('');
-  const [emailPassword, setEmailPassword] = useState('');
-  const [currentPassword, setCurrentPassword] = useState('');
+  const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  const changePassword = useChangePassword();
   const activateMfa = useActivateMfa();
 
-  const handleChangeEmail = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success(t('profile.securityTab.emailChanged'));
-    setNewEmail('');
-    setEmailPassword('');
-  };
 
   const handleChangePassword = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,51 +27,15 @@ export default function SecurityTab() {
       toast.error('Passwords do not match');
       return;
     }
-    toast.success(t('profile.securityTab.passwordChanged'));
-    setCurrentPassword('');
+
+    changePassword.mutate({ password, newPassword });
+    setPassword('');
     setNewPassword('');
     setConfirmPassword('');
   };
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Change email */}
-      <form onSubmit={handleChangeEmail} className="flex flex-col gap-4">
-        <h3 className="font-serif text-base font-bold text-secondary">
-          {t('profile.securityTab.changeEmail')}
-        </h3>
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-sm text-muted-foreground">
-            {t('profile.securityTab.currentEmail')}
-          </Label>
-          <span className="text-sm font-semibold text-secondary">{user?.email}</span>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-sm text-secondary">{t('profile.securityTab.newEmail')}</Label>
-          <Input
-            type="email"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-            placeholder="nouvel@email.com"
-            className="border-border"
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-sm text-secondary">{t('profile.securityTab.password')}</Label>
-          <Input
-            type="password"
-            value={emailPassword}
-            onChange={(e) => setEmailPassword(e.target.value)}
-            className="border-border"
-          />
-        </div>
-        <Button type="submit" className="w-fit bg-primary text-primary-foreground hover:bg-primary/90">
-          {t('profile.securityTab.changeEmailBtn')}
-        </Button>
-      </form>
-
-      <Separator />
-
       {/* Change password */}
       <form onSubmit={handleChangePassword} className="flex flex-col gap-4">
         <h3 className="font-serif text-base font-bold text-secondary">
@@ -89,8 +47,8 @@ export default function SecurityTab() {
           </Label>
           <Input
             type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="border-border"
           />
         </div>

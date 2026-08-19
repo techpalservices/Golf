@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import CourseCard from '@/features/courses/components/CourseCard.tsx';
-import CourseDialog from '@/features/courses/components/CourseDialog.tsx';
+import CourseEditCard from "@/features/manager/components/CourseEditCard.tsx";
 import CreateCourseDialog from '../components/CreateCourseDialog';
 import type { Course } from '@/features/courses/types';
 import { Pencil } from 'lucide-react';
@@ -194,7 +194,7 @@ export default function MyClubPage() {
       </div>
 
       {/* Dialogs */}
-      <CourseDialog
+      <CourseEditCard
         course={selectedCourse}
         open={courseDialogOpen}
         onOpenChange={(open) => {

@@ -48,6 +48,13 @@
       "cancel": "Annuler",
       "created": "Parcours créé avec succès"
     },
+    "editCourse": {
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "confirmDelete": "Confirmer ?",
+      "saved": "Parcours mis à jour",
+      "deleted": "Parcours supprimé"
+    },
     "editClub": "Modifier le club",
     "editForm": {
       "title": "Modifier le club",
@@ -64,6 +71,18 @@
       "save": "Enregistrer",
       "cancel": "Annuler",
       "saved": "Club mis à jour avec succès"
+    },
+    "editCourse": {
+      "subtitle": "Modifier les informations du parcours",
+      "save": "Enregistrer",
+      "delete": "Supprimer",
+      "confirmDelete": "Confirmer ?",
+      "saved": "Parcours mis à jour",
+      "deleted": "Parcours supprimé",
+      "currentImages": "Images actuelles",
+      "currentImagesHint": "Sélectionnez de nouvelles images pour les remplacer",
+      "removeImage": "Supprimer cette image",
+      "restoreImage": "Restaurer cette image"
     }
   },
   "dashboard": {

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { Save, Trash2, X, Undo2 } from 'lucide-react';
 import type { Course } from '@/features/courses/types';
+import type { ECStatus } from '@/features/clubs/types';
 import { useUpdateCourse } from '../hooks/useUpdateCourse';
 import { useDeleteCourse } from '../hooks/useDeleteCourse';
 import { toast } from 'sonner';
@@ -28,7 +29,7 @@ export default function CourseEditDialog({ course, open, onOpenChange }: CourseE
     const [holeCount, setHoleCount] = useState(8);
     const [greenFee, setGreenFee] = useState(0);
     const [description, setDescription] = useState('');
-    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [status, setStatus] = useState<ECStatus>('ACTIVE');
     const [imageUrlCount, setImageUrlCount] = useState(0);
     const [filesSelected, setFilesSelected] = useState(false);
     const [removedUrls, setRemovedUrls] = useState<string[]>([]);
@@ -46,7 +47,7 @@ export default function CourseEditDialog({ course, open, onOpenChange }: CourseE
             setHoleCount(course.holeCount);
             setGreenFee(course.greenFee);
             setDescription(course.description ?? '');
-            setConfirmDelete(false);
+            setStatus(course.status);
             setImageUrlCount(0);
             setFilesSelected(false);
             setRemovedUrls([]);
@@ -81,6 +82,7 @@ export default function CourseEditDialog({ course, open, onOpenChange }: CourseE
         holeCount !== course.holeCount ||
         greenFee !== course.greenFee ||
         description !== (course.description ?? '') ||
+        status !== course.status ||
         filesSelected ||
         removedUrls.length > 0;
 
@@ -101,30 +103,27 @@ export default function CourseEditDialog({ course, open, onOpenChange }: CourseE
         );
 
         const formData = new FormData();
+        formData.append('id', course.id);
         formData.append('name', name);
         formData.append('holeCount', String(holeCount));
         formData.append('greenFee', String(greenFee));
         formData.append('description', description);
+        formData.append('status', status);
 
-        // Append each file under 'imagesUrls' to match the create-course request shape
+        // Append each file under 'images' to match the backend UpdateCourseRequest DTO
         allFiles.forEach((file) => {
-            formData.append('imagesUrls', file);
+            formData.append('images', file);
         });
 
         // Append each URL marked for removal — backend contract: absent/empty = keep images
         removedUrls.forEach((url) => {
-            formData.append('removedImages', url);
+            formData.append('deletedImages', url);
         });
 
-        updateCourse.mutate({ id: course.id, data: formData }, { onSuccess: onDone });
+        updateCourse.mutate(formData, { onSuccess: onDone });
     };
 
-    // Two-step delete: first click arms, second click executes
     const handleDelete = () => {
-        if (!confirmDelete) {
-            setConfirmDelete(true);
-            return;
-        }
         deleteCourse.mutate(course.id, { onSuccess: onDone });
     };
 
@@ -159,6 +158,20 @@ export default function CourseEditDialog({ course, open, onOpenChange }: CourseE
                         className="border-border"
                     />
                 </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+                <Label className="text-sm text-secondary">{t('myClub.status')}</Label>
+                <Select value={status} onValueChange={(v) => setStatus(v as ECStatus)}>
+                    <SelectTrigger size="sm" className="w-full border-border">
+                        <SelectValue>{t(`myClub.${status}`)}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ACTIVE">{t('myClub.ACTIVE')}</SelectItem>
+                        <SelectItem value="SUSPENDED">{t('myClub.SUSPENDED')}</SelectItem>
+                        <SelectItem value="ARCHIVED">{t('myClub.ARCHIVED')}</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -289,13 +302,11 @@ export default function CourseEditDialog({ course, open, onOpenChange }: CourseE
                             <Button
                                 onClick={handleDelete}
                                 disabled={deleteCourse.isPending}
-                                variant={confirmDelete ? 'destructive' : 'outline'}
-                                className={`w-full gap-2 sm:w-auto ${
-                                    confirmDelete ? '' : 'border-red-300 text-red-600 hover:bg-red-50'
-                                }`}
+                                variant="outline"
+                                className="w-full gap-2 sm:w-auto border-red-300 text-red-600 hover:bg-red-50"
                             >
                                 <Trash2 size={16} />
-                                {confirmDelete ? t('myClub.editCourse.confirmDelete') : t('myClub.editCourse.delete')}
+                                {t('myClub.editCourse.delete')}
                             </Button>
                         </div>
                     </DialogFooter>
@@ -330,13 +341,11 @@ export default function CourseEditDialog({ course, open, onOpenChange }: CourseE
                         <Button
                             onClick={handleDelete}
                             disabled={deleteCourse.isPending}
-                            variant={confirmDelete ? 'destructive' : 'outline'}
-                            className={`w-full gap-2 sm:w-auto ${
-                                confirmDelete ? '' : 'border-red-300 text-red-600 hover:bg-red-50'
-                            }`}
+                            variant="outline"
+                            className="w-full gap-2 sm:w-auto border-red-300 text-red-600 hover:bg-red-50"
                         >
                             <Trash2 size={16} />
-                            {confirmDelete ? t('myClub.editCourse.confirmDelete') : t('myClub.editCourse.delete')}
+                            {t('myClub.editCourse.delete')}
                         </Button>
                     </div>
                 </DrawerFooter>

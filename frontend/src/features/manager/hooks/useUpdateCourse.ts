@@ -6,8 +6,7 @@ export function useUpdateCourse() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: FormData }) =>
-            courseApi.updateCourse(id, data),
+        mutationFn: (data: FormData) => courseApi.updateCourse(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['getMyClub'] });
             toast.success('Course updated successfully', { duration: 5000 });

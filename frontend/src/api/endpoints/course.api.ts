@@ -8,8 +8,8 @@ export const courseApi = {
             },
         });
     },
-    updateCourse: (id: string, data: FormData) => {
-        return api.patch(`courses/update/${id}`, data, {
+    updateCourse: (data: FormData) => {
+        return api.patch('courses/update', data, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

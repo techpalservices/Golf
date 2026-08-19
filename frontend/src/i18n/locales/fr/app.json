@@ -35,6 +35,8 @@
     "draft": "Brouillon",
     "noCourses": "Aucun parcours disponible",
     "ACTIVE": "Actif",
+    "SUSPENDED": "Suspendu",
+    "ARCHIVED": "Archivé",
     "form": {
       "title": "Nouveau parcours",
       "name": "Nom du parcours",
@@ -674,7 +676,7 @@
     },
     "status": {
       "all": "Sélectionner un statut",
-      "ACTIVE": "Actif",
+"ACTIVE": "Actif",
       "SUSPENDED": "Suspendu",
       "PENDING": "En attente"
     },

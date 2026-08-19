@@ -78,6 +78,7 @@ public class CourseService {
         if (request.holeCount() != null) course.setHoleCount(request.holeCount());
         if (request.greenFee() != null) course.setGreenFee(request.greenFee());
         if (request.description() != null) course.setDescription(request.description());
+        if (request.status() != null) course.setStatus(request.status());
 
         // Images: keep existing → minus removed → plus new
         List<String> currentImages = new ArrayList<>(

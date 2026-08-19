@@ -35,6 +35,8 @@
     "draft": "Draft",
     "noCourses": "No courses available",
     "ACTIVE": "Active",
+    "SUSPENDED": "Suspended",
+    "ARCHIVED": "Archived",
     "form": {
       "title": "New course",
       "name": "Course name",
@@ -665,7 +667,7 @@
     },
     "status": {
       "all": "Select status",
-      "ACTIVE": "Active",
+"ACTIVE": "Active",
       "SUSPENDED": "Suspended",
       "PENDING": "Pending"
     },

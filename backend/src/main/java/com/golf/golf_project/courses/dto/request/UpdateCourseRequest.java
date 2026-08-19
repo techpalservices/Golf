@@ -9,7 +9,7 @@ import java.util.UUID;
 public record UpdateCourseRequest(
         UUID id,
         String name,
-        int holeCount,
+        Integer holeCount,
         Number greenFee,
         String description,
         ECStatus status,

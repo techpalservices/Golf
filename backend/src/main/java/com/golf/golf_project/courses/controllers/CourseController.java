@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/courses")
 @AllArgsConstructor
@@ -33,5 +35,14 @@ public class CourseController {
     ) {
         courseService.updateCourse(request);
         return ResponseEntity.ok(ApiResponse.success("Course updated successfully"));
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteCourse(
+            @PathVariable UUID id
+    ) {
+        courseService.deleteCourse(id);
+        return ResponseEntity.ok(ApiResponse.success("Course deleted successfully"));
     }
 }

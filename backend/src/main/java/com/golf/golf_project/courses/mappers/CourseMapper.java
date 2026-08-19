@@ -26,14 +26,4 @@ public class CourseMapper {
         course.setClub(clubRepository.findById(request.clubId()).orElse(null));
         return course;
     }
-
-    public Course toCourse(UpdateCourseRequest request) {
-        Course course = courseRepository.findCourseById(request.id());
-        course.setName(request.name());
-        course.setHoleCount(request.holeCount() != null ? Integer.parseInt(request.holeCount()) : 0);
-        course.setGreenFee(request.greenFee() != null ? Double.parseDouble(request.greenFee()) : 0.0);
-        course.setDescription(request.description());
-        course.setStatus(request.status());
-        return course;
-    }
 }

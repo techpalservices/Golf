@@ -58,13 +58,13 @@ public class CourseService {
     }
 
     @Transactional
-    public void updateCourse(UUID id, UpdateCourseRequest request) {
+    public void updateCourse(UpdateCourseRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
             throw new IllegalArgumentException("Not authenticated");
         }
 
-        Course course = courseRepository.findCourseById(id);
+        Course course = courseRepository.findCourseById(request.id());
         if (course == null) {
             throw new IllegalArgumentException("Course not found");
         }
@@ -97,5 +97,24 @@ public class CourseService {
         course.setImagesUrls(currentImages);
 
         courseRepository.save(course);
+    }
+
+    @Transactional
+    public void deleteCourse(UUID id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            throw new IllegalArgumentException("Not authenticated");
+        }
+
+        Course course = courseRepository.findCourseById(id);
+        if (course == null) {
+            throw new IllegalArgumentException("Course not found");
+        }
+
+        if (!course.getClub().getOwner().getUsername().equals(auth.getName())) {
+            throw new IllegalArgumentException("The requester must be the owner of the club");
+        }
+
+        courseRepository.delete(course);
     }
 }

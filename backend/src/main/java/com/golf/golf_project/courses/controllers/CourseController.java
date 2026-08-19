@@ -1,6 +1,7 @@
 package com.golf.golf_project.courses.controllers;
 
 import com.golf.golf_project.courses.dto.request.CreateCourseRequest;
+import com.golf.golf_project.courses.dto.request.UpdateCourseRequest;
 import com.golf.golf_project.courses.services.CourseService;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -25,4 +26,12 @@ public class CourseController {
         return ResponseEntity.ok(ApiResponse.success("Course created successfully"));
     }
 
+    @PreAuthorize("hasRole('MANAGER')")
+    @PatchMapping("/update")
+    public ResponseEntity<?> updateCourse(
+            @Valid @ModelAttribute UpdateCourseRequest request
+    ) {
+        courseService.updateCourse(request);
+        return ResponseEntity.ok(ApiResponse.success("Course updated successfully"));
+    }
 }

@@ -2,6 +2,7 @@ package com.golf.golf_project.courses.services;
 
 import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.courses.dto.request.CreateCourseRequest;
+import com.golf.golf_project.courses.dto.request.UpdateCourseRequest;
 import com.golf.golf_project.courses.entities.Course;
 import com.golf.golf_project.courses.enums.ECStatus;
 import com.golf.golf_project.courses.mappers.CourseMapper;
@@ -11,8 +12,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -50,6 +54,48 @@ public class CourseService {
         );
 
         // Save the course entity to the database (you would typically use a repository here)
+        courseRepository.save(course);
+    }
+
+    @Transactional
+    public void updateCourse(UUID id, UpdateCourseRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            throw new IllegalArgumentException("Not authenticated");
+        }
+
+        Course course = courseRepository.findCourseById(id);
+        if (course == null) {
+            throw new IllegalArgumentException("Course not found");
+        }
+
+        if (!course.getClub().getOwner().getUsername().equals(auth.getName())) {
+            throw new IllegalArgumentException("The requester must be the owner of the club");
+        }
+
+        // PATCH semantics: only touch fields that are present
+        if (request.name() != null) course.setName(request.name());
+        if (request.holeCount() != null) course.setHoleCount(request.holeCount());
+        if (request.greenFee() != null) course.setGreenFee(request.greenFee());
+        if (request.description() != null) course.setDescription(request.description());
+
+        // Images: keep existing → minus removed → plus new
+        List<String> currentImages = new ArrayList<>(
+                course.getImagesUrls() == null ? List.of() : course.getImagesUrls()
+        );
+
+        if (request.deletedImages() != null && !request.deletedImages().isEmpty()) {
+            currentImages.removeAll(request.deletedImages());
+        }
+
+        if (request.images() != null && !request.images().isEmpty()) {
+            currentImages.addAll(
+                    request.images().stream().map(uploadService::uploadFile).toList()
+            );
+        }
+
+        course.setImagesUrls(currentImages);
+
         courseRepository.save(course);
     }
 }

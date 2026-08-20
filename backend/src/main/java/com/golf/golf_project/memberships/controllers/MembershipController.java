@@ -19,7 +19,7 @@ public class MembershipController {
 
     private final MembershipService membershipService;
 
-    @PostMapping("/getMemberships")
+    @PostMapping("/all")
     public ResponseEntity<?> getMemberships(
             @RequestBody SearchMembershipRequest request
     ) {

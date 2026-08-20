@@ -53,9 +53,8 @@ export default function MembershipFilterDialog({ open, onOpenChange, values, onC
             <SelectValue placeholder={t('search.typePlaceholder')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="MONTHLY">{t('type.MONTHLY')}</SelectItem>
-            <SelectItem value="YEARLY">{t('type.YEARLY')}</SelectItem>
-            <SelectItem value="VIP">{t('type.VIP')}</SelectItem>
+            <SelectItem value="ACTIVE">{t('type.ACTIVE', 'Active')}</SelectItem>
+            <SelectItem value="SUSPENDED">{t('type.SUSPENDED', 'Suspended')}</SelectItem>
           </SelectContent>
         </Select>
       </div>

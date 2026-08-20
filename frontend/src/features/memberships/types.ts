@@ -1,13 +1,49 @@
-export type MembershipType = 'MONTHLY' | 'YEARLY' | 'VIP';
+export type EMStatus = 'ACTIVE' | 'SUSPENDED' | '' | null;
 
 export interface Membership {
-  id: string;
-  offerName: string;
-  clubName: string;
-  location: string;
-  type: MembershipType;
-  price: number;
+  id?: string;
+  title: string;
   description: string;
+  price: number;
+  status: EMStatus;
   benefits: string[];
-  duration: string;
+  club?: {
+    id?: string;
+    name?: string;
+    city?: string;
+    address?: string;
+  };
+}
+
+export interface SearchAllMemberships {
+  title: string;
+  status: EMStatus;
+  price: number | null;
+  clubName: string;
+  page: number;
+  size: number;
+}
+
+export interface SearchMyMemberships {
+  title: string;
+  status: EMStatus;
+  price: number | null;
+  page: number;
+  size: number;
+}
+
+export interface AddMembership {
+  title: string;
+  description: string;
+  price: number;
+  benefits: string[];
+}
+
+export interface UpdateMembership {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  status: EMStatus;
+  benefits: string[];
 }

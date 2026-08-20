@@ -38,4 +38,6 @@ public interface MembershipRepository extends JpaRepository<Membership, UUID> {
             String ownerUsername,
             Pageable pageable
     );
+
+    Membership findMembershipById(UUID id);
 }

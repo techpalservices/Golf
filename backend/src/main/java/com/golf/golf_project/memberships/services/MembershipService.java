@@ -5,12 +5,14 @@ import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.memberships.dto.requests.CreateMembershipRequest;
 import com.golf.golf_project.memberships.dto.requests.SearchMembershipRequest;
 import com.golf.golf_project.memberships.dto.requests.SearchMyMembershipsRequest;
+import com.golf.golf_project.memberships.dto.requests.UpdateMembershipRequest;
 import com.golf.golf_project.memberships.dto.responses.SearchMembershipResponse;
 import com.golf.golf_project.memberships.dto.responses.SearchMyMembershipsResponse;
 import com.golf.golf_project.memberships.entities.Membership;
 import com.golf.golf_project.memberships.enums.EMStatus;
 import com.golf.golf_project.memberships.mappers.MembershipMapper;
 import com.golf.golf_project.memberships.repositories.MembershipRepository;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +27,7 @@ import java.util.List;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class MembershipService {
 
     private final MembershipRepository membershipRepository;
@@ -97,5 +99,30 @@ public class MembershipService {
         }
 
         return "%" + value.trim().toLowerCase() + "%";
+    }
+
+    public void updateMembership(UpdateMembershipRequest request) {
+        Membership membership = membershipRepository.findMembershipById(request.id());
+
+        if (membership == null) {
+            throw new IllegalArgumentException("Membership not found");
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            throw new IllegalArgumentException("Not authenticated");
+        }
+
+        if (!membership.getClub().getOwner().getUsername().equals(auth.getName())) {
+            throw new IllegalArgumentException("The requester must be the owner of the club");
+        }
+
+        if (request.title() != null) membership.setTitle(request.title());
+        if (request.price() != null) membership.setPrice(request.price());
+        if (request.description() != null) membership.setDescription(request.description());
+        if (request.status() != null) membership.setStatus(request.status());
+        if (request.benefits() != null) membership.setBenefits(request.benefits());
+
+        membershipRepository.save(membership);
     }
 }

@@ -73,7 +73,6 @@ public class CourseService {
             throw new IllegalArgumentException("The requester must be the owner of the club");
         }
 
-        // PATCH semantics: only touch fields that are present
         if (request.name() != null) course.setName(request.name());
         if (request.holeCount() != null) course.setHoleCount(request.holeCount());
         if (request.greenFee() != null) course.setGreenFee(request.greenFee());

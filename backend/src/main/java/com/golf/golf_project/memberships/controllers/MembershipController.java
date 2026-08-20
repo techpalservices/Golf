@@ -4,15 +4,13 @@ import com.golf.golf_project.exeptions.dto.ApiResponse;
 import com.golf.golf_project.memberships.dto.requests.CreateMembershipRequest;
 import com.golf.golf_project.memberships.dto.requests.SearchMembershipRequest;
 import com.golf.golf_project.memberships.dto.requests.SearchMyMembershipsRequest;
+import com.golf.golf_project.memberships.dto.requests.UpdateMembershipRequest;
 import com.golf.golf_project.memberships.services.MembershipService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/memberships")
@@ -48,6 +46,17 @@ public class MembershipController {
         membershipService.createMembership(request);
         return ResponseEntity.ok(
                 ApiResponse.success("Membership created successfully")
+        );
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    @PatchMapping("/update")
+    public ResponseEntity<?> updateMembership(
+            @Valid @RequestBody UpdateMembershipRequest request
+    ) {
+        membershipService.updateMembership(request);
+        return ResponseEntity.ok(
+                ApiResponse.success("Membership updated successfully")
         );
     }
 }

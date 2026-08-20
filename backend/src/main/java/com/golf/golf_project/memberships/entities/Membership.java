@@ -26,6 +26,17 @@ public class Membership extends AuditableEntity {
     @Column(name = "membership_id")
     private UUID id;
 
+    private String title;
+
+    private String description;
+
+    private Number price;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "membership_benefits", joinColumns = @JoinColumn(name = "membership_id"))
+    @Column(name = "benefit")
+    private List<String> benefits;
+
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private EMStatus status;

@@ -101,6 +101,7 @@ public class ClubService {
                 wrapLike(request.ownerLastName()),
                 pageable
         );
+
         return clubs.getContent().stream()
                 .map(clubMapper::toClubDataResponse)
                 .toList();

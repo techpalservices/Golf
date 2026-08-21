@@ -1,6 +1,7 @@
 package com.golf.golf_project.memberships.controllers;
 
 import com.golf.golf_project.exeptions.dto.ApiResponse;
+import com.golf.golf_project.memberships.dto.requests.SearchMembershipRequestsRequest;
 import com.golf.golf_project.memberships.services.MembershipRequestService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,16 @@ public class MembershipRequestController {
 
     private final MembershipRequestService membershipRequestService;
 
+    @PreAuthorize("hasRole('MANAGER')")
+    @PostMapping("/all")
+    public ResponseEntity<?> createMembershipRequest(
+            @RequestBody SearchMembershipRequestsRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(membershipRequestService.getAllMembershipRequests(request))
+        );
+    }
+
     @PreAuthorize("hasRole('PLAYER')")
     @PostMapping("/request")
     public ResponseEntity<?> createMembershipRequest(
@@ -25,7 +36,7 @@ public class MembershipRequestController {
         return ResponseEntity.ok(ApiResponse.success("Membership request created successfully"));
     }
 
-    @PreAuthorize("hasRole('PLAYER')")
+    @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/accept")
     public ResponseEntity<?> acceptMembershipRequest(
             @RequestParam UUID requestId
@@ -34,7 +45,7 @@ public class MembershipRequestController {
         return ResponseEntity.ok(ApiResponse.success("Membership request accepted successfully"));
     }
 
-    @PreAuthorize("hasRole('PLAYER')")
+    @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/reject")
     public ResponseEntity<?> rejectMembershipRequest(
             @RequestParam UUID requestId

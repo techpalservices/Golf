@@ -30,5 +30,5 @@ public class MembershipRequest extends AuditableEntity {
     private Membership membership;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User players;
+    private User player;
 }

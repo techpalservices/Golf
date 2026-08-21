@@ -1,4 +1,4 @@
-  import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { membershipApi } from '@/api/endpoints/membership.api';
 import { membershipRequestApi } from '@/api/endpoints/membershipRequest.api';
@@ -9,7 +9,7 @@ import { useRejectMembershipRequest } from '../hooks/useRejectMembershipRequest'
 import { useUpdateMembership } from '../hooks/useUpdateMembership';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { Users, UserPlus, Crown, Search, Check, X, Pencil, Power, Plus } from 'lucide-react';
+import { Users, UserPlus, Crown, Search, Check, X, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -78,20 +78,12 @@ const mockMembers: Member[] = [
   { id: '5', fullName: 'Karim El Idrissi', initials: 'KE', since: '28/11/2023', status: 'expired', membership: 'Premium Annuel', contact: '+212 6 11 22 33 44' },
 ];
 
-const mockRequests: MembershipRequest[] = [
-  { id: '1', fullName: 'Nadia Lamrani', initials: 'NL', requestedAt: 'il y a 2h', status: 'pending', membership: 'Premium Annuel', contact: '+212 6 90 80 70 60' },
-  { id: '2', fullName: 'Omar Fassi', initials: 'OF', requestedAt: 'il y a 5h', status: 'pending', membership: 'Standard Mensuel', contact: '+212 6 33 22 11 00' },
-  { id: '3', fullName: 'Leila Alaoui', initials: 'LA', requestedAt: 'il y a 1j', status: 'pending', membership: 'Premium Annuel', contact: '+212 6 44 55 66 77' },
-  { id: '4', fullName: 'Hassan Tazi', initials: 'HT', requestedAt: 'il y a 2j', status: 'approved', membership: 'Standard Mensuel', contact: '+212 6 66 77 88 99' },
-];
-
 export default function MembersPage() {
   const { t } = useTranslation('app');
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const [tab, setTab] = useState<TabId>('members');
   const [members, setMembers] = useState(mockMembers);
-  const [requests, setRequests] = useState(mockRequests);
 
   const [searchMembers, setSearchMembers] = useState('');
   const [searchOffers, setSearchOffers] = useState('');
@@ -226,19 +218,6 @@ export default function MembersPage() {
     setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, status: action } : m)));
     setSelectedMember((prev) => (prev ? { ...prev, status: action } : null));
     toast.success(action === 'suspended' ? t('members.member.suspended') : t('members.member.reinstated'));
-  };
-
-  const handleRequestAction = (id: string, action: 'approved' | 'rejected') => {
-    setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: action } : r)));
-    setSelectedRequest((prev) => (prev ? { ...prev, status: action } : null));
-    toast.success(action === 'approved' ? t('members.request.approved') : t('members.request.rejected'));
-    if (action === 'rejected') setTimeout(() => setOpen(false), 800);
-  };
-
-  const handleOfferStatus = (id: string, status: string) => {
-    // TODO: wire to PATCH /memberships/update with status - currently only local toast
-    setSelectedOffer((prev) => (prev ? { ...prev, status: status as any } : null));
-    toast.success(status === 'ACTIVE' ? t('members.offer.activated') : t('members.offer.deactivated'));
   };
 
   const handleCreateOffer = (data: any) => {

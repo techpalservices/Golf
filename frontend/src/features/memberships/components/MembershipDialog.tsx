@@ -7,7 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { Membership, EMStatus } from '../types';
-import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/features/auth/store';
+import { useRequestMembership } from '../hooks/useRequestMembership';
 
 interface MembershipDialogProps {
   membership: Membership | null;
@@ -24,6 +26,9 @@ const typeColors: Record<string, string> = {
 export default function MembershipDialog({ membership, open, onOpenChange }: MembershipDialogProps) {
   const { t } = useTranslation('memberships');
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const requestMembership = useRequestMembership();
 
   if (!membership) return null;
 
@@ -120,16 +125,21 @@ export default function MembershipDialog({ membership, open, onOpenChange }: Mem
       {/* Subscribe button */}
       <div className="mt-auto">
         <Button
-            size="lg"
-            className="w-full"
-            onClick={() => {
-            toast.success(t('notification.success'), {
-                description: t('notification.successDesc'),
+          size="lg"
+          className="w-full"
+          disabled={requestMembership.isPending}
+          onClick={() => {
+            if (!isAuthenticated) {
+              navigate('/login');
+              return;
+            }
+            if (!membership.id) return;
+            requestMembership.mutate(membership.id, {
+              onSuccess: () => onOpenChange(false),
             });
-            onOpenChange(false);
-            }}
+          }}
         >
-            {t('dialog.subscribe')}
+          {requestMembership.isPending ? '...' : t('dialog.subscribe')}
         </Button>
       </div>
     </div>

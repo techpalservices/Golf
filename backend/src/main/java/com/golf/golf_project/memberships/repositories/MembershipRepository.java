@@ -15,6 +15,7 @@ public interface MembershipRepository extends JpaRepository<Membership, UUID> {
             "WHERE (:title IS NULL OR LOWER(m.title) LIKE :title) " +
             "AND (:price IS NULL OR m.price = :price) " +
             "AND (:status IS NULL OR m.status = :status) " +
+            "AND m.status = 'ACTIVE' " +
             "AND (:clubName IS NULL OR LOWER(c.name) LIKE :clubName)"
     )
     Page<Membership> searchMemberships(

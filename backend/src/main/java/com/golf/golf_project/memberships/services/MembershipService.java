@@ -37,7 +37,7 @@ public class MembershipService {
     public List<SearchMembershipResponse> getAllMemberships(SearchMembershipRequest request) {
         Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
 
-        Page<Membership> memberships = membershipRepository.searchMyMemberships(
+        Page<Membership> memberships = membershipRepository.searchMemberships(
                 wrapLike(request.title()),
                 request.price(),
                 request.status(),

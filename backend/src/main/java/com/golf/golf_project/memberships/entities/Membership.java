@@ -46,4 +46,7 @@ public class Membership extends AuditableEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "membership", orphanRemoval = true)
     private List<User> players;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "membership", orphanRemoval = true)
+    private List<MembershipRequest> membershipRequests;
 }

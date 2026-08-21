@@ -13,7 +13,6 @@ import com.golf.golf_project.memberships.enums.EMStatus;
 import com.golf.golf_project.memberships.mappers.MembershipMapper;
 import com.golf.golf_project.memberships.repositories.MembershipRepository;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

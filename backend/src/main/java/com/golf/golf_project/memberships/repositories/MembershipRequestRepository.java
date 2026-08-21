@@ -1,9 +1,7 @@
 package com.golf.golf_project.memberships.repositories;
 
-import com.golf.golf_project.memberships.entities.Membership;
 import com.golf.golf_project.memberships.entities.MembershipRequest;
 import com.golf.golf_project.memberships.enums.EMRStatus;
-import com.golf.golf_project.memberships.enums.EMStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

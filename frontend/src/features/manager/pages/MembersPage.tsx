@@ -1,7 +1,11 @@
   import { useState, useMemo, useEffect } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { membershipApi } from '@/api/endpoints/membership.api';
+import { membershipRequestApi } from '@/api/endpoints/membershipRequest.api';
 import type { Membership } from '@/features/memberships/types';
+import type { MembershipRequest as ApiMembershipRequest } from '@/features/memberships/types';
+import { useAcceptMembershipRequest } from '../hooks/useAcceptMembershipRequest';
+import { useRejectMembershipRequest } from '../hooks/useRejectMembershipRequest';
 import { useUpdateMembership } from '../hooks/useUpdateMembership';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -90,12 +94,18 @@ export default function MembersPage() {
   const [requests, setRequests] = useState(mockRequests);
 
   const [searchMembers, setSearchMembers] = useState('');
-  const [searchRequests, setSearchRequests] = useState('');
   const [searchOffers, setSearchOffers] = useState('');
   const [debouncedSearchOffers, setDebouncedSearchOffers] = useState('');
   const [searchPrice, setSearchPrice] = useState('');
   const [searchStatus, setSearchStatus] = useState<'' | 'ACTIVE' | 'SUSPENDED'>('');
   const [debouncedPrice, setDebouncedPrice] = useState('');
+  const [reqFirstName, setReqFirstName] = useState('');
+  const [reqLastName, setReqLastName] = useState('');
+  const [reqPlanName, setReqPlanName] = useState('');
+  const [reqStatus, setReqStatus] = useState<'' | 'PENDING' | 'ACCEPTED' | 'REJECTED'>('');
+  const [debouncedReqFirstName, setDebouncedReqFirstName] = useState('');
+  const [debouncedReqLastName, setDebouncedReqLastName] = useState('');
+  const [debouncedReqPlanName, setDebouncedReqPlanName] = useState('');
 
   // Debounce 500ms after typing, instant for first fetch (initial '' is synced)
   useEffect(() => {
@@ -107,6 +117,19 @@ export default function MembersPage() {
     const timer = setTimeout(() => setDebouncedPrice(searchPrice), 500);
     return () => clearTimeout(timer);
   }, [searchPrice]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedReqFirstName(reqFirstName), 500);
+    return () => clearTimeout(t);
+  }, [reqFirstName]);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedReqLastName(reqLastName), 500);
+    return () => clearTimeout(t);
+  }, [reqLastName]);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedReqPlanName(reqPlanName), 500);
+    return () => clearTimeout(t);
+  }, [reqPlanName]);
 
   // Hook code inlined - was useSearchMyMemberships
   const {
@@ -135,8 +158,36 @@ export default function MembersPage() {
 
   const offers = offersData?.pages.flat() ?? [];
 
+  const {
+    data: requestsData,
+    isLoading: isRequestsLoading,
+    fetchNextPage: fetchNextRequestsPage,
+    hasNextPage: hasNextRequestsPage,
+    isFetchingNextPage: isFetchingNextRequestsPage,
+  } = useInfiniteQuery<ApiMembershipRequest[]>({
+    queryKey: ['membershipRequests', 'search', debouncedReqFirstName, debouncedReqLastName, debouncedReqPlanName, reqStatus],
+    queryFn: async ({ pageParam = 0 }) => {
+      const res = await membershipRequestApi.searchAll({
+        firstName: debouncedReqFirstName || null as any,
+        lastName: debouncedReqLastName || null as any,
+        planName: debouncedReqPlanName || null as any,
+        status: (reqStatus || null) as any,
+        page: pageParam as number,
+        size: 10,
+      });
+      return res.data.data;
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => (lastPage && lastPage.length < 10 ? undefined : allPages.length),
+    retry: false,
+  });
+
+  const requestsFromApi = requestsData?.pages.flat() ?? [];
+
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
-  const [selectedRequest, setSelectedRequest] = useState<MembershipRequest | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<ApiMembershipRequest | null>(null);
+  const acceptRequest = useAcceptMembershipRequest();
+  const rejectRequest = useRejectMembershipRequest();
   const [selectedOffer, setSelectedOffer] = useState<Membership | null>(null);
   const [open, setOpen] = useState(false);
   const [offerFormOpen, setOfferFormOpen] = useState(false);
@@ -165,14 +216,10 @@ export default function MembersPage() {
     return members.filter((m) => m.fullName.toLowerCase().includes(q) || m.membership.toLowerCase().includes(q) || m.status.includes(q));
   }, [members, searchMembers]);
 
-  const filteredRequests = useMemo(() => {
-    if (!searchRequests) return requests;
-    const q = searchRequests.toLowerCase();
-    return requests.filter((r) => r.fullName.toLowerCase().includes(q) || r.membership.toLowerCase().includes(q) || r.status.includes(q));
-  }, [requests, searchRequests]);
+
 
   const openMember = (m: Member) => { setSelectedMember(m); setSelectedRequest(null); setSelectedOffer(null); setOpen(true); };
-  const openRequest = (r: MembershipRequest) => { setSelectedRequest(r); setSelectedMember(null); setSelectedOffer(null); setOpen(true); };
+  const openRequest = (r: ApiMembershipRequest) => { setSelectedRequest(r); setSelectedMember(null); setSelectedOffer(null); setOpen(true); };
   const openOffer = (o: Membership) => { setSelectedOffer(o); setSelectedMember(null); setSelectedRequest(null); setOpen(true); };
 
   const handleSuspend = (id: string, action: 'suspended' | 'active') => {
@@ -251,12 +298,12 @@ export default function MembersPage() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <Avatar size="lg" className="border-2 border-primary">
-              <AvatarFallback className="bg-primary/15 font-bold text-primary">{selectedRequest.initials}</AvatarFallback>
+              <AvatarFallback className="bg-primary/15 font-bold text-primary">{(selectedRequest as any).initials ?? (selectedRequest as any).userFullName?.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col gap-1">
-              <span className="font-serif text-lg font-bold text-secondary">{selectedRequest.fullName}</span>
-              <Badge className={`w-fit border text-xs ${requestStatusColors[selectedRequest.status]}`}>
-                {t(`members.request.${selectedRequest.status}`)}
+              <span className="font-serif text-lg font-bold text-secondary">{(selectedRequest as any).fullName ?? (selectedRequest as any).userFullName}</span>
+              <Badge className={`w-fit border text-xs ${requestStatusColors[(selectedRequest as any).status.toLowerCase()] ?? 'border-primary bg-primary/15 text-primary'}`}>
+                {(selectedRequest as any).status}
               </Badge>
             </div>
           </div>
@@ -264,14 +311,14 @@ export default function MembersPage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
               <span className="text-xs text-muted-foreground">{t('members.request.membership')}</span>
-              <span className="text-sm font-semibold text-secondary">{selectedRequest.membership}</span>
+              <span className="text-sm font-semibold text-secondary">{(selectedRequest as any).membership ?? (selectedRequest as any).planName}</span>
             </div>
             <div className="col-span-2 flex flex-col gap-1 rounded-lg border border-border p-3">
               <span className="text-xs text-muted-foreground">{t('members.request.contact')}</span>
-              <span className="text-sm font-semibold text-secondary">{selectedRequest.contact}</span>
+              <span className="text-sm font-semibold text-secondary">{(selectedRequest as any).contact ?? (selectedRequest as any).userFullName}</span>
             </div>
           </div>
-          <span className="text-xs text-muted-foreground">{t('members.request.requested')} {selectedRequest.requestedAt}</span>
+          <span className="text-xs text-muted-foreground">{t('members.request.requested')} {(selectedRequest as any).requestedAt ?? new Date((selectedRequest as any).createdAt).toLocaleString()}</span>
         </div>
       )}
 
@@ -343,15 +390,32 @@ export default function MembersPage() {
           )}
         </div>
       )}
-      {selectedRequest && selectedRequest.status === 'pending' && (
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex-1 gap-2 border-border text-muted-foreground hover:bg-muted" onClick={() => handleRequestAction(selectedRequest.id, 'rejected')}>
-            <X size={16} /> {t('members.request.reject')}
-          </Button>
-          <Button className="flex-1 gap-2 bg-secondary text-white hover:bg-secondary/80" onClick={() => handleRequestAction(selectedRequest.id, 'approved')}>
-            <Check size={16} /> {t('members.request.approve')}
-          </Button>
-        </div>
+      {selectedRequest && (
+        (selectedRequest as any).status === 'PENDING' ? (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1 gap-2 border-border text-muted-foreground hover:bg-muted"
+              disabled={rejectRequest.isPending}
+              onClick={() => rejectRequest.mutate(selectedRequest.id, { onSuccess: () => setOpen(false) })}
+            >
+              <X size={16} /> {t('members.request.reject')}
+            </Button>
+            <Button
+              className="flex-1 gap-2 bg-secondary text-white hover:bg-secondary/80"
+              disabled={acceptRequest.isPending}
+              onClick={() => acceptRequest.mutate(selectedRequest.id, { onSuccess: () => setOpen(false) })}
+            >
+              <Check size={16} /> {t('members.request.approve')}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1" onClick={() => setOpen(false)}>
+              Fermer
+            </Button>
+          </div>
+        )
       )}
       {selectedOffer && (
         <div className="flex gap-2">
@@ -437,29 +501,50 @@ export default function MembersPage() {
 
       {tab === 'requests' && (
         <div className="flex flex-col gap-4">
-          <div className="relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
-            <Input value={searchRequests} onChange={(e) => setSearchRequests(e.target.value)} placeholder={t('members.searchRequests')} className="pl-10 border-primary placeholder:text-secondary" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Input value={reqFirstName} onChange={(e) => setReqFirstName(e.target.value)} placeholder="Prénom" className="border-primary placeholder:text-secondary" />
+            <Input value={reqLastName} onChange={(e) => setReqLastName(e.target.value)} placeholder="Nom" className="border-primary placeholder:text-secondary" />
+            <Input value={reqPlanName} onChange={(e) => setReqPlanName(e.target.value)} placeholder="Offre" className="border-primary placeholder:text-secondary" />
+            <Select value={reqStatus} onValueChange={(v) => setReqStatus(v as any)}>
+              <SelectTrigger className="w-full border-primary text-secondary">
+                <SelectValue placeholder="Statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Tous</SelectItem>
+                <SelectItem value="PENDING">En attente</SelectItem>
+                <SelectItem value="ACCEPTED">Accepté</SelectItem>
+                <SelectItem value="REJECTED">Refusé</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-col gap-2">
-            {filteredRequests.length === 0 ? (
+            {isRequestsLoading ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">Chargement...</p>
+            ) : requestsFromApi.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">{t('members.empty')}</p>
             ) : (
-              filteredRequests.map((r) => (
-                <div key={r.id} onClick={() => openRequest(r)} className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-shadow hover:shadow-md">
-                  <Avatar size="lg" className="border border-border">
-                    <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">{r.initials}</AvatarFallback>
-                  </Avatar>
-                  <Separator orientation="vertical" className="h-12" />
-                  <div className="flex flex-1 flex-col gap-1">
-                    <span className="font-medium text-secondary">{r.fullName}</span>
-                    <span className="text-xs text-muted-foreground">{r.membership} · {t('members.request.requested')} {r.requestedAt}</span>
+              <>
+                {requestsFromApi.map((r) => (
+                  <div key={r.id} onClick={() => openRequest(r)} className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-shadow hover:shadow-md">
+                    <Avatar size="lg" className="border border-border">
+                      <AvatarFallback className="bg-primary/15 text-sm font-bold text-primary">{r.userFullName.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <Separator orientation="vertical" className="h-12" />
+                    <div className="flex flex-1 flex-col gap-1">
+                      <span className="font-medium text-secondary">{r.userFullName}</span>
+                      <span className="text-xs text-muted-foreground">{r.planName} · {new Date(r.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <Badge className={`shrink-0 border text-xs ${r.status === 'PENDING' ? 'border-primary bg-primary/15 text-primary' : r.status === 'ACCEPTED' ? 'border-secondary bg-secondary/15 text-secondary' : 'border-border bg-muted text-muted-foreground'}`}>
+                      {r.status}
+                    </Badge>
                   </div>
-                  <Badge className={`shrink-0 border text-xs ${requestStatusColors[r.status]}`}>
-                    {t(`members.request.${r.status}`)}
-                  </Badge>
-                </div>
-              ))
+                ))}
+                {hasNextRequestsPage && (
+                  <Button variant="outline" className="mt-2 w-full" onClick={() => fetchNextRequestsPage()} disabled={isFetchingNextRequestsPage}>
+                    {isFetchingNextRequestsPage ? 'Chargement...' : 'Charger plus'}
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -534,7 +619,7 @@ export default function MembersPage() {
               </DialogTitle>
             </DialogHeader>
             {detailsContent}
-            {(selectedMember || (selectedRequest && selectedRequest.status === 'pending') || selectedOffer) && (
+            {(selectedMember || selectedRequest || selectedOffer) && (
               <DialogFooter className="gap-2">{detailsFooter}</DialogFooter>
             )}
           </DialogContent>
@@ -548,7 +633,7 @@ export default function MembersPage() {
               </DrawerTitle>
             </DrawerHeader>
             <div className="overflow-y-auto px-4 pb-4 max-h-[60vh]">{detailsContent}</div>
-            {(selectedMember || (selectedRequest && selectedRequest.status === 'pending') || selectedOffer) && (
+            {(selectedMember || selectedRequest || selectedOffer) && (
               <DrawerFooter className="px-4 pb-6">{detailsFooter}</DrawerFooter>
             )}
           </DrawerContent>

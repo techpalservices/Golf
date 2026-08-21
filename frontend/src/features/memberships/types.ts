@@ -47,3 +47,22 @@ export interface UpdateMembership {
   status: EMStatus;
   benefits: string[];
 }
+
+export type EMRStatus = 'ACCEPTED' | 'REJECTED' | 'PENDING';
+
+export interface SearchMembershipRequests {
+  firstName: string;
+  lastName: string;
+  planName: string;
+  status: EMRStatus | '' | null;
+  page: number;
+  size: number;
+}
+
+export interface MembershipRequest {
+  id: string;
+  userFullName: string;
+  planName: string;
+  status: EMRStatus;
+  createdAt: string;
+}

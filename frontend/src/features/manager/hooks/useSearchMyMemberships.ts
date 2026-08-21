@@ -1,6 +1,6 @@
     import { useInfiniteQuery } from '@tanstack/react-query';
-import { membershipApi } from '@/api/endpoints/membership.api';
-import type { Membership, SearchMyMemberships } from '../types';
+import { membershipApi } from '@/api/endpoints/membership.api.ts';
+import type { Membership, SearchMyMemberships } from '../../memberships/types.ts';
 
 export function useSearchMyMemberships(filters: Omit<SearchMyMemberships, 'page' | 'size'>) {
     return useInfiniteQuery<Membership[]>({

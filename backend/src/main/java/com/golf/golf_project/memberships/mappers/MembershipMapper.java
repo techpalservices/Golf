@@ -17,6 +17,7 @@ public class MembershipMapper {
 
     public SearchMyMembershipsResponse toSearchMyMembershipsResponse(Membership membership) {
         return new SearchMyMembershipsResponse(
+                membership.getId(),
                 membership.getTitle(),
                 membership.getDescription(),
                 membership.getPrice(),
@@ -27,6 +28,7 @@ public class MembershipMapper {
 
     public SearchMembershipResponse toSearchMembershipResponse(Membership membership) {
         return new SearchMembershipResponse(
+                membership.getId(),
                 membership.getTitle(),
                 membership.getDescription(),
                 membership.getPrice(),

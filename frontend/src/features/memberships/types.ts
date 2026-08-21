@@ -1,7 +1,7 @@
 export type EMStatus = 'ACTIVE' | 'SUSPENDED' | '' | null;
 
 export interface Membership {
-  id?: string;
+  id: string;
   title: string;
   description: string;
   price: number;

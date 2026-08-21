@@ -1,10 +1,16 @@
-import { useState, useMemo } from 'react';
+  import { useState, useMemo, useEffect } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { membershipApi } from '@/api/endpoints/membership.api';
+import type { Membership } from '@/features/memberships/types';
+import { useUpdateMembership } from '../hooks/useUpdateMembership';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Users, UserPlus, Crown, Search, Check, X, Pencil, Power, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -60,11 +66,6 @@ const requestStatusColors: Record<RequestStatus, string> = {
   rejected: 'border-border bg-muted text-muted-foreground',
 };
 
-const offerStatusColors: Record<OfferStatus, string> = {
-  active: 'border-secondary bg-secondary/15 text-secondary',
-  inactive: 'border-border bg-muted text-muted-foreground',
-};
-
 const mockMembers: Member[] = [
   { id: '1', fullName: 'Ahmed Benali', initials: 'AB', since: '15/01/2024', status: 'active', membership: 'Premium Annuel', contact: '+212 6 12 34 56 78' },
   { id: '2', fullName: 'Sara Mansouri', initials: 'SM', since: '03/06/2024', status: 'active', membership: 'Standard Mensuel', contact: '+212 6 98 76 54 32' },
@@ -80,12 +81,6 @@ const mockRequests: MembershipRequest[] = [
   { id: '4', fullName: 'Hassan Tazi', initials: 'HT', requestedAt: 'il y a 2j', status: 'approved', membership: 'Standard Mensuel', contact: '+212 6 66 77 88 99' },
 ];
 
-const mockOffers: Offer[] = [
-  { id: '1', name: 'Premium Annuel', description: 'Accès illimité aux deux parcours, priorité de réservation et avantages exclusifs.', price: 12000, duration: 12, benefits: ['Accès illimité 7j/7', 'Réservation prioritaire (14j)', '2 invités gratuits/mois', 'Accès au practice illimité'], status: 'active', membersCount: 42 },
-  { id: '2', name: 'Standard Mensuel', description: 'Accès au parcours principal avec tarifs préférentiels.', price: 1200, duration: 1, benefits: ['Accès au parcours Massy', 'Tarif vert réduit', '1 invité gratuit/mois'], status: 'active', membersCount: 68 },
-  { id: '3', name: 'Étudiant', description: 'Tarif réduit pour les étudiants sur présentation de carte valide.', price: 600, duration: 6, benefits: ['Accès en semaine', 'Tarif vert réduit', 'Practice inclus'], status: 'inactive', membersCount: 15 },
-];
-
 export default function MembersPage() {
   const { t } = useTranslation('app');
   const isDesktop = useMediaQuery('(min-width: 768px)');
@@ -93,18 +88,76 @@ export default function MembersPage() {
   const [tab, setTab] = useState<TabId>('members');
   const [members, setMembers] = useState(mockMembers);
   const [requests, setRequests] = useState(mockRequests);
-  const [offers, setOffers] = useState(mockOffers);
 
   const [searchMembers, setSearchMembers] = useState('');
   const [searchRequests, setSearchRequests] = useState('');
   const [searchOffers, setSearchOffers] = useState('');
+  const [debouncedSearchOffers, setDebouncedSearchOffers] = useState('');
+  const [searchPrice, setSearchPrice] = useState('');
+  const [searchStatus, setSearchStatus] = useState<'' | 'ACTIVE' | 'SUSPENDED'>('');
+  const [debouncedPrice, setDebouncedPrice] = useState('');
+
+  // Debounce 500ms after typing, instant for first fetch (initial '' is synced)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearchOffers(searchOffers), 500);
+    return () => clearTimeout(timer);
+  }, [searchOffers]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedPrice(searchPrice), 500);
+    return () => clearTimeout(timer);
+  }, [searchPrice]);
+
+  // Hook code inlined - was useSearchMyMemberships
+  const {
+    data: offersData,
+    isLoading: isOffersLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery<Membership[]>({
+    queryKey: ['memberships', 'searchMy', debouncedSearchOffers, debouncedPrice, searchStatus],
+    queryFn: async ({ pageParam = 0 }) => {
+      const res = await membershipApi.searchMyMemberships({
+        title: debouncedSearchOffers,
+        status: (searchStatus || null) as any,
+        price: debouncedPrice ? Number(debouncedPrice) : (null as any),
+        page: pageParam as number,
+        size: 10,
+      });
+      return res.data.data;
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage && lastPage.length < 10 ? undefined : allPages.length,
+    retry: false,
+  });
+
+  const offers = offersData?.pages.flat() ?? [];
 
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<MembershipRequest | null>(null);
-  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+  const [selectedOffer, setSelectedOffer] = useState<Membership | null>(null);
   const [open, setOpen] = useState(false);
   const [offerFormOpen, setOfferFormOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
+
+  const updateMembership = useUpdateMembership();
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editPrice, setEditPrice] = useState('');
+  const [editStatus, setEditStatus] = useState<'ACTIVE' | 'SUSPENDED'>('ACTIVE');
+  const [editBenefits, setEditBenefits] = useState<string[]>(['']);
+
+  useEffect(() => {
+    if (selectedOffer) {
+      setEditTitle(selectedOffer.title ?? '');
+      setEditDescription(selectedOffer.description ?? '');
+      setEditPrice(String(selectedOffer.price ?? ''));
+      setEditStatus((selectedOffer.status as any) ?? 'ACTIVE');
+      setEditBenefits(selectedOffer.benefits && selectedOffer.benefits.length > 0 ? selectedOffer.benefits : ['']);
+    }
+  }, [selectedOffer]);
 
   const filteredMembers = useMemo(() => {
     if (!searchMembers) return members;
@@ -118,15 +171,9 @@ export default function MembersPage() {
     return requests.filter((r) => r.fullName.toLowerCase().includes(q) || r.membership.toLowerCase().includes(q) || r.status.includes(q));
   }, [requests, searchRequests]);
 
-  const filteredOffers = useMemo(() => {
-    if (!searchOffers) return offers;
-    const q = searchOffers.toLowerCase();
-    return offers.filter((o) => o.name.toLowerCase().includes(q) || o.status.includes(q));
-  }, [offers, searchOffers]);
-
   const openMember = (m: Member) => { setSelectedMember(m); setSelectedRequest(null); setSelectedOffer(null); setOpen(true); };
   const openRequest = (r: MembershipRequest) => { setSelectedRequest(r); setSelectedMember(null); setSelectedOffer(null); setOpen(true); };
-  const openOffer = (o: Offer) => { setSelectedOffer(o); setSelectedMember(null); setSelectedRequest(null); setOpen(true); };
+  const openOffer = (o: Membership) => { setSelectedOffer(o); setSelectedMember(null); setSelectedRequest(null); setOpen(true); };
 
   const handleSuspend = (id: string, action: 'suspended' | 'active') => {
     setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, status: action } : m)));
@@ -141,25 +188,23 @@ export default function MembersPage() {
     if (action === 'rejected') setTimeout(() => setOpen(false), 800);
   };
 
-  const handleOfferStatus = (id: string, status: OfferStatus) => {
-    setOffers((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
-    setSelectedOffer((prev) => (prev ? { ...prev, status } : null));
-    toast.success(status === 'active' ? t('members.offer.activated') : t('members.offer.deactivated'));
+  const handleOfferStatus = (id: string, status: string) => {
+    // TODO: wire to PATCH /memberships/update with status - currently only local toast
+    setSelectedOffer((prev) => (prev ? { ...prev, status: status as any } : null));
+    toast.success(status === 'ACTIVE' ? t('members.offer.activated') : t('members.offer.deactivated'));
   };
 
-  const handleCreateOffer = (data: Omit<Offer, 'id' | 'membersCount' | 'status'>) => {
-    const newOffer: Offer = { ...data, id: `offer-${Date.now()}`, membersCount: 0, status: 'active' };
-    setOffers((prev) => [...prev, newOffer]);
+  const handleCreateOffer = (data: any) => {
+    // TODO: wire to useAddMembership() -> POST /memberships/add
     setOfferFormOpen(false);
     toast.success(t('members.offer.created'));
   };
 
-  const handleUpdateOffer = (data: Omit<Offer, 'id' | 'membersCount' | 'status'>) => {
+  const handleUpdateOffer = (data: any) => {
     if (!editingOffer) return;
-    setOffers((prev) => prev.map((o) => (o.id === editingOffer.id ? { ...o, ...data } : o)));
-    setSelectedOffer((prev) => (prev && prev.id === editingOffer.id ? { ...prev, ...data } : prev));
+    setSelectedOffer((prev) => (prev ? { ...prev, ...data } : null));
     setOfferFormOpen(false);
-    setEditingOffer(null);
+    setEditingOffer(null as any);
     toast.success(t('members.offer.updated'));
   };
 
@@ -232,37 +277,52 @@ export default function MembersPage() {
 
       {selectedOffer && (
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <span className="font-serif text-lg font-bold text-secondary">{selectedOffer.name}</span>
-              <Badge className={`w-fit border text-xs ${offerStatusColors[selectedOffer.status]}`}>
-                {t(`members.offer.${selectedOffer.status}`)}
-              </Badge>
-            </div>
-            <span className="font-serif text-xl font-bold text-primary">{selectedOffer.price} MAD</span>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm text-secondary">{t('members.offer.form.name')}</Label>
+            <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="border-border" />
           </div>
-          <p className="text-sm text-muted-foreground">{selectedOffer.description}</p>
-          <Separator />
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm text-secondary">{t('members.offer.form.description')}</Label>
+            <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} className="w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-primary" />
+          </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
-              <span className="text-xs text-muted-foreground">{t('members.offer.duration')}</span>
-              <span className="text-sm font-semibold text-secondary">{selectedOffer.duration} mois</span>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-sm text-secondary">{t('members.offer.form.price')}</Label>
+              <Input type="number" min="0" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} className="border-border" />
             </div>
-            <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
-              <span className="text-xs text-muted-foreground">{t('members.offer.members')}</span>
-              <span className="text-sm font-semibold text-secondary">{selectedOffer.membersCount}</span>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-sm text-secondary">Statut</Label>
+              <Select value={editStatus} onValueChange={(v) => setEditStatus(v as any)}>
+                <SelectTrigger className="w-full border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ACTIVE">Actif</SelectItem>
+                  <SelectItem value="SUSPENDED">Suspendu</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium tracking-widest text-primary">{t('members.offer.benefits')}</span>
-            <ul className="flex flex-col gap-1.5">
-              {selectedOffer.benefits.map((b, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm text-secondary">
-                  <Check size={14} className="text-primary" /> {b}
-                </li>
-              ))}
-            </ul>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-sm text-secondary">{t('members.offer.form.benefits')}</Label>
+            <div className="flex flex-row gap-2">
+              <Input value={editBenefits[0] ?? ''} onChange={(e) => { const next=[...editBenefits]; next[0]=e.target.value; setEditBenefits(next); }} className="border-border" placeholder={t('members.offer.form.benefitsPlaceholder')} />
+              <Button type="button" className="bg-secondary w-8 shrink-0" onClick={() => setEditBenefits([...editBenefits, ''])}>
+                +
+              </Button>
+            </div>
           </div>
+          {editBenefits.slice(1).map((b, idx) => {
+            const realIdx = idx + 1;
+            return (
+              <div key={realIdx} className="flex flex-row gap-2">
+                <Input value={b} onChange={(e) => { const next=[...editBenefits]; next[realIdx]=e.target.value; setEditBenefits(next); }} className="border-border" placeholder={t('members.offer.form.benefitsPlaceholder')} />
+                <Button type="button" className="bg-red-500 w-8 shrink-0 hover:bg-red-600" onClick={() => setEditBenefits(editBenefits.filter((_, i) => i !== realIdx))}>
+                  -
+                </Button>
+              </div>
+            );
+          })}
         </div>
       )}
     </>
@@ -296,21 +356,24 @@ export default function MembersPage() {
       {selectedOffer && (
         <div className="flex gap-2">
           <Button
-            variant="outline"
-            className="flex-1 gap-2 border-primary text-primary hover:bg-primary/10"
-            onClick={() => { setEditingOffer(selectedOffer); setOpen(false); setOfferFormOpen(true); }}
+            className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+            disabled={updateMembership.isPending}
+            onClick={() => {
+              updateMembership.mutate(
+                {
+                  id: selectedOffer.id!,
+                  title: editTitle,
+                  description: editDescription,
+                  price: Number(editPrice) || 0,
+                  status: editStatus,
+                  benefits: editBenefits.map((b) => b.trim()).filter(Boolean),
+                } as any,
+                { onSuccess: () => setOpen(false) },
+              );
+            }}
           >
-            <Pencil size={16} /> {t('members.offer.update')}
+            {updateMembership.isPending ? '...' : t('members.offer.form.save')}
           </Button>
-          {selectedOffer.status === 'active' ? (
-            <Button className="flex-1 gap-2 bg-red-500 text-white hover:bg-red-500/80" onClick={() => handleOfferStatus(selectedOffer.id, 'inactive')}>
-              <Power size={16} /> {t('members.offer.deactivate')}
-            </Button>
-          ) : (
-            <Button className="flex-1 gap-2 bg-secondary text-white hover:bg-secondary/80" onClick={() => handleOfferStatus(selectedOffer.id, 'active')}>
-              <Power size={16} /> {t('members.offer.activate')}
-            </Button>
-          )}
         </div>
       )}
     </>
@@ -404,38 +467,58 @@ export default function MembersPage() {
 
       {tab === 'offers' && (
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="relative flex-1">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="relative flex-1 min-w-0">
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
               <Input value={searchOffers} onChange={(e) => setSearchOffers(e.target.value)} placeholder={t('members.searchOffers')} className="pl-10 border-primary placeholder:text-secondary" />
             </div>
-            <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => { setEditingOffer(null); setOfferFormOpen(true); }}>
+            <Input type="number" value={searchPrice} onChange={(e) => setSearchPrice(e.target.value)} placeholder="Prix" className="w-24 sm:w-32 shrink-0 border-primary placeholder:text-secondary" />
+            <Select value={searchStatus} onValueChange={(v) => setSearchStatus(v as any)}>
+              <SelectTrigger className="w-28 sm:w-36 shrink-0 border-primary text-secondary">
+                <SelectValue placeholder="Statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Tous</SelectItem>
+                <SelectItem value="ACTIVE">Actif</SelectItem>
+                <SelectItem value="SUSPENDED">Suspendu</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button className="gap-2 shrink-0 bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => { setEditingOffer(null); setOfferFormOpen(true); }}>
               <Plus size={16} />
               <span className="hidden sm:inline">{t('members.offer.create')}</span>
             </Button>
           </div>
           <div className="flex flex-col gap-2">
-            {filteredOffers.length === 0 ? (
+            {isOffersLoading ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">Chargement...</p>
+            ) : offers.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">{t('members.empty')}</p>
             ) : (
-              filteredOffers.map((o) => (
-                <div key={o.id} onClick={() => openOffer(o)} className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-shadow hover:shadow-md">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/15">
-                    <Crown size={18} className="text-primary" />
+              <>
+                {offers.map((o) => (
+                  <div key={o.id ?? o.title} onClick={() => openOffer(o)} className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-shadow hover:shadow-md">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/15">
+                      <Crown size={18} className="text-primary" />
+                    </div>
+                    <Separator orientation="vertical" className="h-12" />
+                    <div className="flex flex-1 flex-col gap-1">
+                      <span className="font-medium text-secondary">{o.title}</span>
+                      <span className="text-xs text-muted-foreground">{o.price} MAD · {o.benefits.length} avantages</span>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="font-serif text-sm font-bold text-primary">{o.price} MAD</span>
+                      <Badge className={`shrink-0 border text-xs ${o.status === 'ACTIVE' ? 'border-secondary bg-secondary/15 text-secondary' : 'border-border bg-muted text-muted-foreground'}`}>
+                        {o.status}
+                      </Badge>
+                    </div>
                   </div>
-                  <Separator orientation="vertical" className="h-12" />
-                  <div className="flex flex-1 flex-col gap-1">
-                    <span className="font-medium text-secondary">{o.name}</span>
-                    <span className="text-xs text-muted-foreground">{o.duration} mois · {o.membersCount} {t('members.offer.members')}</span>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="font-serif text-sm font-bold text-primary">{o.price} MAD</span>
-                    <Badge className={`shrink-0 border text-xs ${offerStatusColors[o.status]}`}>
-                      {t(`members.offer.${o.status}`)}
-                    </Badge>
-                  </div>
-                </div>
-              ))
+                ))}
+                {hasNextPage && (
+                  <Button variant="outline" className="mt-2 w-full" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+                    {isFetchingNextPage ? 'Chargement...' : 'Charger plus'}
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </div>

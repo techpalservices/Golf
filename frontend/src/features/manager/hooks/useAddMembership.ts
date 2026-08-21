@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { membershipApi } from '@/api/endpoints/membership.api';
+import { membershipApi } from '@/api/endpoints/membership.api.ts';
 import { toast } from 'sonner';
-import type { AddMembership } from '../types';
+import type { AddMembership } from '../../memberships/types.ts';
 
 export function useAddMembership() {
     const queryClient = useQueryClient();

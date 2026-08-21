@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useAddMembership } from '../hooks/useAddMembership';
 
 export interface OfferFormData {
-  name: string;
+  title: string;
   description: string;
   price: number;
-  duration: number;
   benefits: string[];
 }
 
@@ -25,31 +25,38 @@ interface OfferFormDialogProps {
 export default function OfferFormDialog({ open, onOpenChange, onSubmit, initialData }: OfferFormDialogProps) {
   const { t } = useTranslation('app');
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const addMembership = useAddMembership();
 
-  const [name, setName] = useState('');
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [duration, setDuration] = useState('');
-  const [benefits, setBenefits] = useState('');
+  const [benefits, setBenefits] = useState<string[]>(['']);
 
   useEffect(() => {
     if (open) {
-      setName(initialData?.name ?? '');
+      setTitle((initialData as any)?.title ?? (initialData as any)?.name ?? '');
       setDescription(initialData?.description ?? '');
       setPrice(initialData ? String(initialData.price) : '');
-      setDuration(initialData ? String(initialData.duration) : '');
-      setBenefits(initialData?.benefits.join('\n') ?? '');
+      setBenefits(initialData?.benefits && initialData.benefits.length > 0 ? initialData.benefits : ['']);
     }
   }, [open, initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      name,
+    const payload = {
+      title,
       description,
       price: Number(price) || 0,
-      duration: Number(duration) || 1,
-      benefits: benefits.split('\n').map((b) => b.trim()).filter(Boolean),
+      benefits: benefits.map((b) => b.trim()).filter(Boolean),
+    };
+    // Pure creation form - always POST /memberships/add
+    // Update is handled in the details subpage (MembersPage detailsContent)
+    if (initialData) {
+      onSubmit(payload);
+      return;
+    }
+    addMembership.mutate(payload as any, {
+      onSuccess: () => onOpenChange(false),
     });
   };
 
@@ -57,7 +64,7 @@ export default function OfferFormDialog({ open, onOpenChange, onSubmit, initialD
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('members.offer.form.name')}</Label>
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('members.offer.form.namePlaceholder')} className="border-border" required />
+        <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('members.offer.form.namePlaceholder')} className="border-border" required />
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -65,28 +72,60 @@ export default function OfferFormDialog({ open, onOpenChange, onSubmit, initialD
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('members.offer.form.descriptionPlaceholder')} rows={3} className="w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-primary" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-sm text-secondary">{t('members.offer.form.price')}</Label>
-          <Input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="12000" className="border-border" required />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-sm text-secondary">{t('members.offer.form.duration')}</Label>
-          <Input type="number" min="1" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="12" className="border-border" required />
-        </div>
+      <div className="flex flex-col gap-1.5">
+        <Label className="text-sm text-secondary">{t('members.offer.form.price')}</Label>
+        <Input type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="12000" className="border-border" required />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('members.offer.form.benefits')}</Label>
-        <textarea value={benefits} onChange={(e) => setBenefits(e.target.value)} placeholder={t('members.offer.form.benefitsPlaceholder')} rows={4} className="w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-primary" />
+        <div className="flex flex-row gap-2">
+          <Input
+            value={benefits[0] ?? ''}
+            onChange={(e) => {
+              const next = [...benefits];
+              next[0] = e.target.value;
+              setBenefits(next);
+            }}
+            placeholder={t('members.offer.form.benefitsPlaceholder')}
+            className="border-border"
+          />
+          <Button type="button" className="bg-secondary w-8 shrink-0" onClick={() => setBenefits([...benefits, ''])}>
+            +
+          </Button>
+        </div>
       </div>
+      {benefits.slice(1).map((b, idx) => {
+        const realIdx = idx + 1;
+        return (
+          <div key={realIdx} className="flex flex-row gap-2">
+            <Input
+              value={b}
+              onChange={(e) => {
+                const next = [...benefits];
+                next[realIdx] = e.target.value;
+                setBenefits(next);
+              }}
+              placeholder={t('members.offer.form.benefitsPlaceholder')}
+              className="border-border"
+            />
+            <Button
+              type="button"
+              className="bg-red-500 w-8 shrink-0 hover:bg-red-600"
+              onClick={() => setBenefits(benefits.filter((_, i) => i !== realIdx))}
+            >
+              -
+            </Button>
+          </div>
+        );
+      })}
 
       <div className="flex gap-2 pt-2">
         <Button type="button" variant="outline" className="flex-1 border-border" onClick={() => onOpenChange(false)}>
           {t('members.offer.form.cancel')}
         </Button>
-        <Button type="submit" className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
-          {t('members.offer.form.save')}
+        <Button type="submit" disabled={addMembership.isPending} className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
+          {addMembership.isPending ? '...' : t('members.offer.form.save')}
         </Button>
       </div>
     </form>

@@ -1,6 +1,7 @@
 package com.golf.golf_project.timeSlots.entities;
 
 import com.golf.golf_project.base.entities.AuditableEntity;
+import com.golf.golf_project.courses.entities.Course;
 import com.golf.golf_project.reservations.entities.Reservation;
 import com.golf.golf_project.tournaments.enums.ETStatus;
 import jakarta.persistence.*;
@@ -30,8 +31,13 @@ public class TimeSlot extends AuditableEntity {
 
     private LocalDateTime endTime;
 
+    @Enumerated(EnumType.STRING)
     private ETStatus status;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "timeSlot", orphanRemoval = true)
     private List<Reservation> reservations;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
 }

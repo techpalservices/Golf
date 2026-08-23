@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -25,13 +26,15 @@ public class Reservation extends AuditableEntity {
     @Column(name = "reservation_id")
     private UUID id;
 
-    private int numberPlayers;
-
     private ERStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User leader;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "reservation_users",
+            joinColumns = @JoinColumn(name = "reservation_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> players;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "time_slot_id", nullable = false)

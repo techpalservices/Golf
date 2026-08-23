@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +41,8 @@ public class ClubService {
     public CreateClubResponse createClub(CreateClubRequest request) {
         Club club = clubMapper.toClub(request);
         club.setStatus(ECStatus.ACTIVE);
+        club.setOpenTime(LocalTime.parse("07:00"));
+        club.setCloseTime(LocalTime.parse("19:00"));
 
         if (club.getOwner() != null) {
             if (!club.getOwner().getRole().getName().equals("ROLE_MANAGER")) {

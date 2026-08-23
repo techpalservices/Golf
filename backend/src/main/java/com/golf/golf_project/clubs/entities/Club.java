@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,6 +53,12 @@ public class Club extends AuditableEntity {
 
     @Column
     private Number ddEWNumber;
+
+    @Column
+    private LocalTime openTime;
+
+    @Column
+    private LocalTime closeTime;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

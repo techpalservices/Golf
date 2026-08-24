@@ -33,6 +33,13 @@ public interface ClubRepository extends JpaRepository<Club, UUID> {
             Pageable pageable
     );
 
+    @Query("SELECT c FROM Club c " +
+            "WHERE c.status = com.golf.golf_project.clubs.enums.ECStatus.ACTIVE " +
+            "AND (:name IS NULL OR LOWER(c.name) LIKE :name) " +
+            "AND (:city IS NULL OR LOWER(c.city) LIKE :city) " +
+            "AND (:address IS NULL OR LOWER(c.address) LIKE :address)")
+    Page<Club> searchActiveClubs(String name, String city, String address, Pageable pageable);
+
     Club findByOwnerId(UUID ownerId);
 
     Club findByOwner(User owner);

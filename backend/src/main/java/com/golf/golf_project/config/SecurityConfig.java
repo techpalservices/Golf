@@ -74,6 +74,7 @@ public class SecurityConfig {
                                 .requestMatchers("/users/**").permitAll()
                                 .requestMatchers("/clubs/**").permitAll()
                                 .requestMatchers("/memberships/**").permitAll()
+                                .requestMatchers("/time-slots/**").permitAll()
                                 .requestMatchers(
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",    // ← ADD THIS

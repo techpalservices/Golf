@@ -10,5 +10,5 @@ import java.util.UUID;
 public interface CourseRepository extends JpaRepository<Course, UUID> {
     Course findCourseById(UUID id);
 
-    List<Course> findAllByStatus(ECStatus status);
+    List<Course> findAllByClubIdInAndStatus(List<UUID> clubIds, ECStatus status);
 }

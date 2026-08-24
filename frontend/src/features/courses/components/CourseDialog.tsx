@@ -12,9 +12,10 @@ interface CourseDialogProps {
   course: Course | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onReserve?: (course: Course) => void; // if provided, overrides default navigate
 }
 
-export default function CourseDialog({ course, open, onOpenChange }: CourseDialogProps) {
+export default function CourseDialog({ course, open, onOpenChange, onReserve }: CourseDialogProps) {
   const { t } = useTranslation('clubs');
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const navigate = useNavigate();
@@ -22,6 +23,15 @@ export default function CourseDialog({ course, open, onOpenChange }: CourseDialo
   if (!course) return null;
 
   const images = course.imagesUrls ?? [];
+
+  const handleReserve = () => {
+    if (onReserve) {
+      onReserve(course);
+      return;
+    }
+    onOpenChange(false);
+    navigate(`/sessions/${course.id}`);
+  };
 
   const details = (
       <div className="grid grid-cols-2 gap-4">
@@ -79,10 +89,7 @@ export default function CourseDialog({ course, open, onOpenChange }: CourseDialo
                   <Button
                       size="lg"
                       className="w-full"
-                      onClick={() => {
-                        onOpenChange(false);
-                        navigate(`/sessions/${course.id}`);
-                      }}
+                      onClick={handleReserve}
                   >
                     {t('dialog.reserve')}
                   </Button>
@@ -118,10 +125,7 @@ export default function CourseDialog({ course, open, onOpenChange }: CourseDialo
                 <Button
                     size="lg"
                     className="w-full"
-                    onClick={() => {
-                      onOpenChange(false);
-                      navigate(`/sessions/${course.id}`);
-                    }}
+                    onClick={handleReserve}
                 >
                   {t('dialog.reserve')}
                 </Button>

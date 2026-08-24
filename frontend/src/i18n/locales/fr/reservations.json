@@ -1,16 +1,30 @@
 {
   "page": {
-    "title": "Réservation",
+    "eyebrow": "Réservation de départ",
+    "title": "Trouvez votre prochain parcours",
+    "subtitle": "Choisissez un club, un parcours, puis une heure de départ. La réservation est à un clic.",
+    "loading": "Chargement des clubs disponibles…",
+    "loadingMore": "Chargement des clubs…",
+    "loadMore": "Voir plus de clubs",
+    "error": "Impossible de charger les clubs disponibles.",
+    "empty": "Aucun club n'est disponible avec ces filtres.",
     "selectDate": "Sélectionnez une date",
     "datePlaceholder": "Choisir une date",
     "confirm": "Confirmer",
     "availableSlots": "Créneaux disponibles",
     "noSlots": "Aucun créneau disponible pour cette date"
   },
+  "search": {
+    "clubName": "Rechercher un club",
+    "city": "Ville"
+  },
   "slot": {
     "available": "Disponible",
     "full": "Complet",
-    "places": "places"
+    "places": "places",
+    "holes": "trous",
+    "noTimes": "Aucune heure de départ disponible pour ce parcours.",
+    "limited": "Places limitées"
   },
   "dialog": {
     "title": "Réserver un créneau",

@@ -1,16 +1,30 @@
 {
   "page": {
-    "title": "Reservation",
+    "eyebrow": "Tee time booking",
+    "title": "Find your next round",
+    "subtitle": "Choose a club, a course, then a tee time. Booking is only one tap away.",
+    "loading": "Loading available clubs…",
+    "loadingMore": "Loading clubs…",
+    "loadMore": "Load more clubs",
+    "error": "We could not load the available clubs.",
+    "empty": "No club is available for these filters.",
     "selectDate": "Select a date",
     "datePlaceholder": "Pick a date",
     "confirm": "Confirm",
     "availableSlots": "Available slots",
     "noSlots": "No slots available for this date"
   },
+  "search": {
+    "clubName": "Search a club",
+    "city": "City"
+  },
   "slot": {
     "available": "Available",
     "full": "Full",
-    "places": "places"
+    "places": "places",
+    "holes": "holes",
+    "noTimes": "No tee times available for this course.",
+    "limited": "Limited availability"
   },
   "dialog": {
     "title": "Book a slot",

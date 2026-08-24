@@ -11,6 +11,9 @@ const lazyClubDetail = () =>
   import('@/features/clubs/pages/ClubDetailsPage').then((m) => ({ Component: m.default }));
 
 const lazyReservations = () =>
+  import('@/features/reservations/pages/SessionPage').then((m) => ({ Component: m.default }));
+
+const lazyReservationBrowse = () =>
   import('@/features/reservations/pages/ReservationPage').then((m) => ({ Component: m.default }));
 
 const lazyTournaments = () =>
@@ -87,6 +90,7 @@ export const landing = { lazy: lazyLanding };
 export const clubs = { lazy: lazyClubs };
 export const clubProfile = { lazy: lazyClubDetail };
 export const reservations = { lazy: lazyReservations };
+export const reservationBrowse = { lazy: lazyReservationBrowse };
 export const search = { lazy: lazyPlaceholder };
 export const campus = { lazy: lazyPlaceholder };
 export const campusDetail = { lazy: lazyPlaceholder };

@@ -1,10 +1,12 @@
 package com.golf.golf_project.reservations.services;
 
+import com.golf.golf_project.clubs.entities.Club;
 import com.golf.golf_project.courses.entities.Course;
 import com.golf.golf_project.courses.repositories.CourseRepository;
 import com.golf.golf_project.exeptions.entities.BusinessException;
 import com.golf.golf_project.exeptions.entities.ResourceNotFoundException;
 import com.golf.golf_project.reservations.dto.requests.CreateReservationRequest;
+import com.golf.golf_project.reservations.dto.requests.UpdateReservationStatusRequest;
 import com.golf.golf_project.reservations.entities.Reservation;
 import com.golf.golf_project.reservations.enums.ERStatus;
 import com.golf.golf_project.reservations.repositories.ReservationRepository;
@@ -63,6 +65,27 @@ public class ReservationService {
         reservation.setStatus(ERStatus.PENDING);
         reservation.setNumberOfPlayers(request.numberOfPlayers());
         reservation.setPlayer(player);
+        reservationRepository.save(reservation);
+    }
+
+    public void updateReservationStatus(UpdateReservationStatusRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser"))
+            throw new IllegalArgumentException("Not authenticated");
+
+        User player = userRepository.findUserByUsername(auth.getName());
+        if (!player.getRole().getName().equals("ROLE_MANAGER"))
+            throw new BusinessException("Only managers can update reservation status");
+
+        Reservation reservation = reservationRepository.findById(request.id())
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found"));
+
+        Club club = reservation.getTimeSlot().getCourse().getClub();
+
+        if (!club.getOwner().getId().equals(player.getId()))
+            throw new BusinessException("The requester must be the owner of the club");
+
+        reservation.setStatus(request.status());
         reservationRepository.save(reservation);
     }
 }

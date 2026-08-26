@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useAuthStore } from '@/features/auth/store';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useCreateReservation } from '../hooks/useCreateReservation';
 import { toast } from 'sonner';
 import type { CourseAvailability, SlotAvailability } from '../types';
@@ -25,6 +26,7 @@ export default function SlotPickerDialog({ open, onOpenChange, course, slot, dat
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { isPending: isAuthPending } = useAuth();
   const createReservation = useCreateReservation();
 
   const [players, setPlayers] = useState(1);
@@ -100,8 +102,8 @@ export default function SlotPickerDialog({ open, onOpenChange, course, slot, dat
         {players} {players > 1 ? 'players' : 'player'} · {placesLeft} {t('slot.places') || 'places left'}
       </p>
 
-      <Button size="lg" className="w-full" disabled={createReservation.isPending} onClick={handleConfirm}>
-        {createReservation.isPending ? '...' : t('dialog.confirm') || 'Confirm'}
+      <Button size="lg" className="w-full" disabled={createReservation.isPending || isAuthPending} onClick={handleConfirm}>
+        {createReservation.isPending || isAuthPending ? '...' : t('dialog.confirm') || 'Confirm'}
       </Button>
     </div>
   );

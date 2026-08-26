@@ -19,8 +19,8 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, UUID> {
     List<TimeSlot> findByCourseAndStartTimeBetweenOrderByStartTime(Course course, LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT ts.course.id, ts.id, ts.startTime, ts.endTime, " +
-            "COALESCE(SUM(CASE WHEN r.status = com.golf.golf_project.reservations.enums.ERStatus.ACCEPTED " +
-            "    THEN r.numberOfPlayers ELSE 0 END), 0) " +
+            "COALESCE(SUM(CASE WHEN r.status IN (ERStatus.ACCEPTED, ERStatus.PENDING) " +
+            "THEN r.numberOfPlayers ELSE 0 END), 0) " +
             "FROM TimeSlot ts LEFT JOIN ts.reservations r " +
             "WHERE ts.course.id IN :courseIds " +
             "AND ts.startTime >= :startOfDay AND ts.startTime < :endOfDay " +

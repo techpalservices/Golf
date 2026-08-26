@@ -12,6 +12,7 @@ interface CourseRowProps {
   date: string; // YYYY-MM-DD
   openTime: string; // HH:mm:ss
   closeTime: string; // HH:mm:ss
+  clubBlocked?: boolean; // true → player already has a reservation at this club today
   onSlotSelect: (course: CourseAvailability, slot: SlotAvailability) => void;
 }
 
@@ -19,7 +20,7 @@ const MAX_PLAYERS = 4;
 const SLOT_INTERVAL_MIN = 5;
 const BATCH = 24; // slots rendered per lazy-load batch (~2 hours of 5-min slots)
 
-export default function CourseBookingRow({ course, date, openTime, closeTime, onSlotSelect }: CourseRowProps) {
+export default function CourseBookingRow({ course, date, openTime, closeTime, clubBlocked = false, onSlotSelect }: CourseRowProps) {
   const { t } = useTranslation('reservations');
   const [imgIndex, setImgIndex] = useState(0);
   const images = course.imagesUrl ?? [];
@@ -58,7 +59,7 @@ export default function CourseBookingRow({ course, date, openTime, closeTime, on
   const visibleCells = cells.slice(0, visibleCount);
 
   const handleClick = (cell: { time: string; booked: number }) => {
-    if (cell.booked >= MAX_PLAYERS) return;
+    if (clubBlocked || cell.booked >= MAX_PLAYERS) return;
     const existing = slotByStart[cell.time];
     onSlotSelect(
       { ...course, timeSlots: undefined }, // avoid passing slots back (kept in page state)
@@ -130,7 +131,7 @@ export default function CourseBookingRow({ course, date, openTime, closeTime, on
             <>
             {visibleCells.map((cell) => {
               const availableCount = Math.max(0, MAX_PLAYERS - cell.booked);
-              const available = availableCount > 0;
+              const available = availableCount > 0 && !clubBlocked;
 
               return (
                 <button
@@ -139,9 +140,11 @@ export default function CourseBookingRow({ course, date, openTime, closeTime, on
                   disabled={!available}
                   className={cn(
                     'flex w-[150px] shrink-0 flex-col gap-2 rounded-lg border p-2 text-left transition-all lg:w-auto',
-                    available
-                      ? 'border-primary bg-primary/5 hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-sm cursor-pointer'
-                      : 'border-border bg-muted/50 cursor-not-allowed opacity-60',
+                    clubBlocked
+                      ? 'border-secondary/40 bg-secondary/10 cursor-not-allowed opacity-50'
+                      : available
+                        ? 'border-primary bg-primary/5 hover:-translate-y-0.5 hover:bg-primary/10 hover:shadow-sm cursor-pointer'
+                        : 'border-border bg-muted/50 cursor-not-allowed opacity-60',
                   )}
                 >
                   {/* Time + available count */}
@@ -149,12 +152,16 @@ export default function CourseBookingRow({ course, date, openTime, closeTime, on
                     <span
                       className={cn(
                         'font-serif text-base font-bold',
-                        available ? 'text-secondary' : 'text-muted-foreground',
+                        clubBlocked ? 'text-secondary/60' : available ? 'text-secondary' : 'text-muted-foreground',
                       )}
                     >
                       {cell.time}
                    </span>
-                    {available && (
+                    {clubBlocked ? (
+                      <span className="rounded-full bg-secondary/15 px-1.5 py-0.5 text-[10px] font-medium text-secondary/60 lg:px-2 lg:text-xs">
+                        {t('slot.blocked') || 'Booked'}
+                      </span>
+                    ) : available && (
                       <span className="flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium text-primary lg:px-2 lg:text-xs">
                         {availableCount <= 2 && <Flame size={11} />}
                         {availableCount} {t('slot.places')}

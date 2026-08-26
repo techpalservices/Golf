@@ -32,6 +32,7 @@ export default function ClubBookingCard({ club, date, onSlotSelect }: ClubBookin
             date={date}
             openTime={club.openTime}
             closeTime={club.closeTime}
+            clubBlocked={club.blockedForPlayer}
             onSlotSelect={(selectedCourse, slot) => onSlotSelect(selectedCourse, slot, club)}
           />
         ))}

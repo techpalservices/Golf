@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Search, Clock, Calendar, Users, Check, X } from 'lucide-react';
@@ -13,6 +13,8 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useManagerReservations, useUpdateReservationStatus } from '../hooks/useReservationRequests';
 
 type RequestStatus = 'pending' | 'approved' | 'rejected';
 
@@ -20,7 +22,6 @@ interface BookingRequest {
   id: string;
   userFullName: string;
   userInitials: string;
-  courseNumber: number;
   courseName: string;
   playersCount: number;
   time: string;
@@ -37,41 +38,97 @@ const statusColors: Record<RequestStatus, string> = {
   rejected: 'border-border bg-muted text-muted-foreground',
 };
 
-const mockRequests: BookingRequest[] = [
-  { id: '1', userFullName: 'Ahmed Benali', userInitials: 'AB', courseNumber: 1, courseName: 'Parcours Massy', playersCount: 3, time: '09:30', date: '14/07/2026', requestedAt: 'il y a 2h', status: 'pending', price: 500, contact: '+212 6 12 34 56 78' },
-  { id: '2', userFullName: 'Sara Mansouri', userInitials: 'SM', courseNumber: 2, courseName: 'Parcours Palmeraie', playersCount: 2, time: '11:00', date: '15/07/2026', requestedAt: 'il y a 5h', status: 'pending', price: 300, contact: '+212 6 98 76 54 32' },
-  { id: '3', userFullName: 'Youssef Khalfouni', userInitials: 'YK', courseNumber: 1, courseName: 'Parcours Massy', playersCount: 4, time: '08:00', date: '14/07/2026', requestedAt: 'il y a 6h', status: 'pending', price: 500, contact: '+212 6 55 44 33 22' },
-  { id: '4', userFullName: 'Imane Rachidi', userInitials: 'IR', courseNumber: 1, courseName: 'Parcours Massy', playersCount: 1, time: '14:00', date: '16/07/2026', requestedAt: 'il y a 1j', status: 'pending', price: 500, contact: '+212 6 77 88 99 00' },
-  { id: '5', userFullName: 'Karim El Idrissi', userInitials: 'KE', courseNumber: 2, courseName: 'Parcours Palmeraie', playersCount: 2, time: '10:00', date: '15/07/2026', requestedAt: 'il y a 1j', status: 'approved', price: 300, contact: '+212 6 11 22 33 44' },
-  { id: '6', userFullName: 'Nadia Lamrani', userInitials: 'NL', courseNumber: 1, courseName: 'Parcours Massy', playersCount: 4, time: '07:00', date: '14/07/2026', requestedAt: 'il y a 2j', status: 'rejected', price: 500, contact: '+212 6 90 80 70 60' },
-];
+// UI wording → backend ERStatus values (backend expects PENDING | ACCEPTED | REJECTED)
+const STATUS_TO_API: Record<RequestStatus, 'PENDING' | 'ACCEPTED' | 'REJECTED'> = {
+  pending: 'PENDING',
+  approved: 'ACCEPTED',
+  rejected: 'REJECTED',
+};
+
+const formatDate = (iso: string) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : '');
+const formatDateTime = (iso: string) => (iso ? `${formatDate(iso)} ${iso.slice(11, 16)}` : '');
+const initialsOf = (name: string) =>
+  name
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
 export default function RequestsPage() {
   const { t } = useTranslation('app');
   const isDesktop = useMediaQuery('(min-width: 768px)');
-  const [requests, setRequests] = useState(mockRequests);
+
+  // Filters
+  const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [courseFilter, setCourseFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('');
+
+  // Debounce search input (350ms delay)
+  useEffect(() => {
+    const id = setTimeout(() => setSearch(searchInput.trim()), 350);
+    return () => clearTimeout(id);
+  }, [searchInput]);
+
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useManagerReservations({
+      name: search || undefined,
+      status: statusFilter === 'all' ? undefined : STATUS_TO_API[statusFilter as RequestStatus],
+      courseId: courseFilter === 'all' ? undefined : courseFilter,
+      date: dateFilter || undefined,
+    });
+
+  const updateStatus = useUpdateReservationStatus();
+
+  // Infinite scroll sentinel — lazy loads the next page when scrolled near the bottom
+  const loadMoreRef = useInfiniteScroll(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, hasNextPage);
+
   const [selected, setSelected] = useState<BookingRequest | null>(null);
   const [open, setOpen] = useState(false);
 
-  const courses = useMemo(() => ['all', ...Array.from(new Set(mockRequests.map((r) => r.courseName)))], []);
-  const dates = useMemo(() => ['all', ...Array.from(new Set(mockRequests.map((r) => r.date)))], []);
+  // Flatten paginated results
+  const fetchedRequests = useMemo(
+    () => data?.pages.flatMap((p) => p.items) ?? [],
+    [data],
+  );
 
-  const filtered = useMemo(() => {
-    return requests.filter((r) => {
-      if (search) {
-        const q = search.toLowerCase();
-        if (!r.userFullName.toLowerCase().includes(q) && !r.courseName.toLowerCase().includes(q)) return false;
-      }
-      if (statusFilter !== 'all' && r.status !== statusFilter) return false;
-      if (courseFilter !== 'all' && r.courseName !== courseFilter) return false;
-      if (dateFilter !== 'all' && r.date !== dateFilter) return false;
-      return true;
+  // Map to display model
+  const requests: BookingRequest[] = useMemo(
+    () =>
+      fetchedRequests.map((r) => {
+        const status = r.status.toLowerCase();
+        return {
+          id: r.id,
+          userFullName: r.playerName,
+          userInitials: initialsOf(r.playerName),
+          courseName: r.courseName,
+          playersCount: r.numberOfPlayers,
+          time: r.startTime.slice(11, 16),
+          date: formatDate(r.startTime),
+          requestedAt: formatDateTime(r.requestedAt),
+          status: status === 'accepted' ? 'approved' : status === 'rejected' ? 'rejected' : 'pending',
+          price: Number(r.greenFee),
+          contact: r.playerPhone || '—',
+        } as BookingRequest;
+      }),
+    [fetchedRequests],
+  );
+
+  // Accumulate course options from all fetched pages (never shrink)
+  const [courseOptions, setCourseOptions] = useState<Record<string, string>>({});
+  useEffect(() => {
+    setCourseOptions((prev) => {
+      const next = { ...prev };
+      fetchedRequests.forEach((r) => {
+        next[r.courseId] = r.courseName;
+      });
+      return next;
     });
-  }, [requests, search, statusFilter, courseFilter, dateFilter]);
+  }, [fetchedRequests]);
 
   const handleClick = (req: BookingRequest) => {
     setSelected(req);
@@ -79,10 +136,28 @@ export default function RequestsPage() {
   };
 
   const handleAction = (id: string, action: 'approved' | 'rejected') => {
-    setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: action } : r)));
-    setSelected((prev) => (prev ? { ...prev, status: action } : null));
-    toast.success(action === 'approved' ? t('requests.details.accepted') : t('requests.details.rejected'));
-    if (action === 'rejected') setTimeout(() => setOpen(false), 800);
+    updateStatus.mutate(
+      { id, status: action === 'approved' ? 'ACCEPTED' : 'REJECTED' },
+      {
+        onSuccess: (res) => {
+          const autoRejected: number = res.data?.data?.autoRejected ?? 0;
+          setSelected((prev) => (prev ? { ...prev, status: action } : null));
+          if (action === 'approved') {
+            toast.success(
+              autoRejected > 0
+                ? `${t('requests.details.accepted')} — ${autoRejected} demande(s) rejetée(s) automatiquement (places insuffisantes)`
+                : t('requests.details.accepted'),
+            );
+          } else {
+            toast.success(t('requests.details.rejected'));
+            setTimeout(() => setOpen(false), 800);
+          }
+        },
+        onError: (err: any) => {
+          toast.error(err?.response?.data?.message ?? err.message);
+        },
+      },
+    );
   };
 
   const detailsContent = selected && (
@@ -143,23 +218,27 @@ export default function RequestsPage() {
 
       {/* Filter bar */}
       <Card className="p-4">
-        <div className="flex flex-col gap-3">
-          <div className="relative">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+          {/* Search — takes remaining width */}
+          <div className="relative lg:flex-1">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
             <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               placeholder={t('requests.searchPlaceholder')}
               className="pl-10 border-primary placeholder:text-secondary"
             />
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="flex flex-col gap-1">
+          {/* Status / Course / Date — same line as search on desktop */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex flex-col gap-1 sm:w-40">
               <Label className="text-xs text-muted-foreground">{t('requests.filterStatus')}</Label>
               <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue />
+                  <SelectValue>
+                    {statusFilter === 'all' ? t('requests.all') : t(`requests.status.${statusFilter}`)}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t('requests.all')}</SelectItem>
@@ -170,32 +249,35 @@ export default function RequestsPage() {
               </Select>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 sm:w-52">
               <Label className="text-xs text-muted-foreground">{t('requests.filterCourse')}</Label>
               <Select value={courseFilter} onValueChange={(v) => setCourseFilter(v ?? 'all')}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue />
+                  {/* Base UI's SelectValue renders the raw value (the course id),
+                      so we render the course name explicitly */}
+                  <SelectValue>
+                    {courseFilter === 'all'
+                      ? t('requests.allCourses')
+                      : courseOptions[courseFilter] ?? courseFilter}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {courses.map((c) => (
-                    <SelectItem key={c} value={c}>{c === 'all' ? t('requests.allCourses') : c}</SelectItem>
+                  <SelectItem value="all">{t('requests.allCourses')}</SelectItem>
+                  {Object.entries(courseOptions).map(([id, name]) => (
+                    <SelectItem key={id} value={id}>{name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 sm:w-40">
               <Label className="text-xs text-muted-foreground">{t('requests.filterDate')}</Label>
-              <Select value={dateFilter} onValueChange={(v) => setDateFilter(v ?? 'all')}>
-                <SelectTrigger size="sm" className="w-full border-border">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {dates.map((d) => (
-                    <SelectItem key={d} value={d}>{d === 'all' ? t('requests.allDates') : d}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="border-border"
+              />
             </div>
           </div>
         </div>
@@ -203,10 +285,12 @@ export default function RequestsPage() {
 
       {/* Requests list */}
       <div className="flex flex-col gap-2">
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">Chargement...</p>
+        ) : requests.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">{t('requests.empty')}</p>
         ) : (
-          filtered.map((req) => (
+          requests.map((req) => (
             <div
               key={req.id}
               onClick={() => handleClick(req)}
@@ -227,7 +311,7 @@ export default function RequestsPage() {
                     <Users size={12} className="text-primary" />
                     {req.playersCount} {t('requests.item.players')}
                   </span>
-                  <span>#{req.courseNumber}</span>
+                  <span>{req.courseName}</span>
                 </div>
               </div>
               <Badge className={`shrink-0 border text-xs ${statusColors[req.status]}`}>
@@ -235,6 +319,16 @@ export default function RequestsPage() {
               </Badge>
             </div>
           ))
+        )}
+      </div>
+
+      {/* Lazy loading sentinel + indicator */}
+      <div ref={loadMoreRef} className="py-4">
+        {isFetchingNextPage && (
+          <p className="text-center text-sm text-muted-foreground">Chargement...</p>
+        )}
+        {!hasNextPage && requests.length > 0 && !isLoading && (
+          <p className="text-center text-xs text-muted-foreground">{t('requests.endOfList')}</p>
         )}
       </div>
 
@@ -253,6 +347,7 @@ export default function RequestsPage() {
                 <Button
                   variant="outline"
                   className="flex-1 border-border text-muted-foreground hover:bg-muted"
+                  disabled={updateStatus.isPending}
                   onClick={() => handleAction(selected.id, 'rejected')}
                 >
                   <X size={16} />
@@ -260,6 +355,7 @@ export default function RequestsPage() {
                 </Button>
                 <Button
                   className="flex-1 bg-secondary text-white hover:bg-secondary/80"
+                  disabled={updateStatus.isPending}
                   onClick={() => handleAction(selected.id, 'approved')}
                 >
                   <Check size={16} />
@@ -284,6 +380,7 @@ export default function RequestsPage() {
                   <Button
                     variant="outline"
                     className="flex-1 border-border text-muted-foreground hover:bg-muted"
+                    disabled={updateStatus.isPending}
                     onClick={() => handleAction(selected.id, 'rejected')}
                   >
                     <X size={16} />
@@ -291,6 +388,7 @@ export default function RequestsPage() {
                   </Button>
                   <Button
                     className="flex-1 bg-secondary text-white hover:bg-secondary/80"
+                    disabled={updateStatus.isPending}
                     onClick={() => handleAction(selected.id, 'approved')}
                   >
                     <Check size={16} />

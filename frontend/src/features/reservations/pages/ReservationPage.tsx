@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ClubBookingCard from '../components/ClubBookingCard';
 import SlotPickerDialog from '../components/SlotPickerDialog';
 import { useSearchTimeSlots } from '../hooks/useSearchTimeSlots';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAuthStore } from '@/features/auth/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Calendar, MapPin, ChevronDown } from 'lucide-react';
@@ -18,6 +22,9 @@ function tomorrow(): string {
 
 export default function ReservationPage() {
   const { t } = useTranslation('reservations');
+  const navigate = useNavigate();
+  const { isPending: isAuthPending } = useAuth();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const [clubName, setClubName] = useState('');
   const [city, setCity] = useState('');
@@ -34,6 +41,17 @@ export default function ReservationPage() {
   const [slotDialogOpen, setSlotDialogOpen] = useState(false);
 
   const handleSlotSelect = (course: CourseAvailability, slot: SlotAvailability) => {
+    if (!isAuthenticated) {
+      if (isAuthPending) {
+        toast.info('Checking authentication status...');
+        return;
+      }
+      toast.error('Please log in to book a slot', {
+        description: 'You need to be signed in to make a reservation.',
+      });
+      navigate('/login');
+      return;
+    }
     setSelectedCourse(course);
     setSelectedSlot(slot);
     setSlotDialogOpen(true);

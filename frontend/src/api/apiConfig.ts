@@ -52,7 +52,11 @@ api.interceptors.response.use(
             return api(originalRequest);
         } catch (refreshError) {
             processQueue(refreshError);
-            window.location.href = '/login';
+            // A failed /auth/me probe just means "guest user" — public pages must
+            // stay usable without auth. Real session failures elsewhere still redirect.
+            if (originalRequest.url !== '/auth/me') {
+                window.location.href = '/login';
+            }
             return Promise.reject(refreshError);
         } finally {
             isRefreshing = false;

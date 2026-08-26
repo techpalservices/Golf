@@ -16,5 +16,6 @@ public record GetClubDataResponse (
     String coverUrl,
     LocalTime openTime,
     LocalTime closeTime,
+    boolean blockedForPlayer,
     List<GetCoursesDataResponse> courses
 ){}

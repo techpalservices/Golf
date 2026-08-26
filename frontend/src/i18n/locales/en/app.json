@@ -413,6 +413,7 @@
     "allCourses": "All courses",
     "allDates": "All dates",
     "empty": "No requests",
+    "endOfList": "All reservations loaded",
     "item": {
       "players": "players",
       "at": "at",

@@ -25,7 +25,7 @@ export interface SlotAvailability {
   id: string;
   startTime: string; // ISO LocalDateTime
   endTime: string;
-  bookedPlayers: number; // only ACCEPTED reservations
+  bookedPlayers: number; // PENDING + ACCEPTED reservations
 }
 
 export interface CourseAvailability {
@@ -48,6 +48,7 @@ export interface ClubAvailability {
   coverUrl: string;
   openTime: string; // HH:mm:ss
   closeTime: string;
+  blockedForPlayer: boolean; // true → player already booked at this club on this date, whole club is blocked
   courses: CourseAvailability[];
 }
 

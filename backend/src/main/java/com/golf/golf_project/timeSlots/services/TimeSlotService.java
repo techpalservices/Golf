@@ -7,6 +7,8 @@ import com.golf.golf_project.courses.dto.response.GetCoursesDataResponse;
 import com.golf.golf_project.courses.entities.Course;
 import com.golf.golf_project.courses.enums.ECStatus;
 import com.golf.golf_project.courses.repositories.CourseRepository;
+import com.golf.golf_project.reservations.enums.ERStatus;
+import com.golf.golf_project.reservations.repositories.ReservationRepository;
 import com.golf.golf_project.timeSlots.dto.requests.CreateTimeSlotRequest;
 import com.golf.golf_project.timeSlots.dto.requests.SearchTimeSlotsRequest;
 import com.golf.golf_project.timeSlots.dto.requests.UpdateTimeSlotStatusRequest;
@@ -14,6 +16,7 @@ import com.golf.golf_project.timeSlots.dto.responses.GetTimeSlotsDataResponse;
 import com.golf.golf_project.timeSlots.entities.TimeSlot;
 import com.golf.golf_project.timeSlots.mappers.TimeSlotMapper;
 import com.golf.golf_project.timeSlots.repositories.TimeSlotRepository;
+import com.golf.golf_project.users.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
@@ -34,6 +37,8 @@ public class TimeSlotService {
     private final TimeSlotRepository timeSlotRepository;
     private final TimeSlotMapper timeSlotMapper;
     private final ClubRepository clubRepository;
+    private final ReservationRepository reservationRepository;
+    private final UserRepository userRepository;
 
     public void createTimeSlot(CreateTimeSlotRequest request) {
         TimeSlot timeSlot = timeSlotMapper.toTimeSlot(request);
@@ -111,6 +116,9 @@ public class TimeSlotService {
             slotsByCourse.computeIfAbsent(courseId, k -> new ArrayList<>()).add(slot);
         }
 
+        // Clubs where the current player already has a reservation on this date
+        Set<UUID> blockedClubIds = getBlockedClubIdsForPlayer(clubIds, date);
+
         Map<UUID, List<GetCoursesDataResponse>> coursesByClub = new HashMap<>();
         for (Course c : courses) {
             GetCoursesDataResponse dto = new GetCoursesDataResponse(
@@ -125,10 +133,35 @@ public class TimeSlotService {
                         club.getId(), club.getName(), club.getCity(), club.getAddress(),
                         club.getDescription(), club.getLogoURL(), club.getCoverURL(),
                         club.getOpenTime(), club.getCloseTime(),
+                        blockedClubIds.contains(club.getId()),
                         coursesByClub.getOrDefault(club.getId(), List.of())))
                 .toList();
 
         return new PageImpl<>(content, pageable, clubs.getTotalElements());
+    }
+
+    private Set<UUID> getBlockedClubIdsForPlayer(List<UUID> clubIds, LocalDate date) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+                return Set.of();
+            }
+            var player = userRepository.findUserByUsername(auth.getName());
+            if (player == null) return Set.of();
+
+            Set<UUID> blocked = new HashSet<>();
+            for (UUID clubId : clubIds) {
+                if (reservationRepository.existsByPlayerAndClubOnDate(
+                        player.getId(), clubId,
+                        date.atStartOfDay(), date.plusDays(1).atStartOfDay(),
+                        List.of(ERStatus.PENDING, ERStatus.ACCEPTED))) {
+                    blocked.add(clubId);
+                }
+            }
+            return blocked;
+        } catch (Exception e) {
+            return Set.of(); // not logged in → nothing blocked
+        }
     }
 
     private String wrapLike(String value) {

@@ -24,7 +24,7 @@ export default function ClubBookingCard({ club, date, onSlotSelect }: ClubBookin
         </div>
       </header>
 
-      <div className="flex flex-col gap-3 p-3 sm:p-4">
+      <div className="flex flex-col gap-2 p-2.5 sm:p-3">
         {club.courses.map((course) => (
           <CourseBookingRow
             key={course.id}

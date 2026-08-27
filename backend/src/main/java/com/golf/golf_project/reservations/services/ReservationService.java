@@ -5,6 +5,8 @@ import com.golf.golf_project.courses.entities.Course;
 import com.golf.golf_project.courses.repositories.CourseRepository;
 import com.golf.golf_project.exeptions.entities.BusinessException;
 import com.golf.golf_project.exeptions.entities.ResourceNotFoundException;
+import com.golf.golf_project.memberships.entities.Membership;
+import com.golf.golf_project.memberships.enums.EMStatus;
 import com.golf.golf_project.reservations.dto.requests.CreateReservationRequest;
 import com.golf.golf_project.reservations.dto.requests.UpdateReservationStatusRequest;
 import com.golf.golf_project.reservations.dto.responses.ManagerReservationResponse;
@@ -92,9 +94,18 @@ public class ReservationService {
         if (totalPlayers + request.numberOfPlayers() > 4) // max players for a time slot is 4
             throw new BusinessException("The number of players exceeds the maximum allowed for this time slot");
 
+        // Club members with an ACTIVE membership skip the approval queue —
+        // their reservation is accepted immediately (the capacity check above
+        // already guaranteed there are enough seats left).
+        Membership membership = player.getMembership();
+        boolean isActiveMember = membership != null
+                && membership.getStatus() == EMStatus.ACTIVE
+                && membership.getClub() != null
+                && membership.getClub().getId().equals(clubId);
+
         Reservation reservation = new Reservation();
         reservation.setTimeSlot(timeSlot);
-        reservation.setStatus(ERStatus.PENDING);
+        reservation.setStatus(isActiveMember ? ERStatus.ACCEPTED : ERStatus.PENDING);
         reservation.setNumberOfPlayers(request.numberOfPlayers());
         reservation.setPlayer(player);
         reservationRepository.save(reservation);

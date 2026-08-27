@@ -424,8 +424,6 @@ export default function MembersPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-serif text-2xl font-bold text-secondary">{t('members.title')}</h1>
-
       {/* Tab switcher */}
       <div className="flex gap-2">
         {tabs.map((tabItem) => {

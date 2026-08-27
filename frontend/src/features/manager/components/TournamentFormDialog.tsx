@@ -11,11 +11,10 @@ export interface TournamentFormData {
   name: string;
   description: string;
   date: string;
-  location: string;
-  clubName: string;
   entryFee: number;
   maxParticipants: number;
-  image: string;
+  imageUrl?: string;
+  imageFile?: File;
 }
 
 interface TournamentFormDialogProps {
@@ -32,22 +31,20 @@ export default function TournamentFormDialog({ open, onOpenChange, onSubmit, ini
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
-  const [location, setLocation] = useState('');
-  const [clubName, setClubName] = useState('');
   const [entryFee, setEntryFee] = useState('');
   const [maxParticipants, setMaxParticipants] = useState('');
-  const [image, setImage] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   useEffect(() => {
     if (open) {
       setName(initialData?.name ?? '');
       setDescription(initialData?.description ?? '');
       setDate(initialData?.date ?? '');
-      setLocation(initialData?.location ?? '');
-      setClubName(initialData?.clubName ?? '');
       setEntryFee(initialData ? String(initialData.entryFee) : '');
       setMaxParticipants(initialData ? String(initialData.maxParticipants) : '');
-      setImage(initialData?.image ?? '');
+      setImagePreview(initialData?.imageUrl ?? '');
+      setImageFile(null);
     }
   }, [open, initialData]);
 
@@ -57,11 +54,10 @@ export default function TournamentFormDialog({ open, onOpenChange, onSubmit, ini
       name,
       description,
       date,
-      location,
-      clubName,
       entryFee: Number(entryFee) || 0,
       maxParticipants: Number(maxParticipants) || 0,
-      image: image || '/section1.png',
+      imageUrl: imagePreview || '/section1.png',
+      imageFile: imageFile || undefined,
     });
   };
 
@@ -77,20 +73,9 @@ export default function TournamentFormDialog({ open, onOpenChange, onSubmit, ini
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('manageTournaments.form.descriptionPlaceholder')} rows={3} className="w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-primary" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-sm text-secondary">{t('manageTournaments.form.date')}</Label>
-          <Input value={date} onChange={(e) => setDate(e.target.value)} placeholder={t('manageTournaments.form.datePlaceholder')} className="border-border" required />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-sm text-secondary">{t('manageTournaments.form.location')}</Label>
-          <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder={t('manageTournaments.form.locationPlaceholder')} className="border-border" required />
-        </div>
-      </div>
-
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-secondary">{t('manageTournaments.form.clubName')}</Label>
-        <Input value={clubName} onChange={(e) => setClubName(e.target.value)} placeholder={t('manageTournaments.form.clubNamePlaceholder')} className="border-border" required />
+        <Label className="text-sm text-secondary">{t('manageTournaments.form.date')}</Label>
+        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="border-border" required />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -106,7 +91,8 @@ export default function TournamentFormDialog({ open, onOpenChange, onSubmit, ini
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('manageTournaments.form.image')}</Label>
-        <Input value={image} onChange={(e) => setImage(e.target.value)} placeholder={t('manageTournaments.form.imagePlaceholder')} className="border-border" />
+        <Input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) { setImageFile(f); setImagePreview(URL.createObjectURL(f)); } }} className="border-border" />
+        {imagePreview && <img src={imagePreview} alt="preview" className="mt-2 h-32 w-full object-cover rounded"/>}
       </div>
 
       <div className="flex gap-2 pt-2">

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -30,10 +31,27 @@ public class Tournament extends AuditableEntity {
     private String description;
 
     @Column(nullable = false)
+    private LocalDate date;
+
+    @Column(nullable = false)
+    private String location;
+
+    @Column(nullable = false)
+    private Integer entryFee;
+
+    @Column(nullable = false)
+    private Integer maxParticipants;
+
+    @Column(nullable = false)
+    private Integer currentParticipants;
+
+    private String imageUrl;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ETStatus status;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;
 }

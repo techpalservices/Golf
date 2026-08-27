@@ -158,8 +158,6 @@ export default function PlanningPage() {
 
   // ── Client-side-only filters (small data volume per query) ───────
   const [statusFilter, setStatusFilter] = useState('all');
-  const [timeFrom, setTimeFrom] = useState('all');
-  const [timeTo, setTimeTo] = useState('all');
 
   const activeFilters = tab === 'calendar'
     ? {
@@ -224,11 +222,9 @@ export default function PlanningPage() {
   const filtered = useMemo(() => {
     return sessions.filter((s) => {
       if (statusFilter !== 'all' && s.status !== statusFilter) return false;
-      if (timeFrom !== 'all' && s.time < timeFrom) return false;
-      if (timeTo !== 'all' && s.time > timeTo) return false;
       return true;
     });
-  }, [sessions, statusFilter, timeFrom, timeTo]);
+  }, [sessions, statusFilter]);
 
   const handleClick = (session: Session) => {
     setSelected(session);
@@ -344,8 +340,6 @@ export default function PlanningPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-serif text-2xl font-bold text-secondary">{t('planning.title')}</h1>
-
       {/* Tab switcher */}
       <div className="flex gap-2">
         <button
@@ -388,7 +382,7 @@ export default function PlanningPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs text-muted-foreground">{t('planning.filterFrom')}</Label>
                   <Input
@@ -446,35 +440,6 @@ export default function PlanningPage() {
                   </Select>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs text-muted-foreground">{t('planning.filterTimeFrom')}</Label>
-                  <Select value={timeFrom} onValueChange={(v) => setTimeFrom(v ?? 'all')}>
-                    <SelectTrigger size="sm" className="w-full border-border">
-                      <SelectValue>{timeFrom === 'all' ? t('planning.all') : timeFrom}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">{t('planning.all')}</SelectItem>
-                      {timeOptions.map((tm) => (
-                        <SelectItem key={tm} value={tm}>{tm}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs text-muted-foreground">{t('planning.filterTimeTo')}</Label>
-                  <Select value={timeTo} onValueChange={(v) => setTimeTo(v ?? 'all')}>
-                    <SelectTrigger size="sm" className="w-full border-border">
-                      <SelectValue>{timeTo === 'all' ? t('planning.all') : timeTo}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">{t('planning.all')}</SelectItem>
-                      {timeOptions.map((tm) => (
-                        <SelectItem key={tm} value={tm}>{tm}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </div>
           </Card>

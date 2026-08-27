@@ -214,8 +214,6 @@ export default function RequestsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-serif text-2xl font-bold text-secondary">{t('requests.title')}</h1>
-
       {/* Filter bar */}
       <Card className="p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end">

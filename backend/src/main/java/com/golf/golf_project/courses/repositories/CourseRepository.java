@@ -1,5 +1,6 @@
 package com.golf.golf_project.courses.repositories;
 
+import com.golf.golf_project.clubs.entities.Club;
 import com.golf.golf_project.courses.entities.Course;
 import com.golf.golf_project.courses.enums.ECStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,5 +11,7 @@ import java.util.UUID;
 public interface CourseRepository extends JpaRepository<Course, UUID> {
     Course findCourseById(UUID id);
 
+    List<Course> findCoursesByClub(Club club);
+    
     List<Course> findAllByClubIdInAndStatus(List<UUID> clubIds, ECStatus status);
 }

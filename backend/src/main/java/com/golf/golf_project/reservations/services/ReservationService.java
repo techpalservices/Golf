@@ -87,6 +87,10 @@ public class ReservationService {
                     return timeSlotRepository.save(s);
                 });
 
+        if (timeSlot.getStatus() == ETStatus.CLOSED) {
+            throw new BusinessException("This time slot is closed for reservations");
+        }
+
         // Capacity check — only PENDING + ACCEPTED reservations hold places.
         // REJECTED reservations are auditable records only and free their seats.
         int totalPlayers = timeSlot.getReservations() == null ? 0

@@ -26,6 +26,7 @@ export interface SlotAvailability {
   startTime: string; // ISO LocalDateTime
   endTime: string;
   bookedPlayers: number; // PENDING + ACCEPTED reservations
+  status?: 'OPEN' | 'CLOSED' | 'RESERVED';
 }
 
 export interface CourseAvailability {

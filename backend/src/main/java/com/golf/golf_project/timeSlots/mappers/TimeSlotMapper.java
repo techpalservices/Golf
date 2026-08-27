@@ -40,13 +40,13 @@ public class TimeSlotMapper {
     }
 
     public ManagerTimeSlotResponse toManagerPlanningResponse(TimeSlot slot) {
-        List<Reservation> accepted = slot.getReservations() == null ? List.of()
+        List<Reservation> relevant = slot.getReservations() == null ? List.of()
                 : slot.getReservations().stream()
-                .filter(r -> r.getStatus() == ERStatus.ACCEPTED)
+                .filter(r -> r.getStatus() == ERStatus.ACCEPTED || r.getStatus() == ERStatus.PENDING)
                 .toList();
 
-        int bookedPlayers = accepted.stream().mapToInt(Reservation::getNumberOfPlayers).sum();
-        List<ManagerTimeSlotResponse.PlayerRow> players = accepted.stream()
+        int bookedPlayers = relevant.stream().mapToInt(Reservation::getNumberOfPlayers).sum();
+        List<ManagerTimeSlotResponse.PlayerRow> players = relevant.stream()
                 .map(r -> new ManagerTimeSlotResponse.PlayerRow(
                         r.getId(),
                         r.getPlayer().getFirstName() + " " + r.getPlayer().getLastName(),

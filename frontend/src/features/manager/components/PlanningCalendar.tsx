@@ -14,7 +14,7 @@ const statusToClass: Record<string, string> = {
   available: 'event-variant-secondary',   // green
   partial: 'event-variant-primary',        // gold
   full: 'event-variant-destructive',       // red
-  blocked: 'event-variant-outline',        // muted
+  blocked: 'event-variant-destructive',    // red for closed/blocked slots
 };
 
 interface PlanningCalendarProps {

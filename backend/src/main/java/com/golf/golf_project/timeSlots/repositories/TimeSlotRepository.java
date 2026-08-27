@@ -22,11 +22,12 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, UUID>,
 
     @Query("SELECT ts.course.id, ts.id, ts.startTime, ts.endTime, " +
             "COALESCE(SUM(CASE WHEN r.status IN (ERStatus.ACCEPTED, ERStatus.PENDING) " +
-            "THEN r.numberOfPlayers ELSE 0 END), 0) " +
+            "THEN r.numberOfPlayers ELSE 0 END), 0), " +
+            "ts.status " +
             "FROM TimeSlot ts LEFT JOIN ts.reservations r " +
             "WHERE ts.course.id IN :courseIds " +
             "AND ts.startTime >= :startOfDay AND ts.startTime < :endOfDay " +
-            "GROUP BY ts.course.id, ts.id, ts.startTime, ts.endTime " +
+            "GROUP BY ts.course.id, ts.id, ts.startTime, ts.endTime, ts.status " +
             "ORDER BY ts.startTime ASC")
     List<Object[]> findBookedPlayersByCourseIds(
             List<UUID> courseIds, LocalDateTime startOfDay, LocalDateTime endOfDay);

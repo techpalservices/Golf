@@ -42,7 +42,7 @@ export function useManagerPlanning(filters: ManagerPlanningFilters) {
         courseId: filters.courseId || undefined,
         q: filters.q?.trim() || undefined,
         page: pageParam as number,
-        size: 20,
+        size: 10000,
       });
       return { content: res.data.data.content as ManagerPlanningSlot[], last: res.data.data.last };
     },

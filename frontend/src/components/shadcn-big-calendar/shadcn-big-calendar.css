@@ -829,6 +829,18 @@ button.rbc-input::-moz-focus-inner {
 .rbc-event.event-variant-secondary:hover {
   --event-bg: color-mix(in oklab, var(--secondary) 80%, transparent);
 }
+.rbc-event.event-variant-destructive {
+  --event-bg: #dc2626;
+  --event-color: #ffffff;
+  --event-border: #b91c1c;
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #b91c1c !important;
+}
+.rbc-event.event-variant-destructive:hover {
+  --event-bg: #b91c1c;
+  background-color: #b91c1c !important;
+}
 .rbc-event.event-variant-outline {
   --event-bg: var(--background);
   --event-color: var(--foreground);

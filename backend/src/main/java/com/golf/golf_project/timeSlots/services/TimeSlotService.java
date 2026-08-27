@@ -51,7 +51,10 @@ public class TimeSlotService {
     private final UserRepository userRepository;
 
     public void createTimeSlot(CreateTimeSlotRequest request) {
-        TimeSlot timeSlot = timeSlotMapper.toTimeSlot(request);
+        if (!courseRepository.existsById(request.courseId())) {
+            throw new IllegalArgumentException("Invalid course ID");
+        }
+        Course course = courseRepository.findCourseById(request.courseId());
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -59,11 +62,42 @@ public class TimeSlotService {
             throw new IllegalArgumentException("Not authenticated");
         }
 
-        if (!timeSlot.getCourse().getClub().getOwner().getUsername().equals(auth.getName())) {
+        if (!course.getClub().getOwner().getUsername().equals(auth.getName())) {
             throw new IllegalArgumentException("The requester must be the owner of the club");
         }
 
-        timeSlotRepository.save(timeSlot);
+        ETStatus status = request.status() != null ? request.status() : ETStatus.CLOSED;
+        LocalDateTime start = request.startTime();
+        LocalDateTime end = request.endTime() != null && request.endTime().isAfter(start)
+                ? request.endTime()
+                : start.plusMinutes(5);
+
+        // Ensure we always generate 5-minute CLOSED slots for the whole range
+        // even if slots already exist. We never shrink existing slots' end times.
+        LocalDateTime curr = start;
+        while (curr.isBefore(end)) {
+            LocalDateTime next = curr.plusMinutes(5);
+            if (next.isAfter(end)) {
+                next = end;
+            }
+
+            Optional<TimeSlot> existing = timeSlotRepository.findByCourseAndStartTime(course, curr);
+            if (existing.isPresent()) {
+                TimeSlot s = existing.get();
+                // Only update status, keep original endTime to avoid corrupting longer slots
+                s.setStatus(status);
+                timeSlotRepository.save(s);
+            } else {
+                TimeSlot s = new TimeSlot();
+                s.setCourse(course);
+                s.setStartTime(curr);
+                // Create proper 5-minute slots; final slot may be shorter if range ends mid-interval
+                s.setEndTime(next);
+                s.setStatus(status);
+                timeSlotRepository.save(s);
+            }
+            curr = next;
+        }
     }
 
     public void updateTimeSlotStatus(UpdateTimeSlotStatusRequest request) {
@@ -131,7 +165,7 @@ public class TimeSlotService {
             Root<Reservation> r = sub.from(Reservation.class);
             List<Predicate> reservationPredicates = new ArrayList<>();
             reservationPredicates.add(cb.equal(r.get("timeSlot"), root));
-            reservationPredicates.add(cb.equal(r.get("status"), ERStatus.ACCEPTED));
+            reservationPredicates.add(cb.in(r.get("status")).value(Arrays.asList(ERStatus.ACCEPTED, ERStatus.PENDING)));
             if (search != null) {
                 Expression<String> fullName = cb.concat(r.get("player").get("firstName"), " ");
                 fullName = cb.concat(fullName, r.get("player").get("lastName"));
@@ -149,7 +183,16 @@ public class TimeSlotService {
         Pageable pageable = PageRequest.of(Math.max(request.page(), 0), Math.max(request.size(), 1),
                 Sort.by(Sort.Direction.ASC, "startTime"));
 
-        return timeSlotRepository.findAll(spec, pageable).map(timeSlotMapper::toManagerPlanningResponse);
+        Page<TimeSlot> page = timeSlotRepository.findAll(spec, pageable);
+        // Filter out legacy long slots (>15 min) that were created before the 5-min granularity
+        List<ManagerTimeSlotResponse> filtered = page.getContent().stream()
+                .filter(ts -> {
+                    long minutes = java.time.Duration.between(ts.getStartTime(), ts.getEndTime()).toMinutes();
+                    return minutes > 0 && minutes <= 15;
+                })
+                .map(timeSlotMapper::toManagerPlanningResponse)
+                .toList();
+        return new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
     }
 
 
@@ -190,7 +233,8 @@ public class TimeSlotService {
                     (UUID) row[1],
                     (LocalDateTime) row[2],
                     (LocalDateTime) row[3],
-                    ((Number) row[4]).intValue());
+                    ((Number) row[4]).intValue(),
+                    (ETStatus) row[5]);
             slotsByCourse.computeIfAbsent(courseId, k -> new ArrayList<>()).add(slot);
         }
 

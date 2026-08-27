@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { Search, Clock, Calendar as CalIcon, Briefcase, Coffee } from 'lucide-react';
+import moment from 'moment';
+import { useQueryClient } from '@tanstack/react-query';
+import { Search, Clock, Calendar as CalIcon, Ban, CheckCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,8 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -19,6 +21,8 @@ import {
   useManagerPlanning,
   type ManagerPlanningSlot,
 } from '../hooks/useManagerPlanning';
+import { useDataMyClub } from '../hooks/useDataMyClub';
+import { timeSlotApi } from '@/api/endpoints/timeSlot.api';
 
 type SessionStatus = 'available' | 'partial' | 'full' | 'blocked';
 
@@ -42,7 +46,7 @@ const statusColors: Record<SessionStatus, string> = {
   available: 'bg-secondary/15 text-secondary border-secondary/30',
   partial: 'bg-primary/15 text-primary border-primary/30',
   full: 'bg-red-500/15 text-red-600 border-red-500/30',
-  blocked: 'bg-muted text-muted-foreground border-border',
+  blocked: 'bg-red-500/15 text-red-600 border-red-500/30',
 };
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -54,15 +58,15 @@ const fmtDate = (d: Date): string =>
 const isoDay = (d: Date): string =>
   `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
-// Monday..Sunday of the current week
+// Sunday..Saturday of the current week
 function currentWeekRange(): { from: string; to: string } {
   const now = new Date();
-  const day = (now.getDay() + 6) % 7; // 0 = Monday
-  const monday = new Date(now);
-  monday.setDate(now.getDate() - day);
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-  return { from: isoDay(monday), to: isoDay(sunday) };
+  const day = now.getDay(); // 0 = Sunday
+  const sunday = new Date(now);
+  sunday.setDate(now.getDate() - day);
+  const saturday = new Date(sunday);
+  saturday.setDate(sunday.getDate() + 6);
+  return { from: isoDay(sunday), to: isoDay(saturday) };
 }
 
 const fmtIso = (iso?: string): string =>
@@ -142,12 +146,12 @@ export default function PlanningPage() {
       return { from: dStr, to: dStr };
     }
     const d = new Date(calendarDate);
-    const dayOfWeek = (d.getDay() + 6) % 7; // 0 = Monday
-    const monday = new Date(d);
-    monday.setDate(d.getDate() - dayOfWeek);
-    const sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    return { from: isoDay(monday), to: isoDay(sunday) };
+    const dayOfWeek = d.getDay(); // 0 = Sunday
+    const sunday = new Date(d);
+    sunday.setDate(d.getDate() - dayOfWeek);
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
+    return { from: isoDay(sunday), to: isoDay(saturday) };
   }, [calendarDate, calendarView]);
 
   const [courseFilter, setCourseFilter] = useState('all');
@@ -179,36 +183,41 @@ export default function PlanningPage() {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
   }, hasNextPage);
 
+  const queryClient = useQueryClient();
+  const { data: myClub } = useDataMyClub();
+
   const [selected, setSelected] = useState<Session | null>(null);
   const [open, setOpen] = useState(false);
 
   const [slotDialogOpen, setSlotDialogOpen] = useState(false);
   const [pendingSlot, setPendingSlot] = useState<{ start: Date; end: Date } | null>(null);
-
-  // Local "work/break" blocks created from the calendar — kept in-memory until
-  // the create-slot API supports them without a course context.
-  const [localBlocks, setLocalBlocks] = useState<Session[]>([]);
+  const [selectedCourseForSlot, setSelectedCourseForSlot] = useState<string>('');
+  const [isClosingSlots, setIsClosingSlots] = useState(false);
+  const [isReopeningSlot, setIsReopeningSlot] = useState(false);
 
   const fetchedSlots = useMemo(
     () => data?.pages.flatMap((p) => p.content) ?? [],
     [data],
   );
 
-  // Accumulate course options (id → name) from fetched pages — never shrink
+  // Accumulate course options (id → name) from fetched pages and myClub
   const [courseOptions, setCourseOptions] = useState<Record<string, string>>({});
   useEffect(() => {
     setCourseOptions((prev) => {
       const next = { ...prev };
+      (myClub?.courses ?? []).forEach((c) => {
+        next[c.id] = c.name;
+      });
       fetchedSlots.forEach((s) => {
         next[s.courseId] = s.courseName;
       });
       return next;
     });
-  }, [fetchedSlots]);
+  }, [fetchedSlots, myClub]);
 
   const sessions: Session[] = useMemo(
-    () => [...fetchedSlots.map(deriveSession), ...localBlocks],
-    [fetchedSlots, localBlocks],
+    () => fetchedSlots.map(deriveSession),
+    [fetchedSlots],
   );
 
   // Client-side extras on the already-fetched pages
@@ -221,97 +230,115 @@ export default function PlanningPage() {
     });
   }, [sessions, statusFilter, timeFrom, timeTo]);
 
-
   const handleClick = (session: Session) => {
     setSelected(session);
     setOpen(true);
   };
 
-  // const handleEventDrop = ({ event, start, end }: { event: Session; start: Date; end: Date }) => {
-  //   setSessions((prev) =>
-  //     prev.map((s) =>
-  //       s.id === event.id
-  //         ? { ...s, start, end, time: `${String(start.getHours()).padStart(2, '0')}:00`, date: fmtDate(start) }
-  //         : s
-  //     )
-  //   );
-  // };
-
-  // const handleEventResize = ({ event, start, end }: { event: Session; start: Date; end: Date }) => {
-  //   setSessions((prev) => prev.map((s) => (s.id === event.id ? { ...s, start, end } : s)));
-  // };
-
   const handleSelectSlot = (slot: { start: Date; end: Date }) => {
     setPendingSlot(slot);
+    const defaultCourseId = courseFilter !== 'all' ? courseFilter : myClub?.courses?.[0]?.id || Object.keys(courseOptions)[0] || '';
+    setSelectedCourseForSlot(defaultCourseId);
     setSlotDialogOpen(true);
   };
 
-  const handleCreateBlock = (type: 'work' | 'break') => {
+  const handleCloseSlots = async () => {
     if (!pendingSlot) return;
-    const newSession: Session = {
-      id: `block-${Date.now()}`,
-      time: `${pad(pendingSlot.start.getHours())}:00`,
-      date: fmtDate(pendingSlot.start),
-      start: pendingSlot.start,
-      end: pendingSlot.end,
-      status: type === 'break' ? 'blocked' : 'available',
-      course: type === 'break' ? 'Pause' : 'Travail',
-      club: '',
-      price: 0,
-      players: [],
-    };
-    setLocalBlocks((prev) => [...prev, newSession]);
-    setSlotDialogOpen(false);
-    setPendingSlot(null);
-    toast.success(type === 'break' ? 'Pause créée' : 'Créneau de travail créé');
+    const courseId = selectedCourseForSlot || (courseFilter !== 'all' ? courseFilter : myClub?.courses?.[0]?.id || Object.keys(courseOptions)[0]);
+    if (!courseId) {
+      toast.error('Veuillez sélectionner un parcours');
+      return;
+    }
+
+    setIsClosingSlots(true);
+    try {
+      const startStr = moment(pendingSlot.start).format('YYYY-MM-DDTHH:mm:ss');
+      const endStr = moment(pendingSlot.end).format('YYYY-MM-DDTHH:mm:ss');
+      await timeSlotApi.createTimeSlot({
+        startTime: startStr,
+        endTime: endStr,
+        status: 'CLOSED',
+        courseId,
+      });
+      toast.success('Créneaux fermés avec succès (bloqués en rouge)');
+      setSlotDialogOpen(false);
+      setPendingSlot(null);
+      queryClient.invalidateQueries({ queryKey: ['time-slots', 'planning'] });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Erreur lors de la fermeture des créneaux');
+    } finally {
+      setIsClosingSlots(false);
+    }
+  };
+
+  const handleReopenSlot = async () => {
+    if (!selected) return;
+    setIsReopeningSlot(true);
+    try {
+      await timeSlotApi.updateTimeSlotStatus({
+        id: selected.id,
+        status: 'OPEN',
+      });
+      toast.success('Créneau rouvert aux réservations');
+      setOpen(false);
+      setSelected(null);
+      queryClient.invalidateQueries({ queryKey: ['time-slots', 'planning'] });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Erreur lors de la réouverture du créneau');
+    } finally {
+      setIsReopeningSlot(false);
+    }
   };
 
   const detailsContent = selected && (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <span className="font-serif text-lg font-bold text-secondary">{selected.date}</span>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="font-serif text-xl font-bold text-secondary">{selected.time}</div>
+          <div className="text-xs text-muted-foreground">{selected.date} • {selected.course}</div>
         </div>
         <Badge className={`border ${statusColors[selected.status]}`}>
           {t(`planning.status.${selected.status}`)}
         </Badge>
       </div>
+
       <Separator />
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
-          <span className="text-xs text-muted-foreground">{t('planning.details.course')}</span>
-          <span className="text-sm font-semibold text-secondary">{selected.course}</span>
+
+      {selected.players.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <span className="text-xs font-medium tracking-widest text-primary">{t('planning.details.players')}</span>
+          <div className="flex -space-x-2">
+            {selected.players.slice(0, 6).map((p) => (
+              <Avatar key={p.initials} size="sm" className="ring-2 ring-surface">
+                <AvatarFallback className="bg-primary/15 text-[10px] text-primary">{p.initials}</AvatarFallback>
+              </Avatar>
+            ))}
+            {selected.players.length > 6 && (
+              <div className="flex size-6 items-center justify-center rounded-full bg-muted text-[10px] text-muted-foreground ring-2 ring-surface">+{selected.players.length - 6}</div>
+            )}
+          </div>
+          <div className="text-xs text-muted-foreground">{selected.players.length} joueur{selected.players.length > 1 ? 's' : ''} • {selected.price} MAD</div>
         </div>
-        <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
-          <span className="text-xs text-muted-foreground">{t('planning.details.club')}</span>
-          <span className="text-sm font-semibold text-secondary">{selected.club}</span>
-        </div>
-        <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
-          <span className="text-xs text-muted-foreground">{t('planning.details.price')}</span>
-          <span className="text-sm font-semibold text-primary">{selected.price} MAD</span>
-        </div>
-        {selected.contact && (
-          <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
-            <span className="text-xs text-muted-foreground">{t('planning.details.contact')}</span>
-            <span className="text-sm font-semibold text-secondary">{selected.contact}</span>
+      ) : (
+        <div className="text-sm text-muted-foreground">Aucune réservation pour ce créneau.</div>
+      )}
+
+      <div className="pt-2 border-t border-border">
+        {selected.status === 'blocked' ? (
+          <Button
+            className="w-full gap-2 bg-secondary text-white hover:bg-secondary/90"
+            onClick={handleReopenSlot}
+            disabled={isReopeningSlot}
+          >
+            <CheckCircle size={16} />
+            {isReopeningSlot ? 'Réouverture...' : 'Ouvrir / Débloquer ce créneau'}
+          </Button>
+        ) : (
+          <div className="text-xs text-muted-foreground text-center">
+            Créneau disponible. Utilisez le calendrier pour le fermer.
           </div>
         )}
       </div>
-      {selected.players.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <span className="text-xs font-medium tracking-widest text-primary">{t('planning.details.players')}</span>
-          <div className="flex flex-col gap-2">
-            {selected.players.map((p) => (
-              <div key={p.initials} className="flex items-center gap-2">
-                <Avatar size="sm">
-                  <AvatarFallback className="bg-primary/15 text-xs text-primary">{p.initials}</AvatarFallback>
-                </Avatar>
-                <span className="text-sm text-secondary">{p.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 
@@ -539,33 +566,60 @@ export default function PlanningPage() {
         </Drawer>
       )}
 
-      {/* Slot creation dialog */}
+      {/* Slot creation / blocking dialog */}
       <Dialog open={slotDialogOpen} onOpenChange={setSlotDialogOpen}>
-        <DialogContent className="sm:max-w-sm bg-surface">
+        <DialogContent className="sm:max-w-md bg-surface">
           <DialogHeader>
             <DialogTitle className="font-serif text-lg font-bold text-secondary">
-              {pendingSlot && `${String(pendingSlot.start.getHours()).padStart(2, '0')}:00 — ${String(pendingSlot.end.getHours()).padStart(2, '0')}:00`}
+              Fermer les créneaux (Bloquer)
             </DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-3">
-            <p className="text-sm text-muted-foreground">Créer un créneau :</p>
-            <div className="flex gap-3">
-              <Button
-                className="flex-1 gap-2 bg-secondary text-white hover:bg-secondary/80"
-                onClick={() => handleCreateBlock('work')}
-              >
-                <Briefcase size={16} />
-                Travail
-              </Button>
-              <Button
-                className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                onClick={() => handleCreateBlock('break')}
-              >
-                <Coffee size={16} />
-                Pause
-              </Button>
+          <div className="flex flex-col gap-4 py-2">
+            {pendingSlot && (
+              <div className="rounded-lg border border-border p-3 flex flex-col gap-1 bg-muted/30">
+                <span className="text-xs text-muted-foreground">Période sélectionnée :</span>
+                <span className="font-serif text-sm font-semibold text-secondary">
+                  {moment(pendingSlot.start).format('DD/MM/YYYY')} de {moment(pendingSlot.start).format('HH:mm')} à {moment(pendingSlot.end).format('HH:mm')}
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  Des créneaux fermés de 5 minutes seront créés pour bloquer toute réservation sur cette période.
+                </span>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs font-medium text-secondary">Parcours concerné</Label>
+              <Select value={selectedCourseForSlot} onValueChange={setSelectedCourseForSlot}>
+                <SelectTrigger size="sm" className="w-full border-border">
+                  <SelectValue placeholder="Sélectionner un parcours">
+                    {courseOptions[selectedCourseForSlot] ?? selectedCourseForSlot ?? 'Sélectionner un parcours'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(courseOptions).map(([id, name]) => (
+                    <SelectItem key={id} value={id}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setSlotDialogOpen(false)}
+              disabled={isClosingSlots}
+            >
+              Annuler
+            </Button>
+            <Button
+              className="gap-2 bg-destructive text-white hover:bg-destructive/90"
+              onClick={handleCloseSlots}
+              disabled={isClosingSlots}
+            >
+              <Ban size={16} />
+              {isClosingSlots ? 'Fermeture en cours...' : 'Fermer les créneaux'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

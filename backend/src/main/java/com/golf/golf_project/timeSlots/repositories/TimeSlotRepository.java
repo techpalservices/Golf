@@ -3,6 +3,7 @@ package com.golf.golf_project.timeSlots.repositories;
 import com.golf.golf_project.courses.entities.Course;
 import com.golf.golf_project.timeSlots.entities.TimeSlot;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
@@ -10,7 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface TimeSlotRepository extends JpaRepository<TimeSlot, UUID> {
+public interface TimeSlotRepository extends JpaRepository<TimeSlot, UUID>,
+        JpaSpecificationExecutor<TimeSlot> {
     TimeSlot findTimeSlotById(UUID id);
 
     Optional<TimeSlot> findByCourseAndStartTime(Course course, LocalDateTime startTime);

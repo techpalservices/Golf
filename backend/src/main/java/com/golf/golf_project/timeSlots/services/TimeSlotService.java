@@ -7,18 +7,28 @@ import com.golf.golf_project.courses.dto.response.GetCoursesDataResponse;
 import com.golf.golf_project.courses.entities.Course;
 import com.golf.golf_project.courses.enums.ECStatus;
 import com.golf.golf_project.courses.repositories.CourseRepository;
+import com.golf.golf_project.reservations.entities.Reservation;
 import com.golf.golf_project.reservations.enums.ERStatus;
 import com.golf.golf_project.reservations.repositories.ReservationRepository;
 import com.golf.golf_project.timeSlots.dto.requests.CreateTimeSlotRequest;
+import com.golf.golf_project.timeSlots.dto.requests.SearchManagerTimeSlotsRequest;
 import com.golf.golf_project.timeSlots.dto.requests.SearchTimeSlotsRequest;
 import com.golf.golf_project.timeSlots.dto.requests.UpdateTimeSlotStatusRequest;
 import com.golf.golf_project.timeSlots.dto.responses.GetTimeSlotsDataResponse;
+import com.golf.golf_project.timeSlots.dto.responses.ManagerTimeSlotResponse;
 import com.golf.golf_project.timeSlots.entities.TimeSlot;
+import com.golf.golf_project.timeSlots.enums.ETStatus;
 import com.golf.golf_project.timeSlots.mappers.TimeSlotMapper;
 import com.golf.golf_project.timeSlots.repositories.TimeSlotRepository;
+import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -72,6 +82,74 @@ public class TimeSlotService {
 
         timeSlot.setStatus(request.status());
         timeSlotRepository.save(timeSlot);
+    }
+
+    /**
+     * Manager daily planning: returns only "relevant" slots — CLOSED or RESERVED
+     * ones, or slots holding ACCEPTED reservations (pending ones are not
+     * confirmed yet and stay out of the planning). Filters are dynamic
+     * database-side predicates via Specifications.
+     */
+    @Transactional(readOnly = true)
+    public Page<ManagerTimeSlotResponse> getManagerPlanning(SearchManagerTimeSlotsRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            throw new IllegalArgumentException("Not authenticated");
+        }
+
+        User manager = userRepository.findUserByUsername(auth.getName());
+        if (!manager.getRole().getName().equals("ROLE_MANAGER")) {
+            throw new IllegalArgumentException("User must be manager");
+        }
+
+        final LocalDateTime from = request.dateFrom() == null ? null : request.dateFrom().atStartOfDay();
+        final LocalDateTime to = request.dateTo() == null ? null : request.dateTo().plusDays(1).atStartOfDay();
+        final UUID courseId = request.courseId();
+        final String search = request.q() == null || request.q().isBlank() ? null : "%" + request.q().trim().toLowerCase() + "%";
+
+        Specification<TimeSlot> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Only slots of courses belonging to clubs owned by this manager
+            predicates.add(cb.equal(
+                    root.get("course").get("club").get("owner").get("id"),
+                    manager.getId()));
+
+            if (from != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("startTime"), from));
+            }
+            if (to != null) {
+                predicates.add(cb.lessThan(root.get("startTime"), to));
+            }
+            if (courseId != null) {
+                predicates.add(cb.equal(root.get("course").get("id"), courseId));
+            }
+
+            // Relevant-slot rule: closed/reserved OR has matching ACCEPTED reservations.
+            Subquery<Integer> sub = query.subquery(Integer.class);
+            Root<Reservation> r = sub.from(Reservation.class);
+            List<Predicate> reservationPredicates = new ArrayList<>();
+            reservationPredicates.add(cb.equal(r.get("timeSlot"), root));
+            reservationPredicates.add(cb.equal(r.get("status"), ERStatus.ACCEPTED));
+            if (search != null) {
+                Expression<String> fullName = cb.concat(r.get("player").get("firstName"), " ");
+                fullName = cb.concat(fullName, r.get("player").get("lastName"));
+                reservationPredicates.add(cb.like(cb.lower(fullName), search));
+            }
+            sub.select(cb.literal(1)).where(reservationPredicates.toArray(new Predicate[0]));
+
+            predicates.add(cb.or(
+                    root.get("status").in(Arrays.asList(ETStatus.CLOSED, ETStatus.RESERVED)),
+                    cb.exists(sub)));
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Pageable pageable = PageRequest.of(Math.max(request.page(), 0), Math.max(request.size(), 1),
+                Sort.by(Sort.Direction.ASC, "startTime"));
+
+        return timeSlotRepository.findAll(spec, pageable).map(timeSlotMapper::toManagerPlanningResponse);
     }
 
 

@@ -377,6 +377,8 @@
     "search": "Search",
     "searchPlaceholder": "Ex: Ahmed, Massy...",
     "filterDate": "Date",
+    "filterFrom": "From",
+    "filterTo": "To",
     "filterStatus": "Status",
     "filterCourse": "Course",
     "filterTimeFrom": "From",

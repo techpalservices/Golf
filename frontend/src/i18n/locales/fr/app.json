@@ -385,6 +385,8 @@
     "search": "Rechercher",
     "searchPlaceholder": "Ex : Ahmed, Massy...",
     "filterDate": "Date",
+    "filterFrom": "Du",
+    "filterTo": "Au",
     "filterStatus": "Statut",
     "filterCourse": "Parcours",
     "filterTimeFrom": "De",

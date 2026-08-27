@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Search, Clock, Calendar as CalIcon, Briefcase, Coffee } from 'lucide-react';
@@ -13,7 +13,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import PlanningCalendar from '../components/PlanningCalendar';
+import {
+  useManagerPlanning,
+  type ManagerPlanningSlot,
+} from '../hooks/useManagerPlanning';
 
 type SessionStatus = 'available' | 'partial' | 'full' | 'blocked';
 
@@ -40,31 +45,67 @@ const statusColors: Record<SessionStatus, string> = {
   blocked: 'bg-muted text-muted-foreground border-border',
 };
 
-function makeDate(dayOffset: number, hour: number): Date {
-  const today = new Date();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-  const d = new Date(monday);
-  d.setDate(monday.getDate() + dayOffset);
-  d.setHours(hour, 0, 0, 0);
-  return d;
+const pad = (n: number) => String(n).padStart(2, '0');
+
+const fmtDate = (d: Date): string =>
+  `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+
+// ISO (YYYY-MM-DD) day-string for a date
+const isoDay = (d: Date): string =>
+  `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+// Monday..Sunday of the current week
+function currentWeekRange(): { from: string; to: string } {
+  const now = new Date();
+  const day = (now.getDay() + 6) % 7; // 0 = Monday
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - day);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  return { from: isoDay(monday), to: isoDay(sunday) };
 }
 
-function fmtDate(d: Date): string {
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-}
+const fmtIso = (iso?: string): string =>
+  iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : '';
 
-const mockSessions: Session[] = [
-  { id: '1', time: '07:00', date: fmtDate(makeDate(0, 7)), start: makeDate(0, 7), end: makeDate(0, 8), status: 'full', course: 'Parcours Massy', club: 'Royal Golf', price: 500, players: [{ name: 'Ahmed B.', initials: 'AB' }, { name: 'Sara M.', initials: 'SM' }, { name: 'Karim E.', initials: 'KE' }, { name: 'Nadia L.', initials: 'NL' }], contact: '+212 6 12 34 56' },
-  { id: '2', time: '09:00', date: fmtDate(makeDate(0, 9)), start: makeDate(0, 9), end: makeDate(0, 10), status: 'partial', course: 'Parcours Massy', club: 'Royal Golf', price: 500, players: [{ name: 'Youssef K.', initials: 'YK' }, { name: 'Omar F.', initials: 'OF' }], contact: '+212 6 98 76 54' },
-  { id: '3', time: '11:00', date: fmtDate(makeDate(1, 11)), start: makeDate(1, 11), end: makeDate(1, 12), status: 'full', course: 'Parcours Palmeraie', club: 'Royal Golf', price: 300, players: [{ name: 'Hassan T.', initials: 'HT' }, { name: 'Imane R.', initials: 'IR' }, { name: 'Said M.', initials: 'SM' }, { name: 'Leila A.', initials: 'LA' }] },
-  { id: '4', time: '08:00', date: fmtDate(makeDate(2, 8)), start: makeDate(2, 8), end: makeDate(2, 9), status: 'partial', course: 'Parcours Massy', club: 'Royal Golf', price: 500, players: [{ name: 'Reda B.', initials: 'RB' }] },
-  { id: '5', time: '14:00', date: fmtDate(makeDate(2, 14)), start: makeDate(2, 14), end: makeDate(2, 15), status: 'blocked', course: 'Parcours Massy', club: 'Royal Golf', price: 500, players: [] },
-  { id: '6', time: '10:00', date: fmtDate(makeDate(3, 10)), start: makeDate(3, 10), end: makeDate(3, 11), status: 'available', course: 'Parcours Palmeraie', club: 'Royal Golf', price: 300, players: [] },
-  { id: '7', time: '13:00', date: fmtDate(makeDate(4, 13)), start: makeDate(4, 13), end: makeDate(4, 14), status: 'partial', course: 'Parcours Massy', club: 'Royal Golf', price: 500, players: [{ name: 'Anas H.', initials: 'AH' }, { name: 'Meryem C.', initials: 'MC' }, { name: 'Youssef K.', initials: 'YK' }] },
-  { id: '8', time: '09:00', date: fmtDate(makeDate(5, 9)), start: makeDate(5, 9), end: makeDate(5, 10), status: 'full', course: 'Parcours Massy', club: 'Royal Golf', price: 500, players: [{ name: 'Ahmed B.', initials: 'AB' }, { name: 'Sara M.', initials: 'SM' }, { name: 'Karim E.', initials: 'KE' }, { name: 'Nadia L.', initials: 'NL' }] },
-  { id: '9', time: '15:00', date: fmtDate(makeDate(6, 15)), start: makeDate(6, 15), end: makeDate(6, 16), status: 'available', course: 'Parcours Palmeraie', club: 'Royal Golf', price: 300, players: [] },
-];
+const initialsOf = (name: string) =>
+  name
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+// Map an API slot to the display model used by both tabs.
+// NOTE: booked slots created via the booking flow can have a very short
+// duration (e.g. 5 min), which makes them near-invisible in the calendar grid.
+// Since this is "planning of the day", each slot is rendered as a fixed 1-hour
+// block so every reservation is clearly visible in both list and calendar.
+function deriveSession(s: ManagerPlanningSlot): Session {
+  const start = new Date(s.startTime);
+  let status: SessionStatus;
+  if (s.status === 'CLOSED') status = 'blocked';
+  else if (s.bookedPlayers >= 4) status = 'full';
+  else if (s.bookedPlayers > 0 || s.status === 'RESERVED') status = 'partial';
+  else status = 'available';
+
+  return {
+    id: s.id,
+    time: s.startTime.slice(11, 16),
+    date: fmtIso(s.startTime),
+    start,
+    end: new Date(start.getTime() + 60 * 60 * 1000), // fixed 1-hour display block
+    status,
+    course: s.courseName ?? '',
+    club: '',
+    price: Number(s.greenFee ?? 0),
+    players: s.players.map((p) => ({
+      name: p.playerName,
+      initials: initialsOf(p.playerName),
+    })),
+    contact: s.players.find((p) => p.phone)?.phone,
+  };
+}
 
 const timeOptions = ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
 
@@ -74,14 +115,52 @@ export default function PlanningPage() {
   const { t } = useTranslation('app');
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const [tab, setTab] = useState<TabId>('sessions');
-  const [sessions, setSessions] = useState<Session[]>(mockSessions);
 
+  // ── Server-driven filters ────────────────────────────────────────
+  const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
-  const [dateFilter, setDateFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+  // Debounce search input (500ms delay)
+  useEffect(() => {
+    const id = setTimeout(() => setSearch(searchInput.trim()), 500);
+    return () => clearTimeout(id);
+  }, [searchInput]);
+
+  // Date range for the list tab
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  // Range driven by calendar navigation in the calendar tab — initialized to
+  // the current week so the initial load (and Today/Back/Next) shows today.
+  const [calendarRange, setCalendarRange] = useState<{ from?: string; to?: string }>(() => currentWeekRange());
+
   const [courseFilter, setCourseFilter] = useState('all');
+
+  // ── Client-side-only filters (small data volume per query) ───────
+  const [statusFilter, setStatusFilter] = useState('all');
   const [timeFrom, setTimeFrom] = useState('all');
   const [timeTo, setTimeTo] = useState('all');
+
+  const activeFilters = tab === 'calendar'
+    ? {
+        q: search,
+        courseId: courseFilter === 'all' ? undefined : courseFilter,
+        dateFrom: calendarRange.from,
+        dateTo: calendarRange.to,
+      }
+    : {
+        q: search,
+        courseId: courseFilter === 'all' ? undefined : courseFilter,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
+      };
+
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useManagerPlanning(activeFilters);
+
+  // Infinite scroll sentinel — lazy loads the next page at the bottom of the list
+  const loadMoreRef = useInfiniteScroll(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, hasNextPage);
 
   const [selected, setSelected] = useState<Session | null>(null);
   const [open, setOpen] = useState(false);
@@ -89,24 +168,42 @@ export default function PlanningPage() {
   const [slotDialogOpen, setSlotDialogOpen] = useState(false);
   const [pendingSlot, setPendingSlot] = useState<{ start: Date; end: Date } | null>(null);
 
-  const courses = useMemo(() => ['all', ...Array.from(new Set(mockSessions.map((s) => s.course)))], []);
-  const dates = useMemo(() => ['all', ...Array.from(new Set(mockSessions.map((s) => s.date)))], []);
+  // Local "work/break" blocks created from the calendar — kept in-memory until
+  // the create-slot API supports them without a course context.
+  const [localBlocks, setLocalBlocks] = useState<Session[]>([]);
 
+  const fetchedSlots = useMemo(
+    () => data?.pages.flatMap((p) => p.content) ?? [],
+    [data],
+  );
+
+  // Accumulate course options (id → name) from fetched pages — never shrink
+  const [courseOptions, setCourseOptions] = useState<Record<string, string>>({});
+  useEffect(() => {
+    setCourseOptions((prev) => {
+      const next = { ...prev };
+      fetchedSlots.forEach((s) => {
+        next[s.courseId] = s.courseName;
+      });
+      return next;
+    });
+  }, [fetchedSlots]);
+
+  const sessions: Session[] = useMemo(
+    () => [...fetchedSlots.map(deriveSession), ...localBlocks],
+    [fetchedSlots, localBlocks],
+  );
+
+  // Client-side extras on the already-fetched pages
   const filtered = useMemo(() => {
     return sessions.filter((s) => {
-      if (search) {
-        const q = search.toLowerCase();
-        const match = s.course.toLowerCase().includes(q) || s.players.some((p) => p.name.toLowerCase().includes(q));
-        if (!match) return false;
-      }
-      if (dateFilter !== 'all' && s.date !== dateFilter) return false;
       if (statusFilter !== 'all' && s.status !== statusFilter) return false;
-      if (courseFilter !== 'all' && s.course !== courseFilter) return false;
       if (timeFrom !== 'all' && s.time < timeFrom) return false;
       if (timeTo !== 'all' && s.time > timeTo) return false;
       return true;
     });
-  }, [sessions, search, dateFilter, statusFilter, courseFilter, timeFrom, timeTo]);
+  }, [sessions, statusFilter, timeFrom, timeTo]);
+
 
   const handleClick = (session: Session) => {
     setSelected(session);
@@ -136,17 +233,17 @@ export default function PlanningPage() {
     if (!pendingSlot) return;
     const newSession: Session = {
       id: `block-${Date.now()}`,
-      time: `${String(pendingSlot.start.getHours()).padStart(2, '0')}:00`,
+      time: `${pad(pendingSlot.start.getHours())}:00`,
       date: fmtDate(pendingSlot.start),
       start: pendingSlot.start,
       end: pendingSlot.end,
       status: type === 'break' ? 'blocked' : 'available',
       course: type === 'break' ? 'Pause' : 'Travail',
-      club: 'Royal Golf',
+      club: '',
       price: 0,
       players: [],
     };
-    setSessions((prev) => [...prev, newSession]);
+    setLocalBlocks((prev) => [...prev, newSession]);
     setSlotDialogOpen(false);
     setPendingSlot(null);
     toast.success(type === 'break' ? 'Pause créée' : 'Créneau de travail créé');
@@ -156,8 +253,7 @@ export default function PlanningPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <span className="font-serif text-lg font-bold text-secondary">{selected.time}</span>
-          <span className="text-sm text-muted-foreground">{selected.date}</span>
+          <span className="font-serif text-lg font-bold text-secondary">{selected.date}</span>
         </div>
         <Badge className={`border ${statusColors[selected.status]}`}>
           {t(`planning.status.${selected.status}`)}
@@ -241,33 +337,41 @@ export default function PlanningPage() {
               <div className="relative">
                 <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
                 <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   placeholder={t('planning.searchPlaceholder')}
                   className="pl-10 border-primary placeholder:text-secondary"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <div className="flex flex-col gap-1">
-                  <Label className="text-xs text-muted-foreground">{t('planning.filterDate')}</Label>
-                  <Select value={dateFilter} onValueChange={(v) => setDateFilter(v ?? 'all')}>
-                    <SelectTrigger size="sm" className="w-full border-border">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {dates.map((d) => (
-                        <SelectItem key={d} value={d}>{d === 'all' ? t('planning.all') : d}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label className="text-xs text-muted-foreground">{t('planning.filterFrom')}</Label>
+                  <Input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                    className="border-border"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs text-muted-foreground">{t('planning.filterTo')}</Label>
+                  <Input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                    className="border-border"
+                  />
                 </div>
 
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs text-muted-foreground">{t('planning.filterStatus')}</Label>
                   <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
                     <SelectTrigger size="sm" className="w-full border-border">
-                      <SelectValue />
+                      <SelectValue>
+                        {statusFilter === 'all' ? t('planning.all') : t(`planning.status.${statusFilter}`)}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t('planning.all')}</SelectItem>
@@ -283,11 +387,16 @@ export default function PlanningPage() {
                   <Label className="text-xs text-muted-foreground">{t('planning.filterCourse')}</Label>
                   <Select value={courseFilter} onValueChange={(v) => setCourseFilter(v ?? 'all')}>
                     <SelectTrigger size="sm" className="w-full border-border">
-                      <SelectValue />
+                      <SelectValue>
+                        {courseFilter === 'all'
+                          ? t('planning.allCourses')
+                          : courseOptions[courseFilter] ?? courseFilter}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {courses.map((c) => (
-                        <SelectItem key={c} value={c}>{c === 'all' ? t('planning.allCourses') : c}</SelectItem>
+                      <SelectItem value="all">{t('planning.allCourses')}</SelectItem>
+                      {Object.entries(courseOptions).map(([id, name]) => (
+                        <SelectItem key={id} value={id}>{name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -297,7 +406,7 @@ export default function PlanningPage() {
                   <Label className="text-xs text-muted-foreground">{t('planning.filterTimeFrom')}</Label>
                   <Select value={timeFrom} onValueChange={(v) => setTimeFrom(v ?? 'all')}>
                     <SelectTrigger size="sm" className="w-full border-border">
-                      <SelectValue />
+                      <SelectValue>{timeFrom === 'all' ? t('planning.all') : timeFrom}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t('planning.all')}</SelectItem>
@@ -312,7 +421,7 @@ export default function PlanningPage() {
                   <Label className="text-xs text-muted-foreground">{t('planning.filterTimeTo')}</Label>
                   <Select value={timeTo} onValueChange={(v) => setTimeTo(v ?? 'all')}>
                     <SelectTrigger size="sm" className="w-full border-border">
-                      <SelectValue />
+                      <SelectValue>{timeTo === 'all' ? t('planning.all') : timeTo}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t('planning.all')}</SelectItem>
@@ -328,7 +437,9 @@ export default function PlanningPage() {
 
           {/* Sessions list */}
           <div className="flex flex-col gap-2">
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">Chargement...</p>
+            ) : filtered.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">{t('planning.noSessions')}</p>
             ) : (
               filtered.map((s) => (
@@ -365,14 +476,22 @@ export default function PlanningPage() {
                 </div>
               ))
             )}
+
+            {/* Lazy loading sentinel */}
+            <div ref={loadMoreRef} className="py-4">
+              {isFetchingNextPage && (
+                <p className="text-center text-sm text-muted-foreground">Chargement...</p>
+              )}
+            </div>
           </div>
         </div>
       ) : (
         <PlanningCalendar
-  sessions={sessions}
-  onSelectEvent={handleClick}
-  onSelectSlot={handleSelectSlot}
-/>
+          sessions={sessions}
+          onSelectEvent={handleClick}
+          onSelectSlot={handleSelectSlot}
+          onDateRangeChange={(from, to) => setCalendarRange({ from, to })}
+        />
       )}
 
       {/* Details dialog/drawer */}

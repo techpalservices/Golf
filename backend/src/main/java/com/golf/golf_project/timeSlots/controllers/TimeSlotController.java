@@ -2,6 +2,7 @@ package com.golf.golf_project.timeSlots.controllers;
 
 import com.golf.golf_project.exeptions.dto.ApiResponse;
 import com.golf.golf_project.timeSlots.dto.requests.CreateTimeSlotRequest;
+import com.golf.golf_project.timeSlots.dto.requests.SearchManagerTimeSlotsRequest;
 import com.golf.golf_project.timeSlots.dto.requests.SearchTimeSlotsRequest;
 import com.golf.golf_project.timeSlots.dto.requests.UpdateTimeSlotStatusRequest;
 import com.golf.golf_project.timeSlots.services.TimeSlotService;
@@ -24,6 +25,16 @@ public class TimeSlotController {
     ) {
         return ResponseEntity.ok(
                 ApiResponse.success(timeSlotService.searchTimeSlots(request))
+        );
+    }
+
+    @PreAuthorize("hasRole('MANAGER')")
+    @PostMapping("/manager")
+    public ResponseEntity<?> managerPlanning(
+            @RequestBody SearchManagerTimeSlotsRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(timeSlotService.getManagerPlanning(request))
         );
     }
 

@@ -864,3 +864,17 @@ button.rbc-input::-moz-focus-inner {
   align-items: center;
   justify-content: center;
 }
+
+/* ═══ Manager planning: clearer, bolder grid lines ═══ */
+.rbc-day-slot .rbc-timeslot-group {
+  border-bottom: 2px solid var(--border);
+}
+.rbc-time-content {
+  border-top: 2px solid var(--border);
+}
+.rbc-time-header {
+  border-bottom: 2px solid var(--border);
+}
+.rbc-day-slot .rbc-time-slot.rbc-now {
+  background: var(--muted);
+}

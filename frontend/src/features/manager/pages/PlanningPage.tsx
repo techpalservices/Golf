@@ -77,10 +77,6 @@ const initialsOf = (name: string) =>
     .toUpperCase();
 
 // Map an API slot to the display model used by both tabs.
-// NOTE: booked slots created via the booking flow can have a very short
-// duration (e.g. 5 min), which makes them near-invisible in the calendar grid.
-// Since this is "planning of the day", each slot is rendered as a fixed 1-hour
-// block so every reservation is clearly visible in both list and calendar.
 function deriveSession(s: ManagerPlanningSlot): Session {
   const start = new Date(s.startTime);
   let status: SessionStatus;
@@ -89,12 +85,18 @@ function deriveSession(s: ManagerPlanningSlot): Session {
   else if (s.bookedPlayers > 0 || s.status === 'RESERVED') status = 'partial';
   else status = 'available';
 
+  // Use slot endTime if present and valid, otherwise fallback to start + 30 min
+  let end = s.endTime ? new Date(s.endTime) : new Date(start.getTime() + 30 * 60 * 1000);
+  if (isNaN(end.getTime()) || end.getTime() <= start.getTime()) {
+    end = new Date(start.getTime() + 30 * 60 * 1000);
+  }
+
   return {
     id: s.id,
     time: s.startTime.slice(11, 16),
     date: fmtIso(s.startTime),
     start,
-    end: new Date(start.getTime() + 60 * 60 * 1000), // fixed 1-hour display block
+    end,
     status,
     course: s.courseName ?? '',
     club: '',
@@ -129,9 +131,24 @@ export default function PlanningPage() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
-  // Range driven by calendar navigation in the calendar tab — initialized to
-  // the current week so the initial load (and Today/Back/Next) shows today.
-  const [calendarRange, setCalendarRange] = useState<{ from?: string; to?: string }>(() => currentWeekRange());
+  // Controlled date and view for calendar tab
+  const [calendarDate, setCalendarDate] = useState<Date>(() => new Date());
+  const [calendarView, setCalendarView] = useState<'week' | 'day'>(() => (isDesktop ? 'week' : 'day'));
+
+  // Calculate date range for calendar tab
+  const calendarRange = useMemo(() => {
+    if (calendarView === 'day') {
+      const dStr = isoDay(calendarDate);
+      return { from: dStr, to: dStr };
+    }
+    const d = new Date(calendarDate);
+    const dayOfWeek = (d.getDay() + 6) % 7; // 0 = Monday
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - dayOfWeek);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    return { from: isoDay(monday), to: isoDay(sunday) };
+  }, [calendarDate, calendarView]);
 
   const [courseFilter, setCourseFilter] = useState('all');
 
@@ -488,9 +505,12 @@ export default function PlanningPage() {
       ) : (
         <PlanningCalendar
           sessions={sessions}
+          date={calendarDate}
+          view={calendarView}
+          onNavigate={setCalendarDate}
+          onView={setCalendarView}
           onSelectEvent={handleClick}
           onSelectSlot={handleSelectSlot}
-          onDateRangeChange={(from, to) => setCalendarRange({ from, to })}
         />
       )}
 

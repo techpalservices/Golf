@@ -19,6 +19,10 @@ export function notificationLink(type: string): string {
     case 'MEMBERSHIP_APPROVED':
     case 'MEMBERSHIP_REJECTED':
       return '/my-clubs';
+    case 'RESERVATION_REQUESTED':
+      return '/requests';
+    case 'MEMBERSHIP_REQUESTED':
+      return '/members';
     case 'TOURNAMENT_ANNOUNCED':
     case 'TOURNAMENT_CANCELLED':
     case 'TOURNAMENT_STARTED':

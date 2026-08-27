@@ -7,6 +7,8 @@ import com.golf.golf_project.exeptions.entities.BusinessException;
 import com.golf.golf_project.exeptions.entities.ResourceNotFoundException;
 import com.golf.golf_project.memberships.entities.Membership;
 import com.golf.golf_project.memberships.enums.EMStatus;
+import com.golf.golf_project.notifications.enums.ENotificationType;
+import com.golf.golf_project.notifications.services.NotificationService;
 import com.golf.golf_project.reservations.dto.requests.CreateReservationRequest;
 import com.golf.golf_project.reservations.dto.requests.UpdateReservationStatusRequest;
 import com.golf.golf_project.reservations.dto.responses.ManagerReservationResponse;
@@ -47,7 +49,9 @@ public class ReservationService {
     private final TimeSlotRepository timeSlotRepository;
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
+    private final NotificationService notificationService;
 
+    @Transactional
     public void createReservation(CreateReservationRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser"))
@@ -109,6 +113,33 @@ public class ReservationService {
         reservation.setNumberOfPlayers(request.numberOfPlayers());
         reservation.setPlayer(player);
         reservationRepository.save(reservation);
+
+        // ── Notifications ────────────────────────────────────────────────
+        User clubOwner = course.getClub().getOwner();
+        String playerFullName = player.getFirstName() + " " + player.getLastName();
+
+        // Notify the manager that a new reservation arrived
+        if (clubOwner != null) {
+            notificationService.send(
+                    clubOwner,
+                    isActiveMember ? "Nouvelle réservation confirmée" : "Nouvelle demande de réservation",
+                    playerFullName + " a " + (isActiveMember ? "réservé" : "demandé") + " le parcours "
+                            + course.getName() + " le " + bookingDate + " à "
+                            + request.startTime().toLocalTime() + " (" + request.numberOfPlayers()
+                            + " joueur(s)).",
+                    ENotificationType.RESERVATION_REQUESTED);
+        }
+
+        // Members booked instantly → confirm it to them right away
+        if (isActiveMember) {
+            notificationService.send(
+                    player,
+                    "Réservation confirmée",
+                    "Votre réservation au " + course.getClub().getName() + " le "
+                            + bookingDate + " à " + request.startTime().toLocalTime()
+                            + " est confirmée. Merci de votre fidélité, vous êtes membre !",
+                    ENotificationType.RESERVATION_CONFIRMED);
+        }
     }
 
     /**
@@ -140,6 +171,13 @@ public class ReservationService {
         if (request.status() == ERStatus.REJECTED) {
             reservation.setStatus(ERStatus.REJECTED);
             reservationRepository.save(reservation);
+
+            notificationService.send(
+                    reservation.getPlayer(),
+                    "Réservation refusée",
+                    "Votre demande de réservation au " + club.getName() + " le "
+                            + reservation.getTimeSlot().getStartTime().toLocalDate() + " a été refusée par le club.",
+                    ENotificationType.RESERVATION_REJECTED);
             return 0;
         }
 
@@ -162,6 +200,14 @@ public class ReservationService {
             reservation.setStatus(ERStatus.ACCEPTED);
             reservationRepository.save(reservation);
 
+            notificationService.send(
+                    reservation.getPlayer(),
+                    "Réservation confirmée",
+                    "Bonne nouvelle ! Votre demande de réservation au " + club.getName() + " le "
+                            + timeSlot.getStartTime().toLocalDate() + " à "
+                            + timeSlot.getStartTime().toLocalTime() + " a été acceptée par le club.",
+                    ENotificationType.RESERVATION_CONFIRMED);
+
             // Auto-reject pendings that no longer fit in the remaining seats (FIFO order)
             int remainingAfter = remaining - reservation.getNumberOfPlayers();
             List<Reservation> pendings = reservationRepository
@@ -171,6 +217,14 @@ public class ReservationService {
                 if (pending.getNumberOfPlayers() > remainingAfter) {
                     pending.setStatus(ERStatus.REJECTED);
                     autoRejected++;
+
+                    notificationService.send(
+                            pending.getPlayer(),
+                            "Réservation refusée",
+                            "Votre demande de réservation au " + club.getName() + " le "
+                                    + timeSlot.getStartTime().toLocalDate() + " a été refusée : "
+                                    + "il ne reste plus assez de places sur ce créneau.",
+                            ENotificationType.RESERVATION_REJECTED);
                 }
             }
             reservationRepository.saveAll(pendings);

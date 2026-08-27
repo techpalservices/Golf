@@ -10,6 +10,8 @@ import com.golf.golf_project.memberships.enums.EMRStatus;
 import com.golf.golf_project.memberships.mappers.MembershipRequestMapper;
 import com.golf.golf_project.memberships.repositories.MembershipRepository;
 import com.golf.golf_project.memberships.repositories.MembershipRequestRepository;
+import com.golf.golf_project.notifications.enums.ENotificationType;
+import com.golf.golf_project.notifications.services.NotificationService;
 import com.golf.golf_project.users.entities.User;
 import com.golf.golf_project.users.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -35,6 +37,7 @@ public class MembershipRequestService {
     private final UserRepository userRepository;
     private final MembershipRequestMapper membershipRequestMapper;
     private final ClubRepository clubRepository;
+    private final NotificationService notificationService;
 
     public List<SearchMembershipRequestsResponse> getAllMembershipRequests(SearchMembershipRequestsRequest request) {
         Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
@@ -84,18 +87,43 @@ public class MembershipRequestService {
         membershipRequest.setStatus(EMRStatus.PENDING);
 
         membershipRequestRepository.save(membershipRequest);
+
+        // Notify the club manager that a membership request arrived
+        Club club = membershipRequest.getMembership().getClub();
+        if (club != null && club.getOwner() != null) {
+            notificationService.send(
+                    club.getOwner(),
+                    "Nouvelle demande d'adhésion",
+                    user.getFirstName() + " " + user.getLastName() + " demande à rejoindre le formule « "
+                            + membershipRequest.getMembership().getTitle() + " ».",
+                    ENotificationType.MEMBERSHIP_REQUESTED);
+        }
     }
 
     public void acceptRequest(UUID requestId) {
         MembershipRequest membershipRequest = membershipRequestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Membership request not found"));
         Membership membership = membershipRequest.getMembership();
-        membership.getPlayers().add(membershipRequest.getPlayer());
+        User player = membershipRequest.getPlayer();
+
+        // Maintain both sides of the bidirectional relation so the player is
+        // actually linked to the membership (and thus a member of the club)
+        membership.getPlayers().add(player);
+        player.setMembership(membership);
 
         membershipRequest.setStatus(EMRStatus.ACCEPTED);
 
         membershipRepository.save(membership);
         membershipRequestRepository.save(membershipRequest);
+        userRepository.save(player);
+
+        notificationService.send(
+                player,
+                "Demande d'adhésion acceptée",
+                "Félicitations ! Votre demande d'adhésion au club "
+                        + (membership.getClub() != null ? membership.getClub().getName() : "")
+                        + " (formule « " + membership.getTitle() + " ») a été acceptée. Vous êtes maintenant membre !",
+                ENotificationType.MEMBERSHIP_APPROVED);
     }
 
     public void rejectRequest(UUID requestId) {
@@ -103,6 +131,14 @@ public class MembershipRequestService {
                 .orElseThrow(() -> new IllegalArgumentException("Membership request not found"));
         membershipRequest.setStatus(EMRStatus.REJECTED);
         membershipRequestRepository.save(membershipRequest);
+
+        User player = membershipRequest.getPlayer();
+        String title = membershipRequest.getMembership() != null ? membershipRequest.getMembership().getTitle() : "";
+        notificationService.send(
+                player,
+                "Demande d'adhésion refusée",
+                "Votre demande d'adhésion (formule « " + title + " ») n'a malheureusement pas été retenue.",
+                ENotificationType.MEMBERSHIP_REJECTED);
     }
 
     private String wrapLike(String value) {

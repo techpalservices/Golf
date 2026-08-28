@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { Search, Plus, Calendar, MapPin, Users, Pencil, Trash2, Play, CheckCircle, XCircle, Unlock } from 'lucide-react';
+import { Search, Plus, Calendar, MapPin, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -9,11 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
+import { Dialog, DialogContent, DialogHeader, DialogTitle} from '@/components/ui/dialog';
+import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import TournamentFormDialog from '../components/TournamentFormDialog';
 import { tournamentApi } from '@/api/endpoints/tournament.api';
+import { useDataMyClub } from '../hooks/useDataMyClub';
 
 type FrontStatus = 'planned' | 'open' | 'ongoing' | 'completed' | 'cancelled';
 
@@ -57,6 +58,7 @@ export default function ManageTournamentsPage(){
   const [open,setOpen] = useState(false);
   const [formOpen,setFormOpen] = useState(false);
   const [editing,setEditing] = useState<any|null>(null);
+  const { data: myClub } = useDataMyClub();
 
   useEffect(()=>{
     const id=setTimeout(()=>setDebounced(search),500);
@@ -113,7 +115,7 @@ export default function ManageTournamentsPage(){
       entryFee:data.entryFee,
       maxParticipants:data.maxParticipants,
       status:'PENDING',
-      clubId:null
+      clubId: myClub?.id ?? null
     })], {type:'application/json'}));
     if(data.imageFile) fd.append('image', data.imageFile);
     await tournamentApi.create(fd);
@@ -130,7 +132,7 @@ export default function ManageTournamentsPage(){
       location:'',
       entryFee:data.entryFee,
       maxParticipants:data.maxParticipants,
-      clubId:null
+      clubId: myClub?.id ?? null
     })], {type:'application/json'}));
     if(data.imageFile) fd.append('image', data.imageFile);
     await tournamentApi.update(fd);

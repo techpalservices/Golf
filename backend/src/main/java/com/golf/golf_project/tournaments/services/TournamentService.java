@@ -15,6 +15,8 @@ import com.golf.golf_project.tournaments.enums.ETStatus;
 import com.golf.golf_project.tournaments.repositories.TournamentRepository;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,12 +34,13 @@ import java.util.UUID;
 @Transactional
 @RequiredArgsConstructor
 public class TournamentService {
+    private static final Logger log = LoggerFactory.getLogger(TournamentService.class);
+
     private final TournamentRepository tournamentRepository;
     private final ClubRepository clubRepository;
     private final CourseRepository courseRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final com.golf.golf_project.users.repositories.UserRepository userRepository;
-    private final com.golf.golf_project.timeSlots.services.TimeSlotService timeSlotService;
 
     public TournamentResponse create(CreateTournamentRequest req, org.springframework.web.multipart.MultipartFile image) {
         Club club = null;
@@ -48,12 +51,21 @@ public class TournamentService {
             try {
                 org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
                 if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
-                    var user = userRepository.findUserByUsername(auth.getName());
-                    if (user != null && user.getClub() != null) {
-                        club = user.getClub();
+                    // Prefer the club owned by the manager (club.owner → user relation)
+                    club = clubRepository.findClubByOwnerUsername(auth.getName());
+                    if (club == null) {
+                        var user = userRepository.findUserByUsername(auth.getName());
+                        if (user != null) {
+                            club = user.getClub();
+                        }
+                    }
+                    if (club == null) {
+                        log.warn("Tournament creation: no club could be resolved for user '{}' — club will NOT be reserved for slots", auth.getName());
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception e) {
+                log.warn("Tournament creation: failed to resolve fallback club", e);
+            }
         }
         Tournament t = new Tournament();
         t.setName(req.name());
@@ -91,7 +103,21 @@ public class TournamentService {
         }
         String imageUrl = handleImageUpload(image, req.imageUrl() != null ? req.imageUrl() : t.getImageUrl());
         t.setImageUrl(imageUrl);
+
+        Club previousClub = t.getClub();
+        LocalDate previousDate = t.getDate();
+
         tournamentRepository.save(t);
+
+        // Re-reserve slots when the tournament date or club changed
+        boolean dateChanged = req.date() != null && !req.date().equals(previousDate);
+        boolean clubChanged = req.clubId() != null && !req.clubId().equals(previousClub != null ? previousClub.getId() : null);
+        if (dateChanged || clubChanged) {
+            Club clubToReserve = req.clubId() != null ? t.getClub() : previousClub;
+            if (clubToReserve != null && t.getDate() != null) {
+                reserveClubForTournament(clubToReserve, t.getDate());
+            }
+        }
         return toResponse(t);
     }
 
@@ -146,21 +172,64 @@ public class TournamentService {
 
     private void reserveClubForTournament(Club club, LocalDate date) {
         List<Course> courses = courseRepository.findCoursesByClub(club);
-        if (courses.isEmpty()) return;
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.atTime(LocalTime.MAX);
+        if (courses.isEmpty()) {
+            log.warn("Tournament reservation: club '{}' has no courses — nothing to close", club.getName());
+            return;
+        }
+
+        // Reservation window = club's opening hours on the tournament day
+        LocalTime openTime = club.getOpenTime() != null ? club.getOpenTime() : LocalTime.MIDNIGHT;
+        LocalTime closeTime = club.getCloseTime() != null ? club.getCloseTime() : LocalTime.MAX;
+        if (!closeTime.isAfter(openTime)) {
+            log.warn("Tournament reservation: club '{}' has invalid opening hours ({} → {}), falling back to the whole day",
+                    club.getName(), openTime, closeTime);
+            openTime = LocalTime.MIDNIGHT;
+            closeTime = LocalTime.MAX;
+        }
+        LocalDateTime start = date.atTime(openTime);
+        LocalDateTime end = date.atTime(closeTime);
+
+        log.info("Reserving club '{}' for tournament day {}: closing slots from {} to {} on {} courses",
+                club.getName(), date, start, end, courses.size());
+
         for (Course course : courses) {
             try {
-                com.golf.golf_project.timeSlots.dto.requests.CreateTimeSlotRequest req = new com.golf.golf_project.timeSlots.dto.requests.CreateTimeSlotRequest(
-                        start,
-                        end,
-                        com.golf.golf_project.timeSlots.enums.ETStatus.CLOSED,
-                        course.getId()
-                );
-                timeSlotService.createTimeSlot(req);
+                closeCourseSlots(course, start, end);
             } catch (Exception e) {
-                // ignore errors for this course
+                log.error("Tournament reservation: failed to close slots for course '{}' of club '{}'",
+                        course.getId(), club.getName(), e);
             }
+        }
+    }
+
+    /**
+     * Closes 5-minute slots (matching the booking grid) for the given course
+     * between start (inclusive) and end (exclusive-ish; last slot may be shorter).
+     * Creates slots directly via the repository — no manager-auth check, since this
+     * is an internal operation triggered by tournament creation/update.
+     */
+    private void closeCourseSlots(Course course, LocalDateTime start, LocalDateTime end) {
+        LocalDateTime curr = start;
+        while (curr.isBefore(end)) {
+            LocalDateTime next = curr.plusMinutes(5);
+            if (next.isAfter(end)) {
+                next = end;
+            }
+
+            TimeSlot existing = timeSlotRepository.findByCourseAndStartTime(course, curr).orElse(null);
+            if (existing != null) {
+                // Only update status, keep original endTime to avoid corrupting longer slots
+                existing.setStatus(com.golf.golf_project.timeSlots.enums.ETStatus.CLOSED);
+                timeSlotRepository.save(existing);
+            } else {
+                TimeSlot s = new TimeSlot();
+                s.setCourse(course);
+                s.setStartTime(curr);
+                s.setEndTime(next);
+                s.setStatus(com.golf.golf_project.timeSlots.enums.ETStatus.CLOSED);
+                timeSlotRepository.save(s);
+            }
+            curr = next;
         }
     }
 

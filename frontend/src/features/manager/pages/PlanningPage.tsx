@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -51,23 +51,9 @@ const statusColors: Record<SessionStatus, string> = {
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-const fmtDate = (d: Date): string =>
-  `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
-
 // ISO (YYYY-MM-DD) day-string for a date
 const isoDay = (d: Date): string =>
   `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-
-// Sunday..Saturday of the current week
-function currentWeekRange(): { from: string; to: string } {
-  const now = new Date();
-  const day = now.getDay(); // 0 = Sunday
-  const sunday = new Date(now);
-  sunday.setDate(now.getDate() - day);
-  const saturday = new Date(sunday);
-  saturday.setDate(sunday.getDate() + 6);
-  return { from: isoDay(sunday), to: isoDay(saturday) };
-}
 
 const fmtIso = (iso?: string): string =>
   iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : '';
@@ -112,8 +98,6 @@ function deriveSession(s: ManagerPlanningSlot): Session {
     contact: s.players.find((p) => p.phone)?.phone,
   };
 }
-
-const timeOptions = ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
 
 type TabId = 'sessions' | 'calendar';
 

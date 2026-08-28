@@ -133,9 +133,6 @@ export default function MyReservationsPage() {
           <span className="flex items-center gap-1"><Users size={12} className="text-primary" />{r.players}</span>
         </div>
       </div>
-      <Badge className={`hidden shrink-0 border text-xs sm:inline-flex ${statusColors[r.status]}`}>
-        {t(`reservations.tabs.${r.status.toLowerCase() === 'confirmed' ? 'upcoming' : r.status.toLowerCase() === 'pending' ? 'upcoming' : r.status.toLowerCase() === 'cancelled' ? 'cancelled' : 'past'}`)}
-      </Badge>
     </div>
   );
 

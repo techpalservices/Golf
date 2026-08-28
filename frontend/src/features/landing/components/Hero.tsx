@@ -28,7 +28,7 @@ export default function Hero() {
           {t('hero.title')}
         </h1>
         <Link
-          to="/search"
+          to="/reservations"
           className="mt-6 inline-block rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover md:mt-8 md:px-12 md:py-4 md:text-base"
         >
           <div className="flex items-center gap-2">

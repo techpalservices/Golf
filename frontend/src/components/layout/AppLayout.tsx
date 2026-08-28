@@ -7,13 +7,12 @@ import NotificationDropdown from '@/features/notifications/components/Notificati
 import { User } from 'lucide-react';
 import {
   LayoutDashboard, Calendar, Building2, ShoppingCart, GraduationCap,
-  CalendarClock, ClipboardList, Users, Trophy, Package,
-  UserCog, Building, Store,
+  CalendarClock, ClipboardList, Users, Trophy,
+  UserCog, Building,
 } from 'lucide-react';
 
 const roleNavItems: Record<string, NavItem[]> = {
   PLAYER: [
-    { key: 'nav.dashboard', to: '/dashboard', icon: LayoutDashboard },
     { key: 'nav.reservations', to: '/my-reservations', icon: Calendar },
     { key: 'nav.clubs', to: '/my-clubs', icon: Building2 },
     { key: 'nav.orders', to: '/my-orders', icon: ShoppingCart },
@@ -21,20 +20,16 @@ const roleNavItems: Record<string, NavItem[]> = {
     { key: 'nav.profile', to: '/profile', icon: User },
   ],
   MANAGER: [
-    { key: 'nav.dashboard', to: '/dashboard', icon: LayoutDashboard },
     { key: 'nav.myClub', to: '/my-club', icon: Building },
     { key: 'nav.planning', to: '/planning', icon: CalendarClock },
     { key: 'nav.requests', to: '/requests', icon: ClipboardList },
     { key: 'nav.members', to: '/members', icon: Users },
     { key: 'nav.tournaments', to: '/manage-tournaments', icon: Trophy },
-    { key: 'nav.packages', to: '/packages', icon: Package },
     { key: 'nav.profile', to: '/profile', icon: User },
   ],
   ADMIN: [
-    { key: 'nav.dashboard', to: '/dashboard', icon: LayoutDashboard },
     { key: 'nav.users', to: '/users', icon: UserCog },
     { key: 'nav.clubsManagement', to: '/clubs', icon: Building },
-    { key: 'nav.shopManagement', to: '/shop-management', icon: Store },
     { key: 'nav.profile', to: '/profile', icon: User },
   ],
 };

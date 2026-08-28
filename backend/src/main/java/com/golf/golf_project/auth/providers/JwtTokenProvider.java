@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -63,6 +64,10 @@ public class JwtTokenProvider {
 
         String jwtRefreshToken = JWT.create()
                 .withSubject(user.getUsername())
+                // Unique id per token — without it, two logins in the same second
+                // produce identical JWTs (same sub + same second-precision exp),
+                // violating the unique constraint on refresh_tokens.token
+                .withJWTId(UUID.randomUUID().toString())
                 .withExpiresAt(refreshTokenExpiry)
                 .sign(algorithm);
 

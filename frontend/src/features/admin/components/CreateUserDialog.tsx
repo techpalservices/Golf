@@ -78,9 +78,17 @@ export default function CreateUserDialog({ open, onOpenChange }: CreateUserDialo
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-sm text-secondary">{t('user.createForm.role')}</Label>
-        <Select value={gender} onValueChange={(v) => setGender(v as 'male' | 'female' | 'other')}>
+        <Select value={gender} onValueChange={(v) => setGender(v as 'MALE' | 'FEMALE')}>
           <SelectTrigger className="w-full border-border">
-            <SelectValue />
+            {/* Base UI's SelectValue renders the raw value (e.g. "MALE"),
+                so we render the translated label explicitly */}
+            <SelectValue>
+              {gender === 'MALE'
+                ? t('user.gender.male')
+                : gender === 'FEMALE'
+                  ? t('user.gender.female')
+                  : t('user.createForm.rolePlaceholder')}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="MALE">{t('user.gender.male')}</SelectItem>

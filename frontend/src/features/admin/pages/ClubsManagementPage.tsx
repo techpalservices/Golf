@@ -91,7 +91,12 @@ export default function ClubsManagementPage() {
 
   const detailsContent = selected && (
     <div className="flex flex-col gap-4">
-      <img src={selected.coverURL} alt={selected.name} className="h-32 w-full rounded-lg object-cover" />
+      {selected.coverURL ? (
+        <img src={selected.coverURL} alt={selected.name} className="h-32 w-full rounded-lg object-cover" />
+      ) : (
+          <img src='https://as2.ftcdn.net/jpg/00/89/24/05/1000_F_89240595_8WrStaamOuET51gnmJUNZc9GBePR85j6.webp' alt={selected.name} className="h-32 w-full rounded-lg object-cover" />
+      )}
+
       <div className="flex items-center gap-3">
         <Avatar size="lg" className="border border-border">
           {

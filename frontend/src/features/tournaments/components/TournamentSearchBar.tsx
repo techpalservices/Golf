@@ -5,15 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import TournamentFilterDialog, { type TournamentFilterValues } from './TournamentFilterDialog';
 
-export default function TournamentSearchBar() {
+interface TournamentSearchBarProps {
+  name: string;
+  onNameChange: (value: string) => void;
+  filters: TournamentFilterValues;
+  onFiltersChange: (values: TournamentFilterValues) => void;
+}
+
+export default function TournamentSearchBar({ name, onNameChange, filters, onFiltersChange }: TournamentSearchBarProps) {
   const { t } = useTranslation('tournaments');
-  const [name, setName] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
-  const [filters, setFilters] = useState<TournamentFilterValues>({
-    date: '',
-    location: '',
-    status: '',
-  });
 
   return (
     <div className="p-4 w-full md:p-6">
@@ -25,7 +26,7 @@ export default function TournamentSearchBar() {
             <Input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => onNameChange(e.target.value)}
               placeholder={t('search.namePlaceholder')}
               className="pl-10 border border-primary placeholder:text-secondary"
             />
@@ -55,7 +56,7 @@ export default function TournamentSearchBar() {
         open={filterOpen}
         onOpenChange={setFilterOpen}
         values={filters}
-        onChange={setFilters}
+        onChange={onFiltersChange}
       />
     </div>
   );

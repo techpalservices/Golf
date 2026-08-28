@@ -10,9 +10,9 @@ interface TournamentCardProps {
 }
 
 const statusColors: Record<TournamentStatus, string> = {
-  UPCOMING: 'bg-primary text-secondary border-primary',
-  ONGOING: 'bg-secondary text-primary border-secondary',
+  ACTIVE: 'bg-primary text-secondary border-primary',
   COMPLETED: 'bg-muted text-white border-border',
+  CANCELED: 'bg-muted text-muted-foreground border-border',
 };
 
 export default function TournamentCard({ tournament, onClick }: TournamentCardProps) {

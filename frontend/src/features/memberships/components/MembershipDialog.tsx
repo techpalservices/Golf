@@ -9,6 +9,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { Membership, EMStatus } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useRequestMembership } from '../hooks/useRequestMembership';
 
 interface MembershipDialogProps {
@@ -28,6 +29,9 @@ export default function MembershipDialog({ membership, open, onOpenChange }: Mem
   const isDesktop = useMediaQuery('(min-width: 768px)');
   const navigate = useNavigate();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  // useAuth() hydrates the auth store (GET /auth/me) — on this public page it
+  // wouldn't be populated otherwise, making isAuthenticated always false
+  const { isPending: isAuthPending } = useAuth();
   const requestMembership = useRequestMembership();
 
   if (!membership) return null;
@@ -127,8 +131,11 @@ export default function MembershipDialog({ membership, open, onOpenChange }: Mem
         <Button
           size="lg"
           className="w-full"
-          disabled={requestMembership.isPending}
+          disabled={requestMembership.isPending || isAuthPending}
           onClick={() => {
+            // Wait for the auth check to settle before deciding — otherwise a
+            // logged-in user would be wrongly redirected to /login
+            if (isAuthPending) return;
             if (!isAuthenticated) {
               navigate('/login');
               return;

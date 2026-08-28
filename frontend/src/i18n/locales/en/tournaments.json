@@ -13,9 +13,9 @@
     "statusPlaceholder": "All statuses"
   },
   "status": {
-    "upcoming": "Upcoming",
-    "ongoing": "Ongoing",
-    "completed": "Completed"
+    "active": "Open",
+    "completed": "Completed",
+    "canceled": "Canceled"
   },
   "card": {
     "date": "Date",
@@ -38,6 +38,8 @@
   },
   "page": {
     "title": "Tournaments",
-    "results": "Available tournaments"
+    "results": "Available tournaments",
+    "loading": "Loading tournaments...",
+    "noResults": "No tournaments found"
   }
 }

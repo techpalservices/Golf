@@ -71,9 +71,12 @@ export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogPro
 
         <div className="flex flex-col gap-1">
             <Label className="text-sm text-secondary">{t('clubsManagement.form.city')}</Label>
-            <Select value={newClub.city} onValueChange={(v) => setNewClub({ ...newClub, city: v ?? 'all' })}>
+            <Select value={newClub.city || null} onValueChange={(v) => setNewClub({ ...newClub, city: v ?? '' })}>
                 <SelectTrigger size="sm" className="w-full border-border">
-                    <SelectItem>{t('clubsManagement.city')}</SelectItem>
+                    {/* Base UI's SelectValue doesn't resolve labels — render the selected city explicitly */}
+                    <SelectValue>
+                        {newClub.city || t('clubsManagement.city')}
+                    </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                     {cities.map((city) => (
@@ -94,7 +97,18 @@ export default function ClubFormDialog({ open, onOpenChange }: ClubFormDialogPro
         <Label className="text-sm text-secondary">{t('clubsManagement.form.owner')}</Label>
         <Select value={newClub.ownerId} onValueChange={(v) => setNewClub({...newClub, ownerId: v ?? null})}>
           <SelectTrigger className="w-full border-border">
-            <SelectValue />
+            {/* Base UI's SelectValue renders the raw value (the manager UUID),
+                so we render the manager's name explicitly */}
+            <SelectValue>
+              {newClub.ownerId == null
+                ? t('clubsManagement.form.noOwner')
+                : (() => {
+                    const selectedManager = managers.find((m) => m.id === newClub.ownerId);
+                    return selectedManager
+                      ? `${selectedManager.firstName} ${selectedManager.lastName}`
+                      : newClub.ownerId;
+                  })()}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={null}>{t('clubsManagement.form.noOwner')}</SelectItem>

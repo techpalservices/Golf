@@ -1,147 +1,85 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import TournamentSearchBar from '../components/TournamentSearchBar';
 import TournamentCard from '../components/TournamentCard';
 import TournamentDialog from '../components/TournamentDialog';
-import type { Tournament } from '../types';
+import type { Tournament, TournamentFilterValues } from '../types';
+import { tournamentApi } from '@/api/endpoints/tournament.api';
 
-const mockTournaments: Tournament[] = [
-  {
-    id: '1',
-    name: 'Open de Marrakech',
-    description: 'Le tournoi annuel du Royal Golf de Marrakech, réunissant les meilleurs joueurs amateurs du Maroc. Format stroke play sur 18 trous.',
-    date: '15/08/2026',
-    location: 'Marrakech',
-    clubName: 'Royal Golf de Marrakech',
-    status: 'UPCOMING',
-    image: '/section1.png',
-    entryFee: 800,
-    maxParticipants: 60,
-    currentParticipants: 42,
-  },
-  {
-    id: '2',
-    name: "Coupe d'Anfa",
-    description: "Un tournoi convivial au Golf d'Anfa, ouvert à tous les niveaux. Format Stableford sur 9 trous.",
-    date: '28/07/2026',
-    location: 'Casablanca',
-    clubName: "Golf d'Anfa",
-    status: 'ONGOING',
-    image: '/section2.png',
-    entryFee: 500,
-    maxParticipants: 40,
-    currentParticipants: 40,
-  },
-  {
-    id: '3',
-    name: 'Championnat Royal d\'Agadir',
-    description: "Le championnat le plus prestigieux du Maroc, sur le parcours du Palais Royal. Réservé aux joueurs classés.",
-    date: '10/09/2026',
-    location: 'Agadir',
-    clubName: 'Golf du Palais Royal',
-    status: 'UPCOMING',
-    image: '/section3.png',
-    entryFee: 1200,
-    maxParticipants: 80,
-    currentParticipants: 15,
-  },
-  {
-    id: '4',
-    name: 'Trophée Atlas',
-    description: "Un tournoi annuel célébrant le golf amateur au Maroc. Format match play, élimination directe.",
-    date: '20/06/2026',
-    location: 'Marrakech',
-    clubName: 'Royal Golf de Marrakech',
-    status: 'COMPLETED',
-    image: '/club 1.png',
-    entryFee: 600,
-    maxParticipants: 32,
-    currentParticipants: 32,
-  },
-  {
-    id: '5',
-    name: 'Trophée Atlas',
-    description: "Un tournoi annuel célébrant le golf amateur au Maroc. Format match play, élimination directe.",
-    date: '20/06/2026',
-    location: 'Marrakech',
-    clubName: 'Royal Golf de Marrakech',
-    status: 'COMPLETED',
-    image: '/club 1.png',
-    entryFee: 600,
-    maxParticipants: 32,
-    currentParticipants: 32,
-  },
-  {
-    id: '6',
-    name: 'Trophée Atlas',
-    description: "Un tournoi annuel célébrant le golf amateur au Maroc. Format match play, élimination directe.",
-    date: '20/06/2026',
-    location: 'Marrakech',
-    clubName: 'Royal Golf de Marrakech',
-    status: 'COMPLETED',
-    image: '/club 1.png',
-    entryFee: 600,
-    maxParticipants: 32,
-    currentParticipants: 32,
-  },
-  {
-    id: '7',
-    name: 'Trophée Atlas',
-    description: "Un tournoi annuel célébrant le golf amateur au Maroc. Format match play, élimination directe.",
-    date: '20/06/2026',
-    location: 'Marrakech',
-    clubName: 'Royal Golf de Marrakech',
-    status: 'COMPLETED',
-    image: '/club 1.png',
-    entryFee: 600,
-    maxParticipants: 32,
-    currentParticipants: 32,
-  },
-  {
-    id: '8',
-    name: 'Trophée Atlas',
-    description: "Un tournoi annuel célébrant le golf amateur au Maroc. Format match play, élimination directe.",
-    date: '20/06/2026',
-    location: 'Marrakech',
-    clubName: 'Royal Golf de Marrakech',
-    status: 'COMPLETED',
-    image: '/club 1.png',
-    entryFee: 600,
-    maxParticipants: 32,
-    currentParticipants: 32,
-  },
-  {
-    id: '9',
-    name: 'Trophée Atlas',
-    description: "Un tournoi annuel célébrant le golf amateur au Maroc. Format match play, élimination directe.",
-    date: '20/06/2026',
-    location: 'Marrakech',
-    clubName: 'Royal Golf de Marrakech',
-    status: 'COMPLETED',
-    image: '/club 1.png',
-    entryFee: 600,
-    maxParticipants: 32,
-    currentParticipants: 32,
-  },
-  {
-    id: '10',
-    name: 'Trophée Atlas',
-    description: "Un tournoi annuel célébrant le golf amateur au Maroc. Format match play, élimination directe.",
-    date: '20/06/2026',
-    location: 'Marrakech',
-    clubName: 'Royal Golf de Marrakech',
-    status: 'COMPLETED',
-    image: '/club 1.png',
-    entryFee: 600,
-    maxParticipants: 32,
-    currentParticipants: 32,
-  },
-];
+/** Maps a backend TournamentResponse to the frontend Tournament shape */
+function mapTournament(t: any): Tournament {
+  let date = t.date ?? '';
+  // Format ISO date (yyyy-MM-dd) as dd/MM/yyyy
+  const parts = typeof date === 'string' ? date.split('-') : [];
+  if (parts.length === 3) date = `${parts[2]}/${parts[1]}/${parts[0]}`;
+  return {
+    id: t.id,
+    name: t.name,
+    description: t.description,
+    date,
+    location: t.location,
+    clubName: t.clubName,
+    status: t.status,
+    image: t.imageUrl || '/section1.png',
+    entryFee: t.entryFee,
+    maxParticipants: t.maxParticipants,
+    currentParticipants: t.currentParticipants,
+  };
+}
 
 export default function TournamentsPage() {
+  const { t } = useTranslation('tournaments');
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Raw search inputs (updated immediately as the user types)
+  const [searchInput, setSearchInput] = useState('');
+  const [filters, setFilters] = useState<TournamentFilterValues>({ date: '', location: '', status: '' });
+
+  // Values actually sent to the API — debounced by 500ms like the other search requests
+  const [query, setQuery] = useState({ q: '', date: '', location: '', status: '' });
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setQuery({
+        q: searchInput.trim(),
+        date: filters.date,
+        location: filters.location.trim(),
+        status: filters.status,
+      });
+    }, 500);
+    return () => clearTimeout(id);
+  }, [searchInput, filters]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    tournamentApi
+      .publicSearch({
+        q: query.q || undefined,
+        location: query.location || undefined,
+        date: query.date || undefined,
+        status: query.status || undefined,
+        page: 0,
+        size: 24,
+      })
+      .then((data) => {
+        if (!cancelled) setTournaments((data?.content ?? []).map(mapTournament));
+      })
+      .catch(() => {
+        if (!cancelled) setTournaments([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [query]);
 
   const handleTournamentClick = (tournament: Tournament) => {
     setSelectedTournament(tournament);
@@ -156,7 +94,12 @@ export default function TournamentsPage() {
         {/* Search bar */}
         <section className="border-b border-border bg-surface mt-20">
           <div className="mx-auto max-w-7xl px-6">
-            <TournamentSearchBar />
+            <TournamentSearchBar
+              name={searchInput}
+              onNameChange={setSearchInput}
+              filters={filters}
+              onFiltersChange={setFilters}
+            />
           </div>
         </section>
 
@@ -164,13 +107,19 @@ export default function TournamentsPage() {
         <section className="py-8">
           <div className="mx-auto max-w-7xl px-6">
             <div className="flex flex-col md:grid md:grid-cols-3 gap-6">
-              {mockTournaments.map((tournament) => (
-                <TournamentCard
-                  key={tournament.id}
-                  tournament={tournament}
-                  onClick={() => handleTournamentClick(tournament)}
-                />
-              ))}
+              {loading ? (
+                <p className="col-span-full text-center text-sm text-muted-foreground">{t('page.loading')}</p>
+              ) : tournaments.length === 0 ? (
+                <p className="col-span-full text-center text-sm text-muted-foreground">{t('page.noResults')}</p>
+              ) : (
+                tournaments.map((tournament) => (
+                  <TournamentCard
+                    key={tournament.id}
+                    tournament={tournament}
+                    onClick={() => handleTournamentClick(tournament)}
+                  />
+                ))
+              )}
             </div>
           </div>
         </section>

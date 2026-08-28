@@ -146,12 +146,39 @@ public class TournamentService {
             if (req.location() != null && !req.location().isBlank()) {
                 preds.add(cb.like(cb.lower(root.get("location")), "%" + req.location().toLowerCase() + "%"));
             }
+            if (req.date() != null) {
+                preds.add(cb.equal(root.get("date"), req.date()));
+            }
             return cb.and(preds.toArray(new Predicate[0]));
         };
         int page = req.page() != null ? req.page() : 0;
         int size = req.size() != null && req.size() > 0 ? req.size() : 20;
         Page<Tournament> p = tournamentRepository.findAll(spec, PageRequest.of(page, size));
         return p.map(this::toResponse);
+    }
+
+    /**
+     * Public search used by the tournaments page — accessible without authentication.
+     * Only exposes tournaments visible to the public: ACTIVE (default), COMPLETED
+     * or CANCELED. Drafts (PENDING) are never returned.
+     */
+    @Transactional(readOnly = true)
+    public Page<TournamentResponse> publicSearch(SearchTournamentRequest req) {
+        String status = req.status();
+        if (status == null || status.isBlank() || status.equalsIgnoreCase("UPCOMING") || status.equalsIgnoreCase("ONGOING")) {
+            status = ETStatus.ACTIVE.name();
+        }
+        try {
+            ETStatus st = ETStatus.valueOf(status.toUpperCase());
+            if (st == ETStatus.PENDING) {
+                // Drafts are not public — fall back to ACTIVE
+                status = ETStatus.ACTIVE.name();
+            }
+        } catch (Exception ignored) {}
+
+        SearchTournamentRequest publicReq = new SearchTournamentRequest(
+                req.q(), status, req.location(), req.date(), req.page(), req.size());
+        return search(publicReq);
     }
 
     private String handleImageUpload(org.springframework.web.multipart.MultipartFile file, String fallback) {

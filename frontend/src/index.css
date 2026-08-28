@@ -35,6 +35,17 @@
   --color-border: #E8E5E0;
   --color-ring: #C9A84C;
 
+  /* shadcn semantic tokens (dropdowns, cards, selects...) */
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1A1A1A;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A1A1A;
+  --color-accent: #F5F2EA;
+  --color-accent-foreground: #1A1A1A;
+  --color-input: #E8E5E0;
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+
   /* Status Colors */
   --color-success: #22C55E;
   --color-warning: #EAB308;
@@ -71,6 +82,17 @@
   /* Borders */
   --color-border: #2A302C;
   --color-ring: #A8873C;
+
+  /* shadcn semantic tokens (dropdowns, cards, selects...) */
+  --color-popover: #1A2420;
+  --color-popover-foreground: #F0F0F0;
+  --color-card: #1A2420;
+  --color-card-foreground: #F0F0F0;
+  --color-accent: #242C28;
+  --color-accent-foreground: #F0F0F0;
+  --color-input: #2A302C;
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
 
   /* Status Colors (same hues, adjusted for dark) */
   --color-success: #22C55E;

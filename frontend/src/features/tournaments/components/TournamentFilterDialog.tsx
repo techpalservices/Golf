@@ -69,9 +69,9 @@ export default function TournamentFilterDialog({ open, onOpenChange, values, onC
             <SelectValue placeholder={t('search.statusPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="UPCOMING">{t('status.upcoming')}</SelectItem>
-            <SelectItem value="ONGOING">{t('status.ongoing')}</SelectItem>
+            <SelectItem value="ACTIVE">{t('status.active')}</SelectItem>
             <SelectItem value="COMPLETED">{t('status.completed')}</SelectItem>
+            <SelectItem value="CANCELED">{t('status.canceled')}</SelectItem>
           </SelectContent>
         </Select>
       </div>

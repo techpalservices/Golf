@@ -29,6 +29,23 @@ export default function CreateCourseDialog({ open, onOpenChange, clubId }: Creat
 
   const fileInputsRef = useRef<Array<HTMLInputElement | null>>([]);
 
+  // Displayed label for each file input (index → file name), since the native
+  // input is hidden behind a styled button
+  const [fileLabels, setFileLabels] = useState<Record<number, string>>({});
+
+  const updateFileLabel = (index: number, input: HTMLInputElement | null) => {
+    const files = input?.files;
+    setFileLabels((prev) => ({
+      ...prev,
+      [index]:
+        files && files.length > 0
+          ? files.length === 1
+            ? files[0].name
+            : `${files.length} files selected`
+          : '',
+    }));
+  };
+
   const MAX_IMAGES = 5;
   const MAX_FILE_SIZE_MB = 50;
   const MAX_TOTAL_SIZE_MB = 200;
@@ -80,6 +97,9 @@ export default function CreateCourseDialog({ open, onOpenChange, clubId }: Creat
         {
           onSuccess: () => {
             onOpenChange(false);
+            // Clear the hidden file inputs + labels so stale files aren't re-submitted
+            fileInputsRef.current.forEach((input) => { if (input) input.value = ''; });
+            setFileLabels({});
           },
         }
     );
@@ -143,13 +163,24 @@ export default function CreateCourseDialog({ open, onOpenChange, clubId }: Creat
         <div className="flex flex-col gap-1.5">
           <Label className="text-sm text-secondary">{t('myClub.form.image')}</Label>
           <div className="flex flex-row gap-2">
-            <Input
+            {/* Hidden native input — the styled button below opens the picker
+                and shows the chosen file name instead of "Choose file ..." */}
+            <input
                 type="file"
                 accept="image/*"
                 multiple
                 ref={(el) => { fileInputsRef.current[0] = el; }}
-                className="border-border"
+                onChange={(e) => updateFileLabel(0, e.currentTarget)}
+                className="hidden"
             />
+            <Button
+                type="button"
+                variant="outline"
+                className="border-border flex-1 justify-start font-normal text-muted-foreground"
+                onClick={() => fileInputsRef.current[0]?.click()}
+            >
+              <span className="truncate">{fileLabels[0] || t('myClub.form.chooseImage', 'Choose image...')}</span>
+            </Button>
             {/* type="button" prevents form submission when clicking + */}
             <Button
                 type="button"
@@ -162,17 +193,35 @@ export default function CreateCourseDialog({ open, onOpenChange, clubId }: Creat
         </div>
         {Array.from({ length: imageUrlCount }, (_, i) => (
             <div key={i} className="flex flex-row gap-2">
-              <Input
+              <input
                   type="file"
                   accept="image/*"
                   multiple
                   ref={(el) => { fileInputsRef.current[i + 1] = el; }}
-                  className="border-border"
+                  onChange={(e) => updateFileLabel(i + 1, e.currentTarget)}
+                  className="hidden"
               />
               <Button
                   type="button"
+                  variant="outline"
+                  className="border-border flex-1 justify-start font-normal text-muted-foreground"
+                  onClick={() => fileInputsRef.current[i + 1]?.click()}
+              >
+                <span className="truncate">{fileLabels[i + 1] || t('myClub.form.chooseImage', 'Choose image...')}</span>
+              </Button>
+              <Button
+                  type="button"
                   className="bg-red-500 w-8"
-                  onClick={() => setImageUrlCount(imageUrlCount - 1)}
+                  onClick={() => {
+                    // Remove the row: clear its ref + label so its files are not submitted
+                    fileInputsRef.current[i + 1] = null;
+                    setFileLabels((prev) => {
+                      const copy = { ...prev };
+                      delete copy[i + 1];
+                      return copy;
+                    });
+                    setImageUrlCount(imageUrlCount - 1);
+                  }}
               >
                 -
               </Button>

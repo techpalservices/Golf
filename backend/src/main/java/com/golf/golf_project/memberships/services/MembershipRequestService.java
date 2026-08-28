@@ -1,8 +1,9 @@
-package com.golf.golf_project.memberships.services;
+    package com.golf.golf_project.memberships.services;
 
 import com.golf.golf_project.clubs.entities.Club;
 import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.memberships.dto.requests.SearchMembershipRequestsRequest;
+import com.golf.golf_project.memberships.dto.responses.ClubMemberResponse;
 import com.golf.golf_project.memberships.dto.responses.SearchMembershipRequestsResponse;
 import com.golf.golf_project.memberships.entities.Membership;
 import com.golf.golf_project.memberships.entities.MembershipRequest;
@@ -66,6 +67,38 @@ public class MembershipRequestService {
 
         return membershipRequests.getContent().stream()
                 .map(membershipRequestMapper::toSearchMembershipRequestsResponse)
+                .toList();
+    }
+
+    /**
+     * Members of the manager's club = players whose membership request
+     * has been ACCEPTED. Supports filtering by plan name + pagination.
+     */
+    public List<ClubMemberResponse> getClubMembers(SearchMembershipRequestsRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            throw new IllegalArgumentException("Not authenticated");
+        }
+
+        User user = userRepository.findUserByUsername(auth.getName());
+
+        if (user == null) throw new IllegalArgumentException("User not found");
+        else if (!user.getRole().getName().equals("ROLE_MANAGER")) throw new IllegalArgumentException("User must be manager");
+
+        Club club = clubRepository.findClubByOwnerUsername(auth.getName());
+        if (club == null) throw new IllegalArgumentException("Manager has no club assigned - assign him via Admin first");
+
+        Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
+
+        Page<MembershipRequest> members = membershipRequestRepository.searchClubMembers(
+                club.getId(),
+                wrapLike(request.planName()),
+                pageable
+        );
+
+        return members.getContent().stream()
+                .map(membershipRequestMapper::toClubMemberResponse)
                 .toList();
     }
 

@@ -75,7 +75,8 @@ public class SecurityConfig {
                                 .requestMatchers("/clubs/**").permitAll()
                                 .requestMatchers("/memberships/**").permitAll()
                                 .requestMatchers("/time-slots/**").permitAll()
-                                .requestMatchers("/uploads/**").permitAll() // public static files: logos, course images, avatars
+                                .requestMatchers("/tournaments/public-search").permitAll()
+                                .requestMatchers("/uploads/**").permitAll()
                                 .requestMatchers(
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",    // ← ADD THIS

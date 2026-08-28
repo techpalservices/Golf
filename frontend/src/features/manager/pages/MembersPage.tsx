@@ -70,22 +70,14 @@ const requestStatusColors: Record<RequestStatus, string> = {
   rejected: 'border-border bg-muted text-muted-foreground',
 };
 
-const mockMembers: Member[] = [
-  { id: '1', fullName: 'Ahmed Benali', initials: 'AB', since: '15/01/2024', status: 'active', membership: 'Premium Annuel', contact: '+212 6 12 34 56 78' },
-  { id: '2', fullName: 'Sara Mansouri', initials: 'SM', since: '03/06/2024', status: 'active', membership: 'Standard Mensuel', contact: '+212 6 98 76 54 32' },
-  { id: '3', fullName: 'Youssef Khalfouni', initials: 'YK', since: '20/09/2023', status: 'suspended', membership: 'Premium Annuel', contact: '+212 6 55 44 33 22' },
-  { id: '4', fullName: 'Imane Rachidi', initials: 'IR', since: '11/02/2024', status: 'active', membership: 'Standard Mensuel', contact: '+212 6 77 88 99 00' },
-  { id: '5', fullName: 'Karim El Idrissi', initials: 'KE', since: '28/11/2023', status: 'expired', membership: 'Premium Annuel', contact: '+212 6 11 22 33 44' },
-];
-
 export default function MembersPage() {
   const { t } = useTranslation('app');
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   const [tab, setTab] = useState<TabId>('members');
-  const [members, setMembers] = useState(mockMembers);
 
   const [searchMembers, setSearchMembers] = useState('');
+  const [debouncedSearchMembers, setDebouncedSearchMembers] = useState('');
   const [searchOffers, setSearchOffers] = useState('');
   const [debouncedSearchOffers, setDebouncedSearchOffers] = useState('');
   const [searchPrice, setSearchPrice] = useState('');
@@ -100,6 +92,11 @@ export default function MembersPage() {
   const [debouncedReqPlanName, setDebouncedReqPlanName] = useState('');
 
   // Debounce 500ms after typing, instant for first fetch (initial '' is synced)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearchMembers(searchMembers), 500);
+    return () => clearTimeout(timer);
+  }, [searchMembers]);
+
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearchOffers(searchOffers), 500);
     return () => clearTimeout(timer);
@@ -176,6 +173,45 @@ export default function MembersPage() {
 
   const requestsFromApi = requestsData?.pages.flat() ?? [];
 
+  // ─── Members tab: real club members = players with an ACCEPTED membership request ───
+  const {
+    data: membersData,
+    isLoading: isMembersLoading,
+  } = useInfiniteQuery<any[]>({
+    queryKey: ['clubMembers', debouncedSearchMembers],
+    queryFn: async ({ pageParam = 0 }) => {
+      const res = await membershipRequestApi.searchMembers({
+        firstName: null as any,
+        lastName: null as any,
+        planName: debouncedSearchMembers || null as any,
+        status: null as any,
+        page: pageParam as number,
+        size: 10,
+      });
+      return res.data.data;
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => (lastPage && lastPage.length < 10 ? undefined : allPages.length),
+    retry: false,
+  });
+
+  const toMember = (r: any): Member => ({
+    id: r.id,
+    fullName: r.userFullName ?? '',
+    initials: (r.userFullName ?? '').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase(),
+    since: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '',
+    status: 'active',
+    membership: r.planName ?? '',
+    contact: r.contact ?? '',
+  });
+
+  // Suspend/reinstate overrides applied on top of the API data (display only for now)
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, MemberStatus>>({});
+
+  const members: Member[] = (membersData?.pages.flat() ?? [])
+    .map(toMember)
+    .map((m) => (statusOverrides[m.id] ? { ...m, status: statusOverrides[m.id] } : m));
+
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<ApiMembershipRequest | null>(null);
   const acceptRequest = useAcceptMembershipRequest();
@@ -215,7 +251,7 @@ export default function MembersPage() {
   const openOffer = (o: Membership) => { setSelectedOffer(o); setSelectedMember(null); setSelectedRequest(null); setOpen(true); };
 
   const handleSuspend = (id: string, action: 'suspended' | 'active') => {
-    setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, status: action } : m)));
+    setStatusOverrides((prev) => ({ ...prev, [id]: action }));
     setSelectedMember((prev) => (prev ? { ...prev, status: action } : null));
     toast.success(action === 'suspended' ? t('members.member.suspended') : t('members.member.reinstated'));
   };
@@ -453,7 +489,9 @@ export default function MembersPage() {
             <Input value={searchMembers} onChange={(e) => setSearchMembers(e.target.value)} placeholder={t('members.searchMembers')} className="pl-10 border-primary placeholder:text-secondary" />
           </div>
           <div className="flex flex-col gap-2">
-            {filteredMembers.length === 0 ? (
+            {isMembersLoading ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">Chargement...</p>
+            ) : filteredMembers.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">{t('members.empty')}</p>
             ) : (
               filteredMembers.map((m) => (

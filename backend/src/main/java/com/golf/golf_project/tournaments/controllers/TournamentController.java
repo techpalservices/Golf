@@ -24,6 +24,11 @@ public class TournamentController {
         return ResponseEntity.ok(ApiResponse.success(tournamentService.search(req)));
     }
 
+    @PostMapping("/public-search")
+    public ResponseEntity<?> publicSearch(@RequestBody SearchTournamentRequest req) {
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.publicSearch(req)));
+    }
+
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping
     public ResponseEntity<?> createMultipart(

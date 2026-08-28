@@ -26,4 +26,14 @@ public interface MembershipRequestRepository extends JpaRepository<MembershipReq
             UUID clubId,
             Pageable pageable
     );
+
+    @Query("SELECT r FROM MembershipRequest r JOIN r.membership.club c " +
+            "WHERE r.status = com.golf.golf_project.memberships.enums.EMRStatus.ACCEPTED " +
+            "AND c.id = :clubId " +
+            "AND (:planName IS NULL OR LOWER(r.membership.title) LIKE :planName)")
+    Page<MembershipRequest> searchClubMembers(
+            UUID clubId,
+            String planName,
+            Pageable pageable
+    );
 }

@@ -2,6 +2,7 @@ package com.golf.golf_project.memberships.controllers;
 
 import com.golf.golf_project.exeptions.dto.ApiResponse;
 import com.golf.golf_project.memberships.dto.requests.SearchMembershipRequestsRequest;
+import com.golf.golf_project.memberships.dto.responses.ClubMemberResponse;
 import com.golf.golf_project.memberships.services.MembershipRequestService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,20 @@ public class MembershipRequestController {
     ) {
         return ResponseEntity.ok(
                 ApiResponse.success(membershipRequestService.getAllMembershipRequests(request))
+        );
+    }
+
+    /**
+     * Members of the manager's club = players whose membership request
+     * was ACCEPTED. Supports planName filter + pagination.
+     */
+    @PreAuthorize("hasRole('MANAGER')")
+    @PostMapping("/members")
+    public ResponseEntity<?> getClubMembers(
+            @RequestBody SearchMembershipRequestsRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(membershipRequestService.getClubMembers(request))
         );
     }
 

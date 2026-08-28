@@ -253,6 +253,7 @@
     "avatar": "Changer la photo",
     "firstName": "Prénom",
     "lastName": "Nom",
+    "gender": "Genre",
     "phone": "Téléphone",
     "location": "Localisation",
     "bio": "Bio",

@@ -41,4 +41,17 @@ public interface MembershipRepository extends JpaRepository<Membership, UUID> {
     );
 
     Membership findMembershipById(UUID id);
+
+    @Query("SELECT m FROM Membership m " +
+            "LEFT JOIN m.club c " +
+            "LEFT JOIN m.players p " +
+            "WHERE p.username = :playerUsername " +
+            "AND m.status = 'ACTIVE' " +
+            "AND (:search IS NULL OR LOWER(c.name) LIKE :search OR LOWER(c.city) LIKE :search)"
+    )
+    Page<Membership> findPlayerClubMemberships(
+            String playerUsername,
+            String search,
+            Pageable pageable
+    );
 }

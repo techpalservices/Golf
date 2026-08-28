@@ -2,6 +2,7 @@ package com.golf.golf_project.memberships.mappers;
 
 import com.golf.golf_project.clubs.mappers.ClubMapper;
 import com.golf.golf_project.memberships.dto.requests.CreateMembershipRequest;
+import com.golf.golf_project.memberships.dto.responses.PlayerClubMembershipResponse;
 import com.golf.golf_project.memberships.dto.responses.SearchMembershipResponse;
 import com.golf.golf_project.memberships.dto.responses.SearchMyMembershipsResponse;
 import com.golf.golf_project.memberships.entities.Membership;
@@ -45,5 +46,22 @@ public class MembershipMapper {
         membership.setPrice(request.price());
         membership.setBenefits(request.benefits());
         return membership;
+    }
+
+    public PlayerClubMembershipResponse toPlayerClubMembershipResponse(Membership membership) {
+        return new PlayerClubMembershipResponse(
+                membership.getClub().getId(),
+                membership.getClub().getName(),
+                membership.getClub().getLogoURL(),
+                membership.getClub().getCity(),
+                membership.getClub().getAddress(),
+                membership.getId(),
+                membership.getTitle(),
+                membership.getDescription(),
+                membership.getCreatedAt().toLocalDate(),
+                // Calculate end date based on membership type or use a default
+                membership.getCreatedAt().toLocalDate().plusYears(1),
+                (long) membership.getClub().getCourses().size()
+        );
     }
 }

@@ -10,8 +10,10 @@ import com.golf.golf_project.memberships.enums.EMStatus;
 import com.golf.golf_project.notifications.enums.ENotificationType;
 import com.golf.golf_project.notifications.services.NotificationService;
 import com.golf.golf_project.reservations.dto.requests.CreateReservationRequest;
+import com.golf.golf_project.reservations.dto.requests.SearchPlayerReservationsRequest;
 import com.golf.golf_project.reservations.dto.requests.UpdateReservationStatusRequest;
 import com.golf.golf_project.reservations.dto.responses.ManagerReservationResponse;
+import com.golf.golf_project.reservations.dto.responses.PlayerReservationResponse;
 import com.golf.golf_project.reservations.entities.Reservation;
 import com.golf.golf_project.reservations.enums.ERStatus;
 import com.golf.golf_project.reservations.repositories.ReservationRepository;
@@ -309,5 +311,50 @@ public class ReservationService {
                 r.getNumberOfPlayers(),
                 r.getTimeSlot().getCourse().getGreenFee(),
                 r.getCreatedAt());
+    }
+
+    public List<PlayerReservationResponse> getPlayerReservations(SearchPlayerReservationsRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            throw new IllegalArgumentException("Not authenticated");
+        }
+
+        Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
+
+        Page<Reservation> reservations = reservationRepository.findPlayerReservations(
+                auth.getName(),
+                wrapLike(request.search()),
+                request.status(),
+                pageable
+        );
+
+        return reservations.getContent().stream()
+                .map(this::toPlayerReservationResponse)
+                .toList();
+    }
+
+    private String wrapLike(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return "%" + value.trim().toLowerCase() + "%";
+    }
+
+    private PlayerReservationResponse toPlayerReservationResponse(Reservation r) {
+        return new PlayerReservationResponse(
+                r.getId(),
+                r.getStatus().name(),
+                r.getNumberOfPlayers(),
+                r.getTimeSlot().getCourse().getClub().getId(),
+                r.getTimeSlot().getCourse().getClub().getName(),
+                r.getTimeSlot().getCourse().getClub().getLogoURL(),
+                r.getTimeSlot().getCourse().getId(),
+                r.getTimeSlot().getCourse().getName(),
+                r.getTimeSlot().getId(),
+                r.getTimeSlot().getStartTime(),
+                r.getTimeSlot().getEndTime(),
+                r.getCreatedAt()
+        );
     }
 }

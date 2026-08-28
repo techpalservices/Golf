@@ -247,6 +247,7 @@
         "firstName": "First name",
         "lastName": "Last name",
         "phone": "Phone",
+        "gender": "Gender",
         "location": "Location",
         "bio": "Bio",
         "handicap": "Handicap",

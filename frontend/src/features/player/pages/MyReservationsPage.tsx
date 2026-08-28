@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, Calendar, Clock, Users, MapPin, Download, XCircle } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
@@ -9,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { toast } from 'sonner';
+import { reservationApi } from '@/api/endpoints/reservation.api';
+import type { PlayerReservation, ReservationStatus } from '@/features/reservations/types';
 
 interface Reservation {
   id: string;
@@ -18,63 +21,11 @@ interface Reservation {
   date: string;
   time: string;
   players: number;
-  price: number;
-  status: 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'COMPLETED';
+  status: ReservationStatus;
   description: string;
 }
 
-const mockReservations: Reservation[] = [
-  {
-    id: '1',
-    clubName: 'Royal Golf de Marrakech',
-    clubLogo: '/teetime-logo.png',
-    courseName: 'Parcours Massy',
-    date: '15/07/2026',
-    time: '08:00',
-    players: 3,
-    price: 1500,
-    status: 'CONFIRMED',
-    description: 'Réservation confirmée pour 3 joueurs sur le parcours Massy.',
-  },
-  {
-    id: '2',
-    clubName: "Golf d'Anfa",
-    clubLogo: '/teetime-logo.png',
-    courseName: 'Parcours Atlantique',
-    date: '20/07/2026',
-    time: '14:00',
-    players: 2,
-    price: 600,
-    status: 'PENDING',
-    description: 'En attente de confirmation par le club.',
-  },
-  {
-    id: '3',
-    clubName: 'Golf du Palais Royal',
-    clubLogo: '/teetime-logo.png',
-    courseName: 'Parcours Royal',
-    date: '01/07/2026',
-    time: '07:00',
-    players: 4,
-    price: 1800,
-    status: 'COMPLETED',
-    description: 'Partie terminée.',
-  },
-  {
-    id: '4',
-    clubName: 'Royal Golf de Marrakech',
-    clubLogo: '/teetime-logo.png',
-    courseName: 'Parcours Palmeraie',
-    date: '05/07/2026',
-    time: '10:00',
-    players: 1,
-    price: 300,
-    status: 'CANCELLED',
-    description: 'Réservation annulée.',
-  },
-];
-
-const statusColors: Record<Reservation['status'], string> = {
+const statusColors: Record<ReservationStatus, string> = {
   CONFIRMED: 'border-primary bg-primary/15 text-primary',
   PENDING: 'border-secondary bg-secondary/15 text-secondary',
   COMPLETED: 'border-secondary bg-secondary/15 text-secondary',
@@ -84,10 +35,71 @@ const statusColors: Record<Reservation['status'], string> = {
 export default function MyReservationsPage() {
   const { t } = useTranslation('app');
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchReservations = useCallback(async (searchQuery: string = '', pageNum: number = 0) => {
+    setLoading(true);
+    try {
+      const response = await reservationApi.searchPlayerReservations({
+        search: searchQuery,
+        status: null,
+        page: pageNum,
+        size: 10,
+      });
+
+      const data = response.data.data as PlayerReservation[];
+      
+      const formattedReservations: Reservation[] = data.map((res) => {
+        const startDate = new Date(res.startTime);
+        return {
+          id: res.reservationId,
+          clubName: res.clubName,
+          clubLogo: res.clubLogoURL || '/teetime-logo.png',
+          courseName: res.courseName,
+          date: startDate.toLocaleDateString('fr-FR'),
+          time: startDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+          players: res.numberOfPlayers,
+          status: res.status,
+          description: `Réservation ${res.status.toLowerCase()} pour ${res.numberOfPlayers} joueur(s) sur le parcours ${res.courseName}.`,
+        };
+      });
+
+      if (pageNum === 0) {
+        setReservations(formattedReservations);
+      } else {
+        setReservations((prev) => [...prev, ...formattedReservations]);
+      }
+
+      setHasMore(formattedReservations.length === 10);
+      setPage(pageNum);
+    } catch (error) {
+      console.error('Failed to fetch reservations:', error);
+      toast.error('Erreur lors du chargement des réservations');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchReservations('', 0);
+  }, [fetchReservations]);
+
+  // Debounce search - wait 500ms after user stops typing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchReservations(search, 0);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [search, fetchReservations]);
 
   const handleReservationClick = (r: Reservation) => {
     setSelectedReservation(r);
@@ -97,6 +109,12 @@ export default function MyReservationsPage() {
   const handleCancel = () => {
     toast.success('Réservation annulée');
     setDialogOpen(false);
+  };
+
+  const loadMore = () => {
+    if (!loading && hasMore) {
+      fetchReservations(search, page + 1);
+    }
   };
 
   const reservationItem = (r: Reservation) => (
@@ -155,12 +173,12 @@ export default function MyReservationsPage() {
         </div>
         <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
           <Users size={16} className="text-primary" />
-          <span className="/text-xs text-muted-foreground">{t('reservations.dialog.players')}</span>
+          <span className="text-xs text-muted-foreground">{t('reservations.dialog.players')}</span>
           <span className="text-sm font-semibold">{selectedReservation.players}</span>
         </div>
         <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
-          <span className="text-xs text-muted-foreground">{t('reservations.dialog.price')}</span>
-          <span className="text-sm font-semibold text-primary">{selectedReservation.price} MAD</span>
+          <span className="text-xs text-muted-foreground">Status</span>
+          <span className="text-sm font-semibold">{selectedReservation.status}</span>
         </div>
       </div>
 
@@ -184,7 +202,7 @@ export default function MyReservationsPage() {
       <h1 className="font-serif text-2xl font-bold text-secondary">{t('reservations.title')}</h1>
 
       {/* Search bar */}
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-row justify-between gap-2">
         <div className="relative flex-1">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
           <Input
@@ -195,16 +213,46 @@ export default function MyReservationsPage() {
             className="pl-10 border-primary placeholder:text-secondary"
           />
         </div>
-        <Button variant="outline" size="lg" className="ml-2 gap-2 border-primary text-secondary" onClick={() => setFilterOpen(true)}>
-          <SlidersHorizontal size={18} />
-          <span className="hidden md:inline">{t('reservations.filter')}</span>
+        <Button 
+          variant="outline" 
+          size="lg" 
+          className="gap-2 border-primary text-secondary" 
+          onClick={() => navigate('/reservations')}
+        >
+          <span className="hidden md:inline">Créer une reservation</span>
+          <span className="md:hidden">Créer une reservation</span>
         </Button>
       </div>
 
       {/* List */}
-      <div className="flex flex-col gap-3">
-        {mockReservations.map(reservationItem)}
-      </div>
+      {loading && reservations.length === 0 ? (
+        <div className="flex justify-center py-8">
+          <p className="text-muted-foreground">{t('common.loading') || 'Chargement...'}</p>
+        </div>
+      ) : reservations.length === 0 ? (
+        <div className="flex justify-center py-8">
+          <p className="text-muted-foreground">Aucune réservation trouvée</p>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-3">
+            {reservations.map(reservationItem)}
+          </div>
+
+          {hasMore && (
+            <div className="flex justify-center">
+              <Button 
+                variant="outline" 
+                onClick={loadMore} 
+                disabled={loading}
+                className="border-primary text-secondary"
+              >
+                {loading ? (t('common.loading') || 'Chargement...') : (t('common.loadMore') || 'Charger plus')}
+              </Button>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Details dialog */}
       {isDesktop ? (

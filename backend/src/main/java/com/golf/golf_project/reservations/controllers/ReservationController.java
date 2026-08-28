@@ -2,6 +2,7 @@ package com.golf.golf_project.reservations.controllers;
 
 import com.golf.golf_project.exeptions.dto.ApiResponse;
 import com.golf.golf_project.reservations.dto.requests.CreateReservationRequest;
+import com.golf.golf_project.reservations.dto.requests.SearchPlayerReservationsRequest;
 import com.golf.golf_project.reservations.dto.requests.UpdateReservationStatusRequest;
 import com.golf.golf_project.reservations.enums.ERStatus;
 import com.golf.golf_project.reservations.services.ReservationService;
@@ -59,6 +60,16 @@ public class ReservationController {
         int autoRejected = reservationService.updateReservationStatus(request);
         return ResponseEntity.ok(
                 ApiResponse.success(Map.of("autoRejected", autoRejected))
+        );
+    }
+
+    @PreAuthorize("hasRole('PLAYER')")
+    @PostMapping("/player/list")
+    public ResponseEntity<?> getPlayerReservations(
+            @RequestBody SearchPlayerReservationsRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(reservationService.getPlayerReservations(request))
         );
     }
 }

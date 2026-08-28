@@ -5,9 +5,11 @@ import com.golf.golf_project.clubs.repositories.ClubRepository;
 import com.golf.golf_project.memberships.dto.requests.CreateMembershipRequest;
 import com.golf.golf_project.memberships.dto.requests.SearchMembershipRequest;
 import com.golf.golf_project.memberships.dto.requests.SearchMyMembershipsRequest;
+import com.golf.golf_project.memberships.dto.requests.SearchPlayerClubMembershipsRequest;
 import com.golf.golf_project.memberships.dto.requests.UpdateMembershipRequest;
 import com.golf.golf_project.memberships.dto.responses.SearchMembershipResponse;
 import com.golf.golf_project.memberships.dto.responses.SearchMyMembershipsResponse;
+import com.golf.golf_project.memberships.dto.responses.PlayerClubMembershipResponse;
 import com.golf.golf_project.memberships.entities.Membership;
 import com.golf.golf_project.memberships.enums.EMStatus;
 import com.golf.golf_project.memberships.mappers.MembershipMapper;
@@ -123,5 +125,25 @@ public class MembershipService {
         if (request.benefits() != null) membership.setBenefits(request.benefits());
 
         membershipRepository.save(membership);
+    }
+
+    public List<PlayerClubMembershipResponse> getPlayerClubs(SearchPlayerClubMembershipsRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+            throw new IllegalArgumentException("Not authenticated");
+        }
+
+        Pageable pageable = PageRequest.of(request.page(), request.size(), Sort.by("createdAt").descending());
+
+        Page<Membership> memberships = membershipRepository.findPlayerClubMemberships(
+                auth.getName(),
+                wrapLike(request.search()),
+                pageable
+        );
+
+        return memberships.getContent().stream()
+                .map(membershipMapper::toPlayerClubMembershipResponse)
+                .toList();
     }
 }

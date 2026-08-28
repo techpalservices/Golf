@@ -4,6 +4,7 @@ import com.golf.golf_project.exeptions.dto.ApiResponse;
 import com.golf.golf_project.memberships.dto.requests.CreateMembershipRequest;
 import com.golf.golf_project.memberships.dto.requests.SearchMembershipRequest;
 import com.golf.golf_project.memberships.dto.requests.SearchMyMembershipsRequest;
+import com.golf.golf_project.memberships.dto.requests.SearchPlayerClubMembershipsRequest;
 import com.golf.golf_project.memberships.dto.requests.UpdateMembershipRequest;
 import com.golf.golf_project.memberships.services.MembershipService;
 import jakarta.validation.Valid;
@@ -57,6 +58,16 @@ public class MembershipController {
         membershipService.updateMembership(request);
         return ResponseEntity.ok(
                 ApiResponse.success("Membership updated successfully")
+        );
+    }
+
+    @PreAuthorize("hasRole('PLAYER')")
+    @PostMapping("/player/clubs")
+    public ResponseEntity<?> getPlayerClubs(
+            @RequestBody SearchPlayerClubMembershipsRequest request
+    ) {
+        return ResponseEntity.ok(
+                ApiResponse.success(membershipService.getPlayerClubs(request))
         );
     }
 }

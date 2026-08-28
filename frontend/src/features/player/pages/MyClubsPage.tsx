@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Calendar, Flag, Building2 } from 'lucide-react';
@@ -9,56 +9,22 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { membershipApi } from '@/api/endpoints/membership.api';
+import type { PlayerClubMembership } from '@/features/memberships/types';
 
 interface ClubMembership {
   id: string;
   name: string;
   logo: string;
   location: string;
-  membership: 'MONTHLY' | 'YEARLY' | 'VIP';
+  membership: string;
   description: string;
   startDate: string;
   endDate: string;
   coursesCount: number;
 }
 
-const mockClubs: ClubMembership[] = [
-  {
-    id: '1',
-    name: 'Royal Golf de Marrakech',
-    logo: '/teetime-logo.png',
-    location: 'Marrakech',
-    membership: 'YEARLY',
-    description: 'Un club légendaire au cœur de la palmeraie, fondé en 1920.',
-    startDate: '01/01/2026',
-    endDate: '31/12/2026',
-    coursesCount: 2,
-  },
-  {
-    id: '2',
-    name: "Golf d'Anfa",
-    logo: '/teetime-logo.png',
-    location: 'Casablanca',
-    membership: 'MONTHLY',
-    description: "Un club urbain avec une vue imprenable sur l'océan.",
-    startDate: '01/07/2026',
-    endDate: '31/07/2026',
-    coursesCount: 1,
-  },
-  {
-    id: '3',
-    name: 'Golf du Palais Royal',
-    logo: '/teetime-logo.png',
-    location: 'Agadir',
-    membership: 'VIP',
-    description: 'Un club de championnat offrant un défi technique.',
-    startDate: '01/06/2026',
-    endDate: '31/05/2027',
-    coursesCount: 2,
-  },
-];
-
-const membershipColors: Record<ClubMembership['membership'], string> = {
+const membershipColors: Record<string, string> = {
   MONTHLY: 'border-primary bg-primary/15 text-primary',
   YEARLY: 'border-secondary bg-secondary/15 text-secondary',
   VIP: 'border-primary bg-primary text-primary-foreground',
@@ -71,10 +37,76 @@ export default function MyClubsPage() {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<ClubMembership | null>(null);
   const [open, setOpen] = useState(false);
+  const [clubs, setClubs] = useState<ClubMembership[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchClubs = useCallback(async (searchQuery: string = '', pageNum: number = 0) => {
+    setLoading(true);
+    try {
+      const response = await membershipApi.searchPlayerClubs({
+        search: searchQuery,
+        page: pageNum,
+        size: 10,
+      });
+
+      const data = response.data.data as PlayerClubMembership[];
+      
+      const formattedClubs: ClubMembership[] = data.map((club) => ({
+        id: club.clubId,
+        name: club.clubName,
+        logo: club.clubLogoURL || '/teetime-logo.png',
+        location: club.clubCity,
+        membership: club.membershipTitle,
+        description: club.membershipDescription,
+        startDate: new Date(club.membershipStartDate).toLocaleDateString('fr-FR'),
+        endDate: new Date(club.membershipEndDate).toLocaleDateString('fr-FR'),
+        coursesCount: club.coursesCount,
+      }));
+
+      if (pageNum === 0) {
+        setClubs(formattedClubs);
+      } else {
+        setClubs((prev) => [...prev, ...formattedClubs]);
+      }
+
+      setHasMore(formattedClubs.length === 10);
+      setPage(pageNum);
+    } catch (error) {
+      console.error('Failed to fetch clubs:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchClubs('', 0);
+  }, [fetchClubs]);
+
+  // Debounce search - wait 500ms after user stops typing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchClubs(search, 0);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [search, fetchClubs]);
+
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    // Debouncing is handled by the useEffect above
+  };
 
   const handleClick = (club: ClubMembership) => {
     setSelected(club);
     setOpen(true);
+  };
+
+  const loadMore = () => {
+    if (!loading && hasMore) {
+      fetchClubs(search, page + 1);
+    }
   };
 
   const dialogContent = selected && (
@@ -89,10 +121,6 @@ export default function MyClubsPage() {
           </div>
         </div>
       </div>
-
-      <Badge className={`w-fit border ${membershipColors[selected.membership]}`}>
-        {t(`type.${selected.membership}`) || selected.membership}
-      </Badge>
 
       <p className="text-sm text-muted-foreground">{selected.description}</p>
 
@@ -120,10 +148,6 @@ export default function MyClubsPage() {
           <span className="text-sm font-semibold">{selected.membership}</span>
         </div>
       </div>
-
-      <Button variant="outline" className="w-full border-primary text-secondary" onClick={() => navigate(`/reservations/${selected.id}`)}>
-        {t('clubs.dialog.visit')}
-      </Button>
     </div>
   );
 
@@ -131,38 +155,71 @@ export default function MyClubsPage() {
     <div className="flex flex-col gap-6">
       <h1 className="font-serif text-2xl font-bold text-secondary">{t('clubs.myClubs')}</h1>
 
-      <div className="relative">
-        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
-        <Input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('clubs.searchPlaceholder')}
-          className="pl-10 border-primary placeholder:text-secondary"
-        />
+      <div className="flex flex-row justify-between gap-2">
+        <div className="relative flex-1">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+          <Input
+            type="text"
+            value={search}
+            onChange={(e) => handleSearch(e.target.value)}
+            placeholder={t('clubs.searchPlaceholder')}
+            className="pl-10 border-primary placeholder:text-secondary"
+          />
+        </div>
+        <Button 
+          variant="outline" 
+          size="lg" 
+          className="gap-2 border-primary text-secondary" 
+          onClick={() => navigate('/memberships')}
+        >
+          <span className="hidden md:inline">Créer une abonnement</span>
+          <span className="md:hidden">Créer une abonnement</span>
+        </Button>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {mockClubs.map((club) => (
-          <div
-            key={club.id}
-            onClick={() => handleClick(club)}
-            className="flex cursor-pointer items-center gap-4 rounded-lg border border-border bg-surface p-4 transition-shadow hover:shadow-md"
-          >
-            <img src={club.logo} alt={club.name} className="h-12 w-12 shrink-0 rounded-full border-2 border-primary object-cover" />
-            <div className="flex flex-1 flex-col gap-1">
-              <span className="font-serif text-sm font-bold text-secondary">{club.name}</span>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <MapPin size={12} className="text-primary" />
-                <span>{club.location}</span>
+      {loading && clubs.length === 0 ? (
+        <div className="flex justify-center py-8">
+          <p className="text-muted-foreground">{t('common.loading') || 'Loading...'}</p>
+        </div>
+      ) : clubs.length === 0 ? (
+        <div className="flex justify-center py-8">
+          <p className="text-muted-foreground">{t('clubs.noClubs') || 'No clubs found'}</p>
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-3">
+            {clubs.map((club) => (
+              <div
+                key={club.id}
+                onClick={() => handleClick(club)}
+                className="flex cursor-pointer items-center gap-4 rounded-lg border border-border bg-surface p-4 transition-shadow hover:shadow-md"
+              >
+                <img src={club.logo} alt={club.name} className="h-12 w-12 shrink-0 rounded-full border-2 border-primary object-cover" />
+                <div className="flex flex-1 flex-col gap-1">
+                  <span className="font-serif text-sm font-bold text-secondary">{club.name}</span>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin size={12} className="text-primary" />
+                    <span>{club.location}</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <Badge className={`shrink-0 border text-xs ${membershipColors[club.membership]}`}>
-              {club.membership}
-            </Badge>
+            ))}
           </div>
-        ))}
-      </div>
+
+          {hasMore && (
+            <div className="flex justify-center">
+              <Button 
+                variant="outline" 
+                onClick={loadMore} 
+                disabled={loading}
+                className="border-primary text-secondary"
+              >
+                {loading ? (t('common.loading') || 'Loading...') : (t('common.loadMore') || 'Load More')}
+              </Button>
+            </div>
+          )}
+        </>
+      )}
 
       {isDesktop ? (
         <Dialog open={open} onOpenChange={setOpen}>

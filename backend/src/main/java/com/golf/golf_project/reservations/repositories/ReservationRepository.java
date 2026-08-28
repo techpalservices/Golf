@@ -35,4 +35,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID>,
 
     // FIFO: oldest pending requests first when competing for leftover seats
     List<Reservation> findByTimeSlot_IdAndStatusOrderByCreatedAtAsc(UUID timeSlotId, ERStatus status);
+
+    @Query("SELECT r FROM Reservation r " +
+            "JOIN FETCH r.timeSlot ts " +
+            "JOIN FETCH ts.course c " +
+            "JOIN FETCH c.club club " +
+            "WHERE r.player.username = :playerUsername " +
+            "AND (:search IS NULL OR LOWER(club.name) LIKE :search OR LOWER(c.name) LIKE :search) " +
+            "AND (:status IS NULL OR r.status = :status)")
+    org.springframework.data.domain.Page<Reservation> findPlayerReservations(
+            String playerUsername,
+            String search,
+            ERStatus status,
+            Pageable pageable
+    );
 }

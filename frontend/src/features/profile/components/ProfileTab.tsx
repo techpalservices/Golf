@@ -13,6 +13,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useChangePP } from "@/features/profile/hooks/useChangePP.ts";
 import type {EUGender} from "@/api/types.ts";
 import {useUpdateData} from "@/features/profile/hooks/useUpdateData.ts";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 export default function ProfileTab() {
   const { t } = useTranslation('app');
@@ -222,11 +223,18 @@ export default function ProfileTab() {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-sm text-secondary">{t('profile.profileTab.gender')}</Label>
-            <Input
-              value={gender}
-              onChange={(e) => setGender(e.target.value as EUGender | '')}
-              className="border-border"
-            />
+            <Select value={gender} onValueChange={(v) => setGender(v ?? '')}>
+              <SelectTrigger size="sm" className="w-full border-border">
+                <SelectValue>
+                  {gender ? t(`users.gender.${gender.toLocaleLowerCase()}`) : t('users.gender.all')}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">{t('users.gender.all')}</SelectItem>
+                <SelectItem value="MALE">{t('users.gender.male')}</SelectItem>
+                <SelectItem value="FEMALE">{t('users.gender.female')}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

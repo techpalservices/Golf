@@ -66,3 +66,23 @@ export interface MembershipRequest {
   status: EMRStatus;
   createdAt: string;
 }
+
+export interface PlayerClubMembership {
+  clubId: string;
+  clubName: string;
+  clubLogoURL: string;
+  clubCity: string;
+  clubAddress: string;
+  membershipId: string;
+  membershipTitle: string;
+  membershipDescription: string;
+  membershipStartDate: string;
+  membershipEndDate: string;
+  coursesCount: number;
+}
+
+export interface SearchPlayerClubs {
+  search: string;
+  page: number;
+  size: number;
+}

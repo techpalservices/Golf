@@ -2,6 +2,7 @@ import type {
     AddMembership,
     SearchAllMemberships,
     SearchMyMemberships,
+    SearchPlayerClubs,
     UpdateMembership
 } from "@/features/memberships/types.ts";
 import {api} from "@/api/apiConfig.ts";
@@ -12,6 +13,9 @@ export const membershipApi = {
 
     searchMyMemberships: (searchMyMemberships: SearchMyMemberships) =>
         api.post('/memberships/getMyMemberships', searchMyMemberships),
+
+    searchPlayerClubs: (searchPlayerClubs: SearchPlayerClubs) =>
+        api.post('/memberships/player/clubs', searchPlayerClubs),
 
     addMembership: (data: AddMembership) =>
         api.post('/memberships/add', data),

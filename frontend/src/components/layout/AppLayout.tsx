@@ -13,13 +13,15 @@ import {
 
 const roleNavItems: Record<string, NavItem[]> = {
   PLAYER: [
+    { key: 'nav.dashboard', to: '/dashboard', icon: LayoutDashboard },
     { key: 'nav.reservations', to: '/my-reservations', icon: Calendar },
     { key: 'nav.clubs', to: '/my-clubs', icon: Building2 },
-    { key: 'nav.orders', to: '/my-orders', icon: ShoppingCart },
-    { key: 'nav.campus', to: '/my-campus', icon: GraduationCap },
+    // { key: 'nav.orders', to: '/my-orders', icon: ShoppingCart },
+    // { key: 'nav.campus', to: '/my-campus', icon: GraduationCap },
     { key: 'nav.profile', to: '/profile', icon: User },
   ],
   MANAGER: [
+    { key: 'nav.dashboard', to: '/dashboard', icon: LayoutDashboard },
     { key: 'nav.myClub', to: '/my-club', icon: Building },
     { key: 'nav.planning', to: '/planning', icon: CalendarClock },
     { key: 'nav.requests', to: '/requests', icon: ClipboardList },
@@ -28,6 +30,7 @@ const roleNavItems: Record<string, NavItem[]> = {
     { key: 'nav.profile', to: '/profile', icon: User },
   ],
   ADMIN: [
+    { key: 'nav.dashboard', to: '/dashboard', icon: LayoutDashboard },
     { key: 'nav.users', to: '/users', icon: UserCog },
     { key: 'nav.clubsManagement', to: '/clubs', icon: Building },
     { key: 'nav.profile', to: '/profile', icon: User },

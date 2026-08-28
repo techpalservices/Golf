@@ -61,3 +61,29 @@ export interface SearchTimeSlots {
   page: number;
   size: number;
 }
+
+// ─── Player Reservations ───
+
+export type ReservationStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'COMPLETED';
+
+export interface PlayerReservation {
+  reservationId: string;
+  status: ReservationStatus;
+  numberOfPlayers: number;
+  clubId: string;
+  clubName: string;
+  clubLogoURL: string | null;
+  courseId: string;
+  courseName: string;
+  timeSlotId: string;
+  startTime: string; // ISO LocalDateTime
+  endTime: string; // ISO LocalDateTime
+  createdAt: string; // ISO LocalDateTime
+}
+
+export interface SearchPlayerReservations {
+  search: string;
+  status: ReservationStatus | null;
+  page: number;
+  size: number;
+}

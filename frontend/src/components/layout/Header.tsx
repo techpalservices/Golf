@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, NavLink } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Menu, X, LogOut } from 'lucide-react';
+import { useAuthStore } from '@/features/auth/store';
+import { useLogout } from '@/features/auth/hooks/useLogout.ts';
 
 export default function Header({ transparent = false }: { transparent?: boolean }) {
   const { t } = useTranslation('landing');
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
   const navItems = [
     { key: 'nav.Reservations', to: '/reservations' },
     { key: 'nav.Memberships', to: '/memberships' },
     { key: 'nav.Tournaments', to: '/tournaments' },
-    { key: 'nav.shop', to: '/shop' },
+    // { key: 'nav.shop', to: '/shop' },
   ];
 
   useEffect(() => {
@@ -48,21 +53,45 @@ export default function Header({ transparent = false }: { transparent?: boolean 
           ))}
         </ul>
 
-        {/* Desktop auth */}
-        <div className="hidden items-center gap-4 md:flex">
-          <Link
+
+        
+        {/* Authenticated user - Dashboard + Logout */}
+        {isAuthenticated && (
+          <div className="hidden items-center gap-4 md:flex">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="rounded-md bg-secondary px-3.25 py-2 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-secondary-hover"
+            >
+              {t('auth.dashboard')}
+            </button>
+            <button
+              onClick={() => logout()}
+              disabled={isLoggingOut}
+              className="relative text-[13px] font-medium tracking-widest text-primary transition-colors hover:text-primary-hover after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary-hover after:transition-all after:duration-300 hover:after:w-full disabled:opacity-50"
+            >
+              <LogOut size={16} className="mr-1 inline" />
+              {isLoggingOut ? t('auth.loggingOut') : t('auth.logout')}
+            </button>
+          </div>
+        )}
+
+        {/* Unauthenticated user - Login / Register */}
+        {!isAuthenticated && (
+          <div className="hidden items-center gap-4 md:flex">
+            <Link
             to="/login"
             className="relative text-[13px] font-medium tracking-widest text-primary transition-colors hover:text-primary-hover after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-0 after:bg-primary-hover after:transition-all after:duration-300 hover:after:w-full"
           >
-            {t('auth.login')}
+  {t('auth.login')}
           </Link>
           <Link
             to="/register"
             className="rounded-md bg-secondary px-3.25 py-2 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-secondary-hover"
           >
             {t('auth.register')}
-          </Link>
+                    </Link>
         </div>
+        )}
 
         {/* Mobile hamburger button */}
         <button

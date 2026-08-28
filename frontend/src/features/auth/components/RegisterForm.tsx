@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User } from 'lucide-react';
 import { BiMaleFemale } from "react-icons/bi";
-import {FaChrome, FaFacebookSquare, FaPhoneAlt, FaUser} from "react-icons/fa";
+import { FaFacebook, FaPhoneAlt, FaUser } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -204,18 +205,22 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      <div className="flex flex-row gap-6">
+      <div className="flex flex-col gap-3">
         <a
             href="http://localhost:8081/oauth2/authorization/google"
-            className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary py-2.5 text-sm font-medium text-primary hover:bg-primary hover:text-white transition-colors"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-surface py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted"
         >
-          <FaChrome size={18} />
+          <FcGoogle size={20} />
+          {t('login.continueWithGoogle', 'Sign in with Google')}
         </a>
         <a
             href="http://localhost:8081/oauth2/authorization/facebook"
-            className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary py-2.5 text-sm font-medium text-primary hover:bg-primary hover:text-white transition-colors"
+            className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-surface py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted"
         >
-          <FaFacebookSquare size={18} />
+          <span className="flex size-5 items-center justify-center rounded-full bg-[#1877F2]">
+            <FaFacebook size={13} className="text-white" />
+          </span>
+          {t('login.continueWithFacebook', 'Sign in with Facebook')}
         </a>
       </div>
 

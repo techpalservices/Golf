@@ -7,7 +7,9 @@
   },
   "auth": {
     "login": "Member login",
-    "register": "Create an account"
+    "register": "Create an account",
+    "dashboard": "Dashboard",
+    "logout": "Logout"
   },
   "hero": {
     "title": "Book your tee time in just a few clicks",

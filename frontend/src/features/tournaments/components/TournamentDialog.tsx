@@ -13,6 +13,7 @@ interface TournamentDialogProps {
 }
 
 const statusColors: Record<TournamentStatus, string> = {
+  PENDING: 'bg-secondary text-primary border-secondary',
   ACTIVE: 'bg-primary text-secondary border-primary',
   COMPLETED: 'bg-muted text-white border-border',
   CANCELED: 'bg-muted text-muted-foreground border-border',

@@ -7,6 +7,7 @@ public record SearchTournamentRequest(
         String status,
         String location,
         LocalDate date,
+        LocalDate fromDate,
         Integer page,
         Integer size
 ) {}

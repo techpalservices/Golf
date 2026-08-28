@@ -6,7 +6,8 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {useLogin} from "@/features/auth/hooks/useLogin.ts";
-import { FaChrome, FaFacebookSquare} from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from "react-icons/fa";
 
 export default function LoginForm() {
   const { t } = useTranslation('auth');
@@ -86,22 +87,26 @@ export default function LoginForm() {
             </div>
         </div>
 
-        <div className="flex flex-row gap-6">
+        {/* OAuth buttons — stacked vertically, colorful provider logos + label */}
+        <div className="flex flex-col gap-3">
             <a
                 href="http://localhost:8081/oauth2/authorization/google"
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary py-2.5 text-sm font-medium text-primary hover:bg-primary hover:text-white transition-colors"
+                className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-surface py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted"
             >
-                <FaChrome size={18} />
+                <FcGoogle size={20} />
+                {t('login.continueWithGoogle', 'Sign in with Google')}
             </a>
             <a
                 href="http://localhost:8081/oauth2/authorization/facebook"
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-primary py-2.5 text-sm font-medium text-primary hover:bg-primary hover:text-white transition-colors"
+                className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-surface py-2.5 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted"
             >
-                <FaFacebookSquare size={18} />
+                <span className="flex size-5 items-center justify-center rounded-full bg-[#1877F2]">
+                    <FaFacebook size={13} className="text-white" />
+                </span>
+                {t('login.continueWithFacebook', 'Sign in with Facebook')}
             </a>
         </div>
 
-      {/* Switch to register */}
       <div className="mt-2 text-center text-sm text-muted-foreground">
         {t('login.noAccount')}{' '}
         <Link to="/register" className="font-medium text-primary hover:text-primary-hover">

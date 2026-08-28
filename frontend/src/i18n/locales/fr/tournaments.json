@@ -13,6 +13,7 @@
     "statusPlaceholder": "Tous les statuts"
   },
   "status": {
+    "pending": "Annoncé",
     "active": "Ouvert",
     "completed": "Terminé",
     "canceled": "Annulé"

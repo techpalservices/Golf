@@ -8,6 +8,19 @@ import TournamentDialog from '../components/TournamentDialog';
 import type { Tournament, TournamentFilterValues } from '../types';
 import { tournamentApi } from '@/api/endpoints/tournament.api';
 
+import { getEnv } from '@/hooks/getEnv';
+
+/**
+ * Backend file URLs are relative (e.g. /uploads/tournaments/xxx.png). The browser
+ * would resolve them against the frontend origin, so we prefix them with the
+ * backend server URL. Absolute URLs (http/https, data:, blob:) pass through.
+ */
+export function resolveFileUrl(url?: string | null): string {
+  if (!url) return '';
+  if (/^(https?:|data:|blob:|\/\/)/i.test(url)) return url;
+  return `${getEnv().dev.server}${url.startsWith('/') ? url : `/${url}`}`;
+}
+
 /** Maps a backend TournamentResponse to the frontend Tournament shape */
 function mapTournament(t: any): Tournament {
   let date = t.date ?? '';
@@ -22,7 +35,7 @@ function mapTournament(t: any): Tournament {
     location: t.location,
     clubName: t.clubName,
     status: t.status,
-    image: t.imageUrl || '/section1.png',
+    image: resolveFileUrl(t.imageUrl) || '/section1.png',
     entryFee: t.entryFee,
     maxParticipants: t.maxParticipants,
     currentParticipants: t.currentParticipants,

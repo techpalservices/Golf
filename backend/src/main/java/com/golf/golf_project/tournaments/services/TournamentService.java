@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -35,6 +36,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TournamentService {
     private static final Logger log = LoggerFactory.getLogger(TournamentService.class);
+
+    @Value("${SERVER_URL}")
+    private String serverUrl;
 
     private final TournamentRepository tournamentRepository;
     private final ClubRepository clubRepository;
@@ -149,35 +153,42 @@ public class TournamentService {
             if (req.date() != null) {
                 preds.add(cb.equal(root.get("date"), req.date()));
             }
+            if (req.fromDate() != null) {
+                preds.add(cb.greaterThanOrEqualTo(root.get("date"), req.fromDate()));
+            }
             return cb.and(preds.toArray(new Predicate[0]));
         };
         int page = req.page() != null ? req.page() : 0;
         int size = req.size() != null && req.size() > 0 ? req.size() : 20;
-        Page<Tournament> p = tournamentRepository.findAll(spec, PageRequest.of(page, size));
+        // Soonest first — makes the most sense for an announcements list
+        Page<Tournament> p = tournamentRepository.findAll(spec, PageRequest.of(page, size,
+                org.springframework.data.domain.Sort.by("date").ascending()));
         return p.map(this::toResponse);
     }
 
     /**
      * Public search used by the tournaments page — accessible without authentication.
-     * Only exposes tournaments visible to the public: ACTIVE (default), COMPLETED
-     * or CANCELED. Drafts (PENDING) are never returned.
+     * Shows tournament announcements regardless of status (PENDING drafts included,
+     * since that's how they're created), restricted to dates from today onwards.
      */
     @Transactional(readOnly = true)
     public Page<TournamentResponse> publicSearch(SearchTournamentRequest req) {
-        String status = req.status();
-        if (status == null || status.isBlank() || status.equalsIgnoreCase("UPCOMING") || status.equalsIgnoreCase("ONGOING")) {
-            status = ETStatus.ACTIVE.name();
+        String status = null;
+        if (req.status() != null && !req.status().isBlank()) {
+            try {
+                // UPCOMING/ONGOING are frontend labels → let the DB do the work instead
+                if (!req.status().equalsIgnoreCase("UPCOMING") && !req.status().equalsIgnoreCase("ONGOING")) {
+                    ETStatus.valueOf(req.status().toUpperCase()); // validate
+                    status = req.status().toUpperCase();
+                }
+            } catch (Exception ignored) {}
         }
-        try {
-            ETStatus st = ETStatus.valueOf(status.toUpperCase());
-            if (st == ETStatus.PENDING) {
-                // Drafts are not public — fall back to ACTIVE
-                status = ETStatus.ACTIVE.name();
-            }
-        } catch (Exception ignored) {}
+
+        // Announcements only apply from today to the future
+        LocalDate fromDate = req.fromDate() != null ? req.fromDate() : LocalDate.now();
 
         SearchTournamentRequest publicReq = new SearchTournamentRequest(
-                req.q(), status, req.location(), req.date(), req.page(), req.size());
+                req.q(), status, req.location(), req.date(), fromDate, req.page(), req.size());
         return search(publicReq);
     }
 
@@ -189,7 +200,9 @@ public class TournamentService {
                 java.nio.file.Files.createDirectories(uploadDir);
                 java.nio.file.Path target = uploadDir.resolve(filename);
                 java.nio.file.Files.copy(file.getInputStream(), target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-                return "/uploads/tournaments/" + filename;
+                // Return an absolute URL (matches UploadService) so the browser can
+                // load the image regardless of the frontend origin
+                return serverUrl + "/uploads/tournaments/" + filename;
             } catch (Exception e) {
                 // fallback to original
             }

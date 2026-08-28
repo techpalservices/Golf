@@ -137,7 +137,7 @@ export default function CourseEditDialog({ course, open, onOpenChange }: CourseE
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
-                    <Label className="text-sm text-secondary">{t('myClub.form.holes')}</Label>
+                    <Label className="text-sm text-secondary">{t('myClub.form.holeCount')}</Label>
                     <Select value={String(holeCount)} onValueChange={(v) => setHoleCount(Number(v))}>
                         <SelectTrigger size="sm" className="w-full border-border">
                             <SelectValue>{holeCount}</SelectValue>
@@ -149,7 +149,7 @@ export default function CourseEditDialog({ course, open, onOpenChange }: CourseE
                     </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                    <Label className="text-sm text-secondary">{t('myClub.form.price')}</Label>
+                    <Label className="text-sm text-secondary">{t('myClub.form.greenFee')}</Label>
                     <Input
                         type="number"
                         min="0"

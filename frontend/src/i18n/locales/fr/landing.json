@@ -7,7 +7,9 @@
   },
   "auth": {
     "login": "Espace membre",
-    "register": "Créer un compte"
+    "register": "Créer un compte",
+    "dashboard": "Tableau de bord",
+    "logout": "Se déconnecter"
   },
   "hero": {
     "title": "Réservez votre tee time en quelques clics",

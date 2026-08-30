@@ -1,0 +1,48 @@
+# GitLab CI configuration — mirrors the GitHub Actions workflow
+# (.github/workflows/tests.yml). Runs the same hermetic test suite:
+# no PostgreSQL, no .env, no external services required (the "test"
+# profile uses an in-memory H2 database).
+
+stages:
+  - test
+
+workflow:
+  rules:
+    # Run on merge requests ...
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    # ... and on pushes to the main branches.
+    - if: '$CI_COMMIT_BRANCH =~ /^(main|master|develop)$/'
+    # Skip everything else (feature branches, tags, schedules).
+    - when: never
+
+backend-test:
+  stage: test
+  image: maven:3.9-eclipse-temurin-21
+  cache:
+    key: backend-maven
+    paths:
+      - .m2/repository/
+  variables:
+    # Keep the Maven cache inside the repo so GitLab can store it per pipeline.
+    MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  script:
+    - cd backend
+    - chmod +x mvnw
+    - ./mvnw -B test
+  artifacts:
+    when: on_failure
+    paths:
+      - backend/target/surefire-reports/
+    expire_in: 7 days
+
+frontend-build:
+  stage: test
+  image: node:22
+  cache:
+    key: frontend-npm
+    paths:
+      - frontend/node_modules/
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build

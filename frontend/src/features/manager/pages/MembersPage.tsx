@@ -317,7 +317,7 @@ export default function MembersPage() {
             </Avatar>
             <div className="flex flex-col gap-1">
               <span className="font-serif text-lg font-bold text-secondary">{(selectedRequest as any).fullName ?? (selectedRequest as any).userFullName}</span>
-              <Badge className={`w-fit border text-xs ${requestStatusColors[(selectedRequest as any).status.toLowerCase()] ?? 'border-primary bg-primary/15 text-primary'}`}>
+              <Badge className={`w-fit border text-xs ${requestStatusColors[(selectedRequest as any).status.toLowerCase() as RequestStatus] ?? 'border-primary bg-primary/15 text-primary'}`}>
                 {(selectedRequest as any).status}
               </Badge>
             </div>
@@ -660,7 +660,9 @@ export default function MembersPage() {
         open={offerFormOpen}
         onOpenChange={setOfferFormOpen}
         onSubmit={editingOffer ? handleUpdateOffer : handleCreateOffer}
-        initialData={editingOffer ?? undefined}
+        initialData={editingOffer
+          ? { title: editingOffer.name, description: editingOffer.description, price: editingOffer.price, benefits: editingOffer.benefits }
+          : undefined}
       />
     </div>
   );

@@ -116,7 +116,7 @@ export default function ManageTournamentsPage(){
       <img src={selected.image} className="h-40 w-full rounded-lg object-cover"/>
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-xl font-bold text-secondary">{selected.name}</h2>
-        <Badge className={`border ${statusColor[selected.frontStatus]}`}>{t(`manageTournaments.status.${selected.frontStatus}`)}</Badge>
+        <Badge className={`border ${statusColor[selected.frontStatus as FrontStatus]}`}>{t(`manageTournaments.status.${selected.frontStatus}`)}</Badge>
       </div>
       <p className="text-sm text-muted-foreground">{selected.description}</p>
       <Separator/>
@@ -152,7 +152,7 @@ export default function ManageTournamentsPage(){
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-1">
               <Label className="text-xs text-muted-foreground">{t('manageTournaments.filterStatus')}</Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
                 <SelectTrigger className="w-full border-border"><SelectValue/></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t('manageTournaments.all')}</SelectItem>
@@ -164,7 +164,7 @@ export default function ManageTournamentsPage(){
             </div>
             <div className="flex flex-col gap-1">
               <Label className="text-xs text-muted-foreground">{t('manageTournaments.filterLocation')}</Label>
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
+              <Select value={locationFilter} onValueChange={(v) => setLocationFilter(v ?? 'all')}>
                 <SelectTrigger className="w-full border-border"><SelectValue/></SelectTrigger>
                 <SelectContent>
                   {locations.map(l=> <SelectItem key={l} value={l}>{l==='all'?t('manageTournaments.allLocations'):l}</SelectItem>)}
@@ -179,7 +179,7 @@ export default function ManageTournamentsPage(){
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {tournaments.map(t=>(
             <Card key={t.id} onClick={()=>handleClick(t)} className="cursor-pointer overflow-hidden p-0">
-              <div className="relative"><img src={t.image} className="h-48 w-full object-cover"/><Badge className={`absolute right-3 top-3 border ${statusColor[t.frontStatus]}`}>{t(`manageTournaments.status.${t.frontStatus}`)}</Badge></div>
+              <div className="relative"><img src={t.image} className="h-48 w-full object-cover"/><Badge className={`absolute right-3 top-3 border ${statusColor[t.frontStatus as FrontStatus]}`}>{t(`manageTournaments.status.${t.frontStatus}`)}</Badge></div>
               <div className="p-4">
                 <h3 className="font-serif text-lg font-bold text-secondary">{t.name}</h3>
                 <div className="text-xs text-muted-foreground flex gap-2"><MapPin size={12}/>{t.location}</div>

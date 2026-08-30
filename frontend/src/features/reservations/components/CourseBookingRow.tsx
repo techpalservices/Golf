@@ -64,7 +64,7 @@ export default function CourseBookingRow({ course, date, openTime, closeTime, cl
     if (clubBlocked || cell.isClosed || cell.booked >= MAX_PLAYERS) return;
     const existing = slotByStart[cell.time];
     onSlotSelect(
-      { ...course, timeSlots: undefined }, // avoid passing slots back (kept in page state)
+      { ...course, timeSlots: [] }, // avoid passing slots back (kept in page state)
       {
         id: existing?.id ?? '',
         startTime: `${date}T${cell.time}:00`,

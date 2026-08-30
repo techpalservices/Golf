@@ -20,7 +20,7 @@ export default function ClubCard({ club }: ClubCardProps) {
       {/* Cover image — short */}
       <div className="relative h-20 w-full overflow-hidden rounded-t-sm">
         <img
-          src={club.coverImage}
+          src={club.coverURL}
           alt={club.name}
           className="h-full w-full object-cover"
         />
@@ -29,7 +29,7 @@ export default function ClubCard({ club }: ClubCardProps) {
       {/* Logo — centered, overlapping cover */}
       <div className="flex justify-center">
         <img
-          src={club.logo}
+          src={club.logoURL}
           alt={club.name}
           className="h-16 w-16 -translate-y-8 rounded-full border-4 border-background object-cover bg-background"
         />
@@ -43,7 +43,7 @@ export default function ClubCard({ club }: ClubCardProps) {
 
         <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
           <MapPin size={12} />
-          <span>{club.location}</span>
+          <span>{club.city}</span>
         </div>
 
         <p className="text-center text-xs text-muted-foreground line-clamp-2">{club.description}</p>

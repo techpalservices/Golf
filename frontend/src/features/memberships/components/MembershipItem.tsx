@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { MapPin, Building2, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import type { Membership, EMStatus } from '../types';
+import type { Membership } from '../types';
 
 interface MembershipItemProps {
   membership: Membership;
@@ -28,7 +28,7 @@ export default function MembershipItem({ membership, onClick }: MembershipItemPr
           <h3 className="font-serif text-lg font-bold text-secondary md:text-xl">
             {membership.title}
           </h3>
-          <Badge className={`w-fit border text-xs ${typeColors[membership.status] || typeColors.MONTHLY}`}>
+          <Badge className={`w-fit border text-xs ${typeColors[membership.status ?? ''] || typeColors.MONTHLY}`}>
             {t(`type.${membership.status}`)}
           </Badge>
         </div>
@@ -57,7 +57,8 @@ export default function MembershipItem({ membership, onClick }: MembershipItemPr
             {membership.price} MAD
           </span>
           <span className="text-xs text-muted-foreground">
-            {membership.status === 'YEARLY' ? t('item.perYear') : t('item.perMonth')}
+            {/* NOTE: no billing-type field in the API yet — always per-month */}
+            {t('item.perMonth')}
           </span>
         </div>
         <ChevronRight size={20} className="text-muted-foreground" />

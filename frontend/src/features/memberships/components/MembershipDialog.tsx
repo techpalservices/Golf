@@ -55,7 +55,7 @@ export default function MembershipDialog({ membership, open, onOpenChange }: Mem
       <div className="flex flex-col gap-1 rounded-lg border border-border p-3">
         <Tag size={16} className="text-primary" />
         <span className="text-xs text-muted-foreground">{t('dialog.type')}</span>
-        <Badge className={`w-fit border text-xs ${typeColors[membership.status] || ''}`}>
+        <Badge className={`w-fit border text-xs ${typeColors[membership.status ?? ''] || ''}`}>
           {t(`type.${membership.status}`)}
         </Badge>
       </div>
@@ -63,7 +63,10 @@ export default function MembershipDialog({ membership, open, onOpenChange }: Mem
         <Calendar size={16} className="text-primary" />
         <span className="text-xs text-muted-foreground">{t('dialog.duration')}</span>
         <span className="text-sm font-semibold text-foreground">
-          {membership.status === 'YEARLY' ? t('item.perYear') : t('item.perMonth')}
+          {/* NOTE: the backend Membership has no billing-type field (MONTHLY/YEARLY);
+              status is EMStatus (ACTIVE/SUSPENDED), so we always render per-month.
+              If a billing type is added to the API, use it here. */}
+          {t('item.perMonth')}
         </span>
       </div>
     </div>
@@ -77,7 +80,7 @@ export default function MembershipDialog({ membership, open, onOpenChange }: Mem
           <h2 className="font-serif text-2xl font-bold text-secondary sm:text-3xl">
             {membership.title}
           </h2>
-          <Badge className={`mt-2 border ${typeColors[membership.status] || ''}`}>
+          <Badge className={`mt-2 border ${typeColors[membership.status ?? ''] || ''}`}>
             {t(`type.${membership.status}`)}
           </Badge>
         </div>
@@ -86,7 +89,8 @@ export default function MembershipDialog({ membership, open, onOpenChange }: Mem
             {membership.price} MAD
           </span>
           <p className="text-xs text-muted-foreground">
-            {membership.status === 'YEARLY' ? t('item.perYear') : t('item.perMonth')}
+            {/* See note above: no billing-type field in the API yet */}
+            {t('item.perMonth')}
           </p>
         </div>
       </div>

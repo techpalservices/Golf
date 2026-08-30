@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import CreateUserDialog from '../components/CreateUserDialog';
-import type {User} from "@/features/user/types.ts";
+import type {User} from "@/types/user.types.ts";
 import {useInfiniteScroll} from "@/hooks/useInfiniteScroll.ts";
 import type {EUStatus, SearchUsers} from "@/api/types.ts";
 import {useSearchDataUsers} from "@/features/admin/hooks/useSearchDataUsers.ts";

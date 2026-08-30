@@ -538,7 +538,7 @@ export default function PlanningPage() {
 
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs font-medium text-secondary">Parcours concerné</Label>
-              <Select value={selectedCourseForSlot} onValueChange={setSelectedCourseForSlot}>
+              <Select value={selectedCourseForSlot} onValueChange={(v) => setSelectedCourseForSlot(v ?? '')}>
                 <SelectTrigger size="sm" className="w-full border-border">
                   <SelectValue placeholder="Sélectionner un parcours">
                     {courseOptions[selectedCourseForSlot] ?? selectedCourseForSlot ?? 'Sélectionner un parcours'}

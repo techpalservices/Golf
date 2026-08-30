@@ -10,7 +10,7 @@
   
 **A comprehensive golf club management platform for clubs, managers, and players**
 
-  [Features](#features)  [Quick Start](#quick-start)  [Documentation](#documentation)  [Tech Stack](#tech-stack)  [Architecture](#architecture)
+  [Quick Start](#quick-start)  [Documentation](#documentation)  [Tech Stack](#tech-stack)  [Architecture](#architecture)
 
 </div>
 
@@ -19,13 +19,11 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
 - [Quick Start](#quick-start)
 - [Documentation](#documentation)
 - [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -33,46 +31,25 @@
 
 ## Overview
 
-**TeeTime** is a modern, full-stack golf club management system that streamlines operations for golf clubs, managers, and players. The platform provides comprehensive features for managing reservations, memberships, tournaments, courses, and more.
-
-### Key Highlights
+**TeeTime** is a modern, full-stack golf club management system that streamlines operations for golf clubs, managers, and players — covering reservations, memberships, tournaments, and multi-club administration.
 
 - **Multi-tenant System**: Support for multiple golf clubs with isolated data
-- **Role-based Access Control**: Three distinct user roles (Admin, Manager, Player) with granular permissions
+- **Role-based Access Control**: Three distinct user roles (Admin, Manager, Player)
 - **Smart Reservation System**: Time slot management with conflict detection and prevention
-- **Membership Management**: Flexible membership plans with automated request handling
-- **Tournament Management**: Complete tournament lifecycle from creation to completion
-- **Real-time Notifications**: WebSocket-based push notifications for instant updates
 - **Secure Authentication**: JWT-based authentication with optional two-factor authentication
-- **Internationalization**: Multi-language support (English, French) with easy extensibility
+- **Real-time Notifications**: WebSocket-based push notifications for instant updates
+
+> 📚 This README is intentionally **high-level** — detailed content lives in the dedicated guides listed in the [Documentation](#documentation) section.
 
 ---
 
-## Features
+## Documentation
 
-### For Golf Club Managers
-- **Dashboard Analytics**: Overview of reservations, members, and revenue
-- **Club Management**: Manage club details, courses, and facilities
-- **Reservation Management**: View and manage all club reservations
-- **Membership Control**: Handle membership requests and subscriptions
-- **Tournament Organization**: Create and manage tournaments
-- **Time Slot Management**: Configure available playing times
-- **Reporting**: Generate reports and insights
-
-### For Players
-- **Club Discovery**: Browse and search available golf clubs
-- **Easy Booking**: Reserve tee times with real-time availability
-- **Membership**: Subscribe to club memberships
-- **Tournaments**: View and register for tournaments
-- **My Reservations**: Track all bookings and history
-- **My Clubs**: View clubs with active memberships
-- **Notifications**: Real-time updates on reservations and tournaments
-
-### For Administrators
-- **Club Management**: Add, edit, and manage golf clubs
-- **User Management**: Manage users and assign roles
-- **System Configuration**: Configure system-wide settings
-- **Analytics**: System-wide statistics and insights
+| Guide | Contents |
+|---|---|
+| 📗 **[Backend Documentation](./backend/README.md)** | Backend architecture, full API endpoints reference, database schema, installation & environment variables |
+| 📘 **[Frontend Documentation](./frontend/README.md)** | Frontend component architecture, feature modules, state management, routing, API integration |
+| 🧪 **[Test Documentation](./TESTING.md)** | Testing strategy, the 34 automated backend test suites, how to run the tests, CI pipeline, bugs found & fixed |
 
 ---
 
@@ -198,115 +175,37 @@ docker-compose up -d
 
 This will start all services (Frontend, Backend, Database) in containers.
 
----
-
-## Documentation
-
-### Detailed Documentation
-
-- **[Backend Documentation](./backend/README.md)** - Complete backend architecture, API endpoints, and database schema
-- **[Frontend Documentation](./frontend/README.md)** - Frontend structure, components, state management, and routing
-
-### Implementation Guides
-
-- **[Player Clubs Implementation](./PLAYER_CLUBS_IMPLEMENTATION_SUMMARY.md)** - Player membership features
-- **[Player Reservations Implementation](./PLAYER_RESERVATIONS_IMPLEMENTATION_SUMMARY.md)** - Reservation system
+> ⚙️ For database setup, `.env` variables and their explanation, see the [Backend Documentation](./backend/README.md) and [Frontend Documentation](./frontend/README.md).
 
 ---
 
 ## Project Structure
 
 ```
-teetime-golf/
- backend/                 # Spring Boot backend application
-    src/
-       main/
-          java/        # Java source code
-             com/golf/golf_project/
-                 auth/        # Authentication
-                 clubs/       # Club management
-                 courses/     # Course management
-                 memberships/ # Membership system
-                 reservations/# Booking system
-                 tournaments/ # Tournament management
-                 users/       # User management
-                 ...
-          resources/   # Configuration files
-       test/            # Unit and integration tests
-    pom.xml              # Maven dependencies
-    README.md            # Backend documentation
+TeeTime/
+ backend/                  # Spring Boot backend (Java 21, Maven)
+    src/main/              # Application code & configuration
+    src/test/              # Unit & integration tests
+    pom.xml                # Maven dependencies
+    README.md              # 📗 Backend documentation
 
- frontend/                # React frontend application
-    src/
-       api/             # API client and endpoints
-       components/      # Reusable UI components
-       features/        # Feature-based modules
-          admin/       # Admin dashboard
-          manager/     # Manager dashboard
-          player/      # Player dashboard
-          auth/        # Authentication
-          clubs/       # Club features
-          memberships/ # Membership features
-          reservations/# Reservation features
-          ...
-       hooks/           # Custom React hooks
-       store/           # State management (Zustand)
-       types/           # TypeScript types
-    package.json         # NPM dependencies
-    README.md            # Frontend documentation
+ frontend/                 # React frontend (TypeScript, Vite)
+    src/                   # Feature-based modules, components, stores
+    package.json           # NPM dependencies
+    README.md              # 📘 Frontend documentation
 
- uploads/                 # File uploads directory
- docker-compose.yml       # Docker composition
- README.md                # This file
+ TESTING.md                # 🧪 Test documentation
+ uploads/                  # File uploads directory (runtime)
+ docker-compose.yml        # Docker composition
+ README.md                 # This file
 ```
 
 ---
 
-## API Documentation
+## API & Environment
 
-The backend exposes RESTful APIs for all operations:
-
-### Base URL
-```
-http://localhost:8081
-```
-
-### Main Endpoints
-
-| Category | Endpoint | Description |
-|----------|----------|-------------|
-| **Auth** | `/auth/*` | Authentication and authorization |
-| **Users** | `/users/*` | User management |
-| **Clubs** | `/clubs/*` | Golf club operations |
-| **Courses** | `/courses/*` | Course management |
-| **Memberships** | `/memberships/*` | Membership subscriptions |
-| **Reservations** | `/reservations/*` | Booking management |
-| **Time Slots** | `/time-slots/*` | Availability management |
-| **Tournaments** | `/tournaments/*` | Tournament operations |
-| **Notifications** | `/notifications/*` | Real-time notifications |
-
-**Full API documentation available in [Backend README](./backend/README.md)**
-
----
-
-## Environment Variables
-
-### Backend (.env)
-```env
-DB_URL=jdbc:postgresql://localhost:5432/golf_db
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
-JWT_SECRET=your_jwt_secret
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=your_email
-MAIL_PASSWORD=your_password
-```
-
-### Frontend (.env)
-```env
-VITE_API_URL=http://localhost:8081
-```
+- 🔌 **API endpoints** (full reference: all categories, base URL, request/response) → [Backend Documentation](./backend/README.md#api-endpoints)
+- 🔐 **Environment variables** (`DB_URL`, `JWT_SECRET`, OAuth2 client IDs, mail, file uploads…) → [Backend Documentation](./backend/README.md)
 
 ---
 
@@ -317,7 +216,7 @@ Contributions are welcome! Please follow these steps:
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+4. Push to the branch (`git push <remote> feature/AmazingFeature`)
 5. Open a Pull Request
 
 ---

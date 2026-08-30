@@ -39,7 +39,7 @@
 - **Secure Authentication**: JWT-based authentication with optional two-factor authentication
 - **Real-time Notifications**: WebSocket-based push notifications for instant updates
 
-> 📚 This README is intentionally **high-level** — detailed content lives in the dedicated guides listed in the [Documentation](#documentation) section.
+> This README is intentionally **high-level** — detailed content lives in the dedicated guides listed in the [Documentation](#documentation) section.
 
 ---
 
@@ -47,9 +47,9 @@
 
 | Guide | Contents |
 |---|---|
-| 📗 **[Backend Documentation](./backend/README.md)** | Backend architecture, full API endpoints reference, database schema, installation & environment variables |
-| 📘 **[Frontend Documentation](./frontend/README.md)** | Frontend component architecture, feature modules, state management, routing, API integration |
-| 🧪 **[Test Documentation](./TESTING.md)** | Testing strategy, the 34 automated backend test suites, how to run the tests, CI pipeline, bugs found & fixed |
+| **[Backend Documentation](./backend/README.md)** | Backend architecture, full API endpoints reference, database schema, installation & environment variables |
+| **[Frontend Documentation](./frontend/README.md)** | Frontend component architecture, feature modules, state management, routing, API integration |
+| **[Test Documentation](./TESTING.md)** | Testing strategy, the 34 automated backend test suites, how to run the tests, CI pipeline, bugs found & fixed |
 
 ---
 
@@ -175,7 +175,7 @@ docker-compose up -d
 
 This will start all services (Frontend, Backend, Database) in containers.
 
-> ⚙️ For database setup, `.env` variables and their explanation, see the [Backend Documentation](./backend/README.md) and [Frontend Documentation](./frontend/README.md).
+> For database setup, `.env` variables and their explanation, see the [Backend Documentation](./backend/README.md) and [Frontend Documentation](./frontend/README.md).
 
 ---
 
@@ -187,14 +187,14 @@ TeeTime/
     src/main/              # Application code & configuration
     src/test/              # Unit & integration tests
     pom.xml                # Maven dependencies
-    README.md              # 📗 Backend documentation
+    README.md              # Backend documentation
 
  frontend/                 # React frontend (TypeScript, Vite)
     src/                   # Feature-based modules, components, stores
     package.json           # NPM dependencies
-    README.md              # 📘 Frontend documentation
+    README.md              # Frontend documentation
 
- TESTING.md                # 🧪 Test documentation
+ TESTING.md                # Test documentation
  uploads/                  # File uploads directory (runtime)
  docker-compose.yml        # Docker composition
  README.md                 # This file
@@ -204,8 +204,8 @@ TeeTime/
 
 ## API & Environment
 
-- 🔌 **API endpoints** (full reference: all categories, base URL, request/response) → [Backend Documentation](./backend/README.md#api-endpoints)
-- 🔐 **Environment variables** (`DB_URL`, `JWT_SECRET`, OAuth2 client IDs, mail, file uploads…) → [Backend Documentation](./backend/README.md)
+- **API endpoints** (full reference: all categories, base URL, request/response) — see the [Backend Documentation](./backend/README.md#api-endpoints)
+- **Environment variables** (`DB_URL`, `JWT_SECRET`, OAuth2 client IDs, mail, file uploads…) — see the [Backend Documentation](./backend/README.md)
 
 ---
 

@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧪 TeeTime — Test Documentation
+# TeeTime — Test Documentation
 
 Complete reference for the testing strategy, automated test suites, and the CI pipeline of the TeeTime project.
 
@@ -26,11 +26,11 @@ The project follows the **test pyramid**:
 
 | Level | Scope | Tools | Status |
 |---|---|---|---|
-| **Unit tests** | One service class in isolation — all collaborators mocked | JUnit 5, Mockito, AssertJ | ✅ 27 tests |
-| **Integration tests** | Real HTTP request through the full Spring Security chain + real persistence | MockMvc, Spring Boot Test, H2 | ✅ 7 tests |
-| **Build gate (frontend)** | TypeScript type-checking + production build on every push | `tsc -b`, Vite | ✅ in CI |
-| **API / manual testing** | Exploratory testing of all endpoints and roles | Postman | ✅ done during development |
-| **E2E tests** | Full user journeys in a real browser | Playwright | 🔲 planned |
+| **Unit tests** | One service class in isolation — all collaborators mocked | JUnit 5, Mockito, AssertJ | 27 tests |
+| **Integration tests** | Real HTTP request through the full Spring Security chain + real persistence | MockMvc, Spring Boot Test, H2 | 7 tests |
+| **Build gate (frontend)** | TypeScript type-checking + production build on every push | `tsc -b`, Vite | In CI |
+| **API / manual testing** | Exploratory testing of all endpoints and roles | Postman | Done during development |
+| **E2E tests** | Full user journeys in a real browser | Playwright | Planned |
 
 **Priorities applied:** the highest-risk business rules were tested first — reservation conflict/capacity logic, JWT authentication, role-based access control, and the membership lifecycle.
 
@@ -177,11 +177,11 @@ Real defects uncovered by the test phase — each one is fixed in the codebase:
 
 ## Known Gaps & Future Work
 
-- 🔲 **Frontend unit tests** — Vitest + React Testing Library; priority targets: the Zustand auth store, Zod form validation, and the status-mapping utilities
-- 🔲 **E2E tests** — Playwright journeys: player login → book a tee time → see it in "My Reservations"
-- 🔲 **Testcontainers** — replace H2 with a real PostgreSQL container to also validate `data.sql` and PostgreSQL-specific behavior
-- 🔲 **Coverage reporting** — JaCoCo plugin for a measurable coverage metric
-- 🔲 **Postman collection** — export the manual API test collection into the repository for reproducibility
+- **Frontend unit tests** — Vitest + React Testing Library; priority targets: the Zustand auth store, Zod form validation, and the status-mapping utilities
+- **E2E tests** — Playwright journeys: player login → book a tee time → see it in "My Reservations"
+- **Testcontainers** — replace H2 with a real PostgreSQL container to also validate `data.sql` and PostgreSQL-specific behavior
+- **Coverage reporting** — JaCoCo plugin for a measurable coverage metric
+- **Postman collection** — export the manual API test collection into the repository for reproducibility
 
 ---
 

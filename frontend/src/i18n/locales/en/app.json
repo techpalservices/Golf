@@ -198,6 +198,7 @@
             "clubSubmitted": "New club submitted",
             "by": "by"
         },
+        "error": "Unable to load dashboard data",
         "clubTable": {
             "title": "Club Performance",
             "club": "Club",

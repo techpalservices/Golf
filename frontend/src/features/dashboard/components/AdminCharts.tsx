@@ -4,52 +4,56 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
+import type { AdminDashboardData, DailyCountPoint } from '../types';
 
 const GOLD = '#C9A84C';
 const GREEN = '#2D6A4F';
 const SAGE = '#6B8E7F';
 
-const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+function monthLabel(ym: string, locale: string) {
+  const [year, month] = ym.split('-').map(Number);
+  return new Date(year, month - 1, 1).toLocaleDateString(locale, { month: 'short' });
+}
 
-const usersGrowth = months.map((m, i) => ({
-  month: m,
-  players: 800 + i * 40 + ((i * 17) % 60),
-  managers: 30 + Math.floor(i * 1.5),
-  influencers: 5 + Math.floor(i * 0.8),
-}));
+function dayLabel(iso: string) {
+  const [, month, day] = iso.split('-');
+  return `${day}/${month}`;
+}
 
-const reservations = Array.from({ length: 30 }, (_, i) => ({
-  date: `${String(i + 1).padStart(2, '0')}/07`,
-  count: 80 + ((i * 23) % 60),
-}));
+// 53 weeks × 7 days heatmap (full year), columns aligned so the last one ends today
+function buildHeatmapWeeks(points: DailyCountPoint[]) {
+  const byDate = new Map(points.map((p) => [p.date, p.count]));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const offsetToMonday = (today.getDay() + 6) % 7; // 0 = Monday
+  const addDays = (d: Date, n: number) => {
+    const copy = new Date(d);
+    copy.setDate(copy.getDate() + n);
+    return copy;
+  };
+  const gridEnd = addDays(today, 6 - offsetToMonday);
+  const start = addDays(gridEnd, -(53 * 7 - 1));
 
-const topClubs = [
-  { name: 'Golf du Palais', count: 380 },
-  { name: 'Royal Golf', count: 320 },
-  { name: 'Michlifen', count: 285 },
-  { name: "Golf d'Anfa", count: 240 },
-  { name: 'Sofitel Golf', count: 210 },
-  { name: 'Palmeraie', count: 185 },
-  { name: 'Ocean Golf', count: 160 },
-  { name: 'Fes Golf', count: 140 },
-  { name: 'Tanger Golf', count: 120 },
-  { name: 'Agadir Golf', count: 95 },
-];
+  const weeks: { value: number; future: boolean }[][] = [];
+  for (let w = 0; w < 53; w++) {
+    const col: { value: number; future: boolean }[] = [];
+    for (let d = 0; d < 7; d++) {
+      const date = addDays(start, w * 7 + d);
+      const iso = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      col.push({ value: byDate.get(iso) ?? 0, future: date > today });
+    }
+    weeks.push(col);
+  }
+  return weeks;
+}
 
-// 53 weeks × 7 days heatmap (full year)
-const heatmapWeeks = Array.from({ length: 53 }, (_, w) =>
-  Array.from({ length: 7 }, (_, d) => ({
-    value: ((w * 7 + d) * 41) % 130,
-  }))
-);
-
-function heatColor(v: number) {
+function heatColor(v: number, max: number) {
   if (v === 0) return 'bg-muted';
-  if (v < 25) return 'bg-primary/20';
-  if (v < 50) return 'bg-primary/40';
-  if (v < 75) return 'bg-primary/70';
-  if (v < 100) return 'bg-primary';
-  return 'bg-secondary';
+  const ratio = max > 0 ? v / max : 0;
+  if (ratio < 0.25) return 'bg-primary/20';
+  if (ratio < 0.5) return 'bg-primary/40';
+  if (ratio < 0.75) return 'bg-primary/70';
+  return 'bg-primary';
 }
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -61,11 +65,28 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-export default function AdminCharts() {
-  const { t } = useTranslation('app');
+export default function AdminCharts({ data }: { data: AdminDashboardData }) {
+  const { t, i18n } = useTranslation('app');
+
+  const usersGrowth = data.usersGrowth.map((p) => ({
+    month: monthLabel(p.month, i18n.language),
+    players: p.players,
+    managers: p.managers,
+    influencers: p.influencers,
+  }));
+
+  const reservations = data.reservationsTrend.map((p) => ({
+    date: dayLabel(p.date),
+    count: p.count,
+  }));
+
+  const topClubs = data.topClubs;
+
+  const heatmapWeeks = buildHeatmapWeeks(data.activityHeatmap);
+  const heatmapMax = Math.max(...data.activityHeatmap.map((p) => p.count), 0);
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-1">
       {/* Area: Users Growth */}
       <ChartCard title={t('dashboard.admin.charts.usersGrowth')}>
         <ResponsiveContainer width="100%" height={200}>
@@ -118,30 +139,20 @@ export default function AdminCharts() {
         </ResponsiveContainer>
       </ChartCard>
 
-      {/* Heatmap: Full year attendance */}
+      {/* Heatmap: daily activity over the full year */}
       <ChartCard title={t('dashboard.admin.charts.attendance')}>
-        <div className="flex gap-0.75 overflow-x-auto pb-1">
-          {heatmapWeeks.map((week, wi) => (
-            <div key={wi} className="flex flex-col gap-0.75">
-              {week.map((cell, di) => (
+        <div className="flex gap-[3px] overflow-x-auto pb-1">
+          {heatmapWeeks.map((week, w) => (
+            <div key={w} className="flex flex-col gap-[3px]">
+              {week.map((day, d) => (
                 <div
-                  key={di}
-                  className={`size-3 rounded-sm ${heatColor(cell.value)}`}
-                  title={`${cell.value} joueurs`}
+                  key={d}
+                  title={day.future ? undefined : String(day.value)}
+                  className={`h-3 w-3 rounded-[2px] ${day.future ? 'bg-transparent' : heatColor(day.value, heatmapMax)}`}
                 />
               ))}
             </div>
           ))}
-        </div>
-        <div className="mt-3 flex items-center justify-end gap-1.5 text-xs text-muted-foreground">
-          <span>−</span>
-          <span className="size-2.5 rounded-sm bg-muted" />
-          <span className="size-2.5 rounded-sm bg-primary/20" />
-          <span className="size-2.5 rounded-sm bg-primary/40" />
-          <span className="size-2.5 rounded-sm bg-primary/70" />
-          <span className="size-2.5 rounded-sm bg-primary" />
-          <span className="size-2.5 rounded-sm bg-secondary" />
-          <span>+</span>
         </div>
       </ChartCard>
     </div>

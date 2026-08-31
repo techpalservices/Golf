@@ -205,6 +205,7 @@
             "clubSubmitted": "Nouveau club soumis",
             "by": "par"
         },
+        "error": "Impossible de charger les données du tableau de bord",
         "clubTable": {
             "title": "Performance des Clubs",
             "club": "Club",

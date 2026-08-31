@@ -22,6 +22,7 @@
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
 - [Quick Start](#quick-start)
+- [How to Use the Application](#how-to-use-the-application)
 - [Documentation](#documentation)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
@@ -179,6 +180,43 @@ This will start all services (Frontend, Backend, Database) in containers.
 
 ---
 
+## How to Use the Application
+
+Once the application is running, you can log in with one of three account types:
+
+### 1. Admin account
+
+The system provides a default admin account out of the box — no setup required. Use these credentials on the login page:
+
+```
+Username: admin@golfclub.com
+Password: Admin52341
+```
+
+> **Note:** These are the default values. You can override them before starting the backend by setting the `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment variables in your `.env` file (the admin account is created automatically on first startup if it does not exist).
+
+### 2. Manager account
+
+Manager accounts are **not** created automatically by the system. You must create them from the admin interface:
+
+1. Log in with the **admin** account.
+2. Go to the **User Management** section.
+3. Create a new manager user, and **don't forget to assign it to a club**:
+   - select an **existing club**, or
+   - **create a new club** if the manager should manage a club that doesn't exist yet.
+4. The manager can then log in with the username and password you set.
+
+### 3. Player account
+
+Anyone can create a player account directly from the application:
+
+1. Click **Create account / Sign up** on the login page and fill in your details — no admin action required.
+2. You can then log in either way:
+   - with your **username and password**, or
+   - with **OAuth** using your **Google** or **Facebook** account.
+
+---
+
 ## Project Structure
 
 ```
@@ -221,20 +259,6 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
 ## Authors
 
-- **Your Team** - Initial work
-
----
-
-## Acknowledgments
-
-- Spring Boot team for the amazing framework
-- React team for the powerful frontend library
-- All contributors who have helped with this project
+- **Aymen IGRI** - Initial work

@@ -99,7 +99,8 @@
       "pendingRequests": "Demandes en attente",
       "totalUsers": "Utilisateurs",
       "totalClubs": "Clubs",
-      "monthlyRevenue": "Revenus mensuels"
+      "monthlyRevenue": "Revenus mensuels",
+      "upcoming": "À venir"
     },
     "player": {
     "nextTeeTime": "Prochain départ",
@@ -108,6 +109,8 @@
     "invitations": "Invitations",
     "nextReservation": "Prochaine réservation",
     "noUpcoming": "Aucune réservation à venir",
+    "noRecent": "Aucune réservation passée",
+    "error": "Impossible de charger les données du tableau de bord",
     "viewAll": "Voir tout",
     "manage": "Gérer",
     "reservation": {

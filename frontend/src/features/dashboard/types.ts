@@ -73,3 +73,51 @@ export interface ManagerDashboardData {
     reservationsByStatus: StatusCountPoint[];
     revenue: DailyRevenuePoint[];
 }
+
+export interface PlayerKpis {
+    /** "HH:mm" of the next reservation, or null when there is none */
+    nextTeeTime: string | null;
+    totalReservations: number;
+    clubsCount: number;
+    upcomingCount: number;
+}
+
+/** The closest upcoming reservation (PENDING or ACCEPTED). date "yyyy-MM-dd", time "HH:mm" */
+export interface NextReservation {
+    reservationId: string;
+    clubName: string;
+    clubLogoURL: string | null;
+    courseName: string;
+    courseImage: string | null;
+    holeCount: number;
+    date: string;
+    time: string;
+    players: number;
+    status: string;
+}
+
+/** Last past reservation, most recent first. date "yyyy-MM-dd", time "HH:mm" */
+export interface RecentReservation {
+    id: string;
+    clubName: string;
+    date: string;
+    time: string;
+    status: string;
+}
+
+/** Clubs where the player holds an ACTIVE membership */
+export interface PlayerClub {
+    clubId: string;
+    clubName: string;
+    clubCity: string;
+    clubLogoURL: string | null;
+    membershipTitle: string;
+}
+
+export interface PlayerDashboardData {
+    kpis: PlayerKpis;
+    /** null when there is no upcoming reservation — hide the section */
+    nextReservation: NextReservation | null;
+    recentReservations: RecentReservation[];
+    myClubs: PlayerClub[];
+}

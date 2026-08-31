@@ -1,6 +1,10 @@
 package com.golf.golf_project.dashboard.repositories;
 
+import com.golf.golf_project.memberships.entities.Membership;
+import com.golf.golf_project.reservations.entities.Reservation;
+import com.golf.golf_project.reservations.enums.ERStatus;
 import com.golf.golf_project.users.entities.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -226,4 +230,68 @@ public interface DashboardRepository extends Repository<User, java.util.UUID> {
             @Param("clubId") java.util.UUID clubId,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
+
+    // ── Player dashboard (scoped to the authenticated player) ────────────
+
+    /** The player's upcoming reservations (PENDING or ACCEPTED), closest tee-time first. */
+    @Query("""
+            SELECT r FROM Reservation r
+            JOIN FETCH r.timeSlot ts
+            JOIN FETCH ts.course c
+            JOIN FETCH c.club club
+            WHERE r.player.username = :username
+              AND r.status IN :statuses
+              AND ts.startTime >= :now
+            ORDER BY ts.startTime ASC
+            """)
+    List<Reservation> findUpcomingReservations(
+            @Param("username") String username,
+            @Param("now") LocalDateTime now,
+            @Param("statuses") List<ERStatus> statuses,
+            Pageable pageable);
+
+    /** The player's past reservations, most recent tee-time first. */
+    @Query("""
+            SELECT r FROM Reservation r
+            JOIN FETCH r.timeSlot ts
+            JOIN FETCH ts.course c
+            JOIN FETCH c.club club
+            WHERE r.player.username = :username
+              AND ts.startTime < :now
+            ORDER BY ts.startTime DESC
+            """)
+    List<Reservation> findPastReservations(
+            @Param("username") String username,
+            @Param("now") LocalDateTime now,
+            Pageable pageable);
+
+    @Query("SELECT COUNT(r) FROM Reservation r WHERE r.player.username = :username")
+    long countReservationsByPlayerUsername(@Param("username") String username);
+
+    @Query("""
+            SELECT COUNT(r) FROM Reservation r
+            WHERE r.player.username = :username
+              AND r.status IN :statuses
+              AND r.timeSlot.startTime >= :now
+            """)
+    long countUpcomingReservations(
+            @Param("username") String username,
+            @Param("now") LocalDateTime now,
+            @Param("statuses") List<ERStatus> statuses);
+
+    @Query("SELECT COUNT(m) FROM Membership m JOIN m.players p " +
+            "WHERE p.username = :username " +
+            "AND m.status = com.golf.golf_project.memberships.enums.EMStatus.ACTIVE")
+    long countPlayerMemberships(@Param("username") String username);
+
+    /** Clubs where the player holds an ACTIVE membership, newest membership first. */
+    @Query("""
+            SELECT m FROM Membership m
+            JOIN FETCH m.club club
+            JOIN m.players p
+            WHERE p.username = :username
+              AND m.status = com.golf.golf_project.memberships.enums.EMStatus.ACTIVE
+            ORDER BY m.createdAt DESC
+            """)
+    List<Membership> findPlayerMembershipClubs(@Param("username") String username, Pageable pageable);
 }

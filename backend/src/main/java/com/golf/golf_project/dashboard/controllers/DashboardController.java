@@ -2,6 +2,7 @@ package com.golf.golf_project.dashboard.controllers;
 
 import com.golf.golf_project.dashboard.services.AdminDashboardService;
 import com.golf.golf_project.dashboard.services.ManagerDashboardService;
+import com.golf.golf_project.dashboard.services.PlayerDashboardService;
 import com.golf.golf_project.exeptions.dto.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ public class DashboardController {
 
     private AdminDashboardService adminDashboardService;
     private ManagerDashboardService managerDashboardService;
+    private PlayerDashboardService playerDashboardService;
 
     /**
      * All admin dashboard analytics in a single request: KPIs, users growth,
@@ -45,6 +47,22 @@ public class DashboardController {
                 ApiResponse.success(
                         managerDashboardService.getManagerDashboard(),
                         "Manager dashboard data retrieved successfully"
+                )
+        );
+    }
+
+    /**
+     * All player dashboard data for the authenticated player in a single
+     * request: KPIs, next reservation (null when none — frontend hides the
+     * section), recent reservations and clubs with an active membership.
+     */
+    @PreAuthorize("hasRole('PLAYER')")
+    @GetMapping("/player")
+    public ResponseEntity<?> getPlayerDashboard() {
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        playerDashboardService.getPlayerDashboard(),
+                        "Player dashboard data retrieved successfully"
                 )
         );
     }

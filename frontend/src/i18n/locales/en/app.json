@@ -92,7 +92,8 @@
       "pendingRequests": "Pending requests",
       "totalUsers": "Total users",
       "totalClubs": "Total clubs",
-      "monthlyRevenue": "Monthly revenue"
+      "monthlyRevenue": "Monthly revenue",
+      "upcoming": "Upcoming"
     },
     "player": {
     "nextTeeTime": "Next tee time",
@@ -101,6 +102,8 @@
     "invitations": "Invitations",
     "nextReservation": "Next reservation",
     "noUpcoming": "No upcoming reservations",
+    "noRecent": "No past reservations yet",
+    "error": "Unable to load dashboard data",
     "viewAll": "View all",
     "manage": "Manage",
     "reservation": {

@@ -126,9 +126,14 @@
             "members": "Membres Actifs",
             "todayRevenue": "Revenu du Jour"
         },
+        "error": "Impossible de charger les données du tableau de bord",
         "charts": {
             "utilization": "Taux d'occupation (30 jours)",
             "byType": "Réservations par Type",
+            "byStatus": "Réservations par Statut",
+            "pending": "En attente",
+            "accepted": "Acceptées",
+            "rejected": "Rejetées",
             "revenue": "Revenu (30 jours)",
             "frequency": "Fréquentation",
             "individual": "Individuel",

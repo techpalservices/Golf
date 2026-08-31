@@ -41,3 +41,35 @@ export interface AdminDashboardData {
     activityHeatmap: DailyCountPoint[];
     topClubs: ClubCountPoint[];
 }
+
+export interface ManagerKpis {
+    todayReservations: number;
+    pendingRequests: number;
+    members: number;
+    todayRevenue: number;
+}
+
+/** date formatted as "YYYY-MM-DD", rate as a 0–100 percentage */
+export interface DailyRatePoint {
+    date: string;
+    rate: number;
+}
+
+/** status: PENDING / ACCEPTED / REJECTED */
+export interface StatusCountPoint {
+    status: string;
+    count: number;
+}
+
+/** date formatted as "YYYY-MM-DD", revenue in MAD (green fees) */
+export interface DailyRevenuePoint {
+    date: string;
+    revenue: number;
+}
+
+export interface ManagerDashboardData {
+    kpis: ManagerKpis;
+    utilization: DailyRatePoint[];
+    reservationsByStatus: StatusCountPoint[];
+    revenue: DailyRevenuePoint[];
+}

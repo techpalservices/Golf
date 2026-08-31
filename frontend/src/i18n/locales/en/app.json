@@ -119,9 +119,14 @@
             "members": "Active Members",
             "todayRevenue": "Today's Revenue"
         },
+        "error": "Unable to load dashboard data",
         "charts": {
             "utilization": "Utilization (30 days)",
             "byType": "Reservations by Type",
+            "byStatus": "Reservations by Status",
+            "pending": "Pending",
+            "accepted": "Accepted",
+            "rejected": "Rejected",
             "revenue": "Revenue (30 days)",
             "frequency": "Frequency",
             "individual": "Individual",

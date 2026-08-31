@@ -139,4 +139,91 @@ public interface DashboardRepository extends Repository<User, java.util.UUID> {
     @Query("SELECT COUNT(mr) FROM MembershipRequest mr " +
             "WHERE mr.status = com.golf.golf_project.memberships.enums.EMRStatus.PENDING")
     long countPendingMembershipRequests();
+
+    // ── Manager dashboard (scoped to the manager's own club) ─────────────
+
+    /** Daily count of bookable time slots for the club — the utilization denominator. */
+    @Query(value = """
+            SELECT to_char(date_trunc('day', ts.start_time), 'YYYY-MM-DD') AS date,
+                   COUNT(ts.time_slot_id) AS count
+            FROM time_slots ts
+            JOIN courses co ON ts.course_id = co.course_id
+            WHERE ts.deleted_at IS NULL AND co.deleted_at IS NULL
+              AND co.club_id = :clubId
+              AND ts.start_time >= :start AND ts.start_time < :end
+            GROUP BY 1
+            ORDER BY 1
+            """, nativeQuery = true)
+    List<DailyCountRow> countTimeSlotsByDayForClub(
+            @Param("clubId") java.util.UUID clubId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
+    /** Daily count of the club's reservations by actual tee-time (any status). */
+    @Query(value = """
+            SELECT to_char(date_trunc('day', ts.start_time), 'YYYY-MM-DD') AS date,
+                   COUNT(r.reservation_id) AS count
+            FROM reservations r
+            JOIN time_slots ts ON r.time_slot_id = ts.time_slot_id
+            JOIN courses co ON ts.course_id = co.course_id
+            WHERE r.deleted_at IS NULL
+              AND co.club_id = :clubId
+              AND ts.start_time >= :start AND ts.start_time < :end
+            GROUP BY 1
+            ORDER BY 1
+            """, nativeQuery = true)
+    List<DailyCountRow> countReservationsByDayForClub(
+            @Param("clubId") java.util.UUID clubId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
+    /** Status distribution of the club's reservations (for the pie chart). */
+    @Query("""
+            SELECT r.status AS status, COUNT(r) AS count
+            FROM Reservation r
+            JOIN r.timeSlot ts
+            JOIN ts.course co
+            WHERE co.club.id = :clubId
+            GROUP BY r.status
+            """)
+    List<StatusCountRow> countReservationsByStatusForClub(@Param("clubId") java.util.UUID clubId);
+
+    /** Reservations of the club with a tee-time in the window (any status). */
+    @Query("""
+            SELECT COUNT(r)
+            FROM Reservation r
+            JOIN r.timeSlot ts
+            JOIN ts.course co
+            WHERE co.club.id = :clubId
+              AND ts.startTime >= :start AND ts.startTime < :end
+            """)
+    long countReservationsForClubInWindow(
+            @Param("clubId") java.util.UUID clubId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
+    /** Players registered with a membership of the club. */
+    @Query("SELECT COUNT(u) FROM User u WHERE u.membership.club.id = :clubId")
+    long countMembersForClub(@Param("clubId") java.util.UUID clubId);
+
+    /**
+     * Revenue rows (tee-time, players, green fee) of the club's ACCEPTED
+     * reservations with a tee-time in the window. Returned as raw rows instead
+     * of SUM-ing in SQL because Course.greenFee is mapped as `Number`
+     * (interface), which Hibernate stores as serialized bytea — it cannot be
+     * multiplied in SQL. Per-day sums are computed in ManagerDashboardService.
+     */
+    @Query("""
+            SELECT ts.startTime, r.numberOfPlayers, co.greenFee
+            FROM Reservation r
+            JOIN r.timeSlot ts
+            JOIN ts.course co
+            WHERE co.club.id = :clubId
+              AND r.status = com.golf.golf_project.reservations.enums.ERStatus.ACCEPTED
+              AND ts.startTime >= :start AND ts.startTime < :end
+            """)
+    List<Object[]> findAcceptedReservationRevenueRowsForClub(
+            @Param("clubId") java.util.UUID clubId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
 }
